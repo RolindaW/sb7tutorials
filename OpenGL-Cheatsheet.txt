@@ -1,0 +1,5 @@
+
+- glClearBufferfv
+
+Description: Clear specified buffer(s) to a specific color.
+Example: glClearBufferfv(GL_COLOR, 0, red);

@@ -1,0 +1,133 @@
+
+- glClearBufferfv
+
+	Description: Clear specified buffer(s) to a specific color.
+	Use: Rendering
+	Example:
+
+		glClearBufferfv(GL_COLOR, 0, red);
+
+- glCreateShader
+
+	Description: Create empty shader object (of specified type: GL_VERTEX_SHADER; GL_FRAGMENT_SHADER; ...), ready to accept source code and be compiled.
+	Use: Startup
+	Example:
+
+		GLuint vertex_shader;
+		vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+
+- glShaderSource
+
+	Description: Hand shader source code to the shader object so that it can keep a copy of it. The shader object stores a copy of our source code.
+	Use: Startup
+	Example:
+
+		static const GLchar* vertex_shader_source[] =
+		{
+			"#version 450 core							\n"
+			"											\n"
+			"void main(void)							\n"
+			"{											\n"
+			"	gl_Position = vec4(0.0, 0.0, 0.5, 1.0); \n"
+			"}											\n"
+		};
+		glShaderSource(vertex_shader, 1, vertex_shader_source, NULL);
+
+- glCompileShader
+
+	Description: Compile whatever source code is contained in the shader object (creates an intermediate binary representation that is also stored in the shader object).
+	Use: Startup
+	Example:
+	
+		glCompileShader(vertex_shader);
+		
+- glDeleteShader
+
+	Description: Delete a shader object. Once a shader has been linked into a program object, the program contains the binary code and the shader is no longer needed.
+	Use: Startup
+	Example:
+	
+		glDeleteShader(vertex_shader);
+
+- glCreateProgram
+
+	Description: Create a program object to which you can attach shader objects.
+	Use: Startup
+	Example:
+	
+		GLuint program;
+		program = glCreateProgram();
+
+- glAttachShader
+
+	Description: Attach a shader object to a program object. Creates a reference to the shader; we can then delete it, knowing that the program object will hold onto the shader’s contents as long as it needs it.
+	Use: Startup
+	Example:
+	
+		glAttachShader(program, vertex_shader);
+
+- glLinkProgram
+
+	Description: Link all of the shader objects attached to a program object together into code that can be run on the graphics processor.
+	Use: Startup
+	Example:
+	
+		glLinkProgram(program);
+		
+- glUseProgram
+
+	Description: Tell OpenGL to use our program object for rendering.
+	Use: Rendering
+	Example:
+	
+		glUseProgram(program);
+
+- glDeleteProgram
+
+	Description: Delete a program object.
+	Use: Shutdown
+	Example:
+	
+		glDeleteProgram(program);
+
+- glCreateVertexArrays
+
+	Description: Create a vertex array object (VAO - an object that represents the vertex fetch stage of the OpenGL pipeline; used to supply input to the vertex shader).
+	Use: Startup
+	Example:
+	
+		GLuint vertex_array_object;
+		glCreateVertexArrays(1, &vertex_array_object);
+
+- glBindVertexArray
+
+	Description: Attach (or bind) a VAO to the OpenGL context.
+	Use: Startup
+	Example:
+	
+		glBindVertexArray(vertex_array_object);
+
+- glDeleteVertexArrays
+
+
+	Description: Delete a VAO.
+	Use: Shutdown
+	Example:
+	
+		glDeleteVertexArrays(1, &vertex_array_object);
+
+- glDrawArrays
+
+	Description: Drawing command (of specified primitive type: GL_POINTS; GL_LINES; GL_TRIANGLES) that send vertices to the OpenGL pipeline.
+	Use: Rendering
+	Example:
+	
+		glDrawArrays(GL_POINTS, 0, 1);
+		
+- glPointSize
+
+	Description: Set the diameter of the point in pixels.
+	Use: Rendering
+	Example:
+	
+		glPointSize(40.0f);

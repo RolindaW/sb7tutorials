@@ -1,6 +1,8 @@
 // Include the "sb7.h" header file
 #include "sb7.h"
 
+
+
 // Derive my_application from sb7::application
 class my_application : public sb7::application
 {

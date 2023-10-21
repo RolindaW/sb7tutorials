@@ -1,0 +1,10 @@
+
+- Core profile vs. Compatibility profile
+
+	OpenGL specification is "forked" into to profiles.
+	Core profile: Modern; Removes a number of legacy features, leaving only those that are truly accelerated by current graphics hardware.
+	Compatibility profile: Maintains backward compatibility with all revisions of OpenGL back to version 1.0.
+
+- Degenerate primitive
+
+	A line with zero length or a triangle with zero area (have to or more vertices in the exact same place). OpenGL discards (degenerate) this type of primitive.

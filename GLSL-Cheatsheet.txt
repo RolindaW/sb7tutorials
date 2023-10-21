@@ -1,0 +1,31 @@
+
+- out
+
+	Description: A keyword to define output variables.
+	Use: All
+	Type: Custom output variable
+	Example:
+	
+		out vec4 color;
+		color = vec4(0.0, 0.8, 1.0, 1.0);
+
+- gl_Position
+
+	Description: Output position of the vertex ("clip space" coordinates).
+	Use: Vertex shader
+	Type: Built-in output variable (mandatory)
+	Example:
+	
+		gl_Position = vec4(0.0, 0.0, 0.5, 1.0);
+		
+- gl_VertexID
+
+	Description: The index of the vertex that is being processed at the time. Starts counting from the value given by the first parameter of glDrawArrays() and counts upward one vertex at a time for count vertices (the third parameter of glDrawArrays()).
+	Use: Vertex shader
+	Type: Built-in input variable
+	Example:
+	
+		const vec4 vertices[3] = vec4[3](vec4( 0.25, -0.25, 0.5, 1.0),
+										 vec4(-0.25, -0.25, 0.5, 1.0),
+										 vec4( 0.25,  0.25, 0.5, 1.0));
+		gl_Position = vertices[gl_VertexID];

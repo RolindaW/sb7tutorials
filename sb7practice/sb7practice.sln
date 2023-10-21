@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch02app01simpleapp2", "ch02
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch02app02usingshaders", "ch02app02usingshaders\ch02app02usingshaders.vcxproj", "{0B938472-FC88-47DE-B9ED-E78A69634FC6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch02app03firsttriangle", "ch02app03firsttriangle\ch02app03firsttriangle.vcxproj", "{AD9A818A-022D-49B6-A86D-36516753CA90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -27,6 +29,10 @@ Global
 		{0B938472-FC88-47DE-B9ED-E78A69634FC6}.Debug|x64.Build.0 = Debug|x64
 		{0B938472-FC88-47DE-B9ED-E78A69634FC6}.Release|x64.ActiveCfg = Release|x64
 		{0B938472-FC88-47DE-B9ED-E78A69634FC6}.Release|x64.Build.0 = Release|x64
+		{AD9A818A-022D-49B6-A86D-36516753CA90}.Debug|x64.ActiveCfg = Debug|x64
+		{AD9A818A-022D-49B6-A86D-36516753CA90}.Debug|x64.Build.0 = Debug|x64
+		{AD9A818A-022D-49B6-A86D-36516753CA90}.Release|x64.ActiveCfg = Release|x64
+		{AD9A818A-022D-49B6-A86D-36516753CA90}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

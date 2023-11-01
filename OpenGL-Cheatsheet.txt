@@ -109,12 +109,23 @@
 
 - glDeleteVertexArrays
 
-
 	Description: Delete a VAO.
 	Use: Shutdown
 	Example:
 	
 		glDeleteVertexArrays(1, &vertex_array_object);
+		
+- glVertexAttrib*
+
+	Description: Fill the value of specified vertex attribute.
+	Use: Rendering
+	Example:
+	
+		GLfloat attrib[] = { (float)sin(currentTime) * 0.5f,
+							 (float)cos(currentTime) * 0.3f,
+							 0.0f, 0.0f };
+		// Update the value of vertex attribute 0
+		glVertexAttrib4fv(0, attrib);
 
 - glDrawArrays
 

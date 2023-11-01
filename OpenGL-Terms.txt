@@ -8,3 +8,23 @@
 - Degenerate primitive
 
 	A line with zero length or a triangle with zero area (have to or more vertices in the exact same place). OpenGL discards (degenerate) this type of primitive.
+	
+- Fixed-function stage (block) vs. Programmable shader stage
+
+	Fixed-function stage: Non-programmable stage of the rendering pipeline. Can be (slightly) customized setting up built-in variables of the pipeline.
+	Programmable shader stage: Programmable stage of the rendering pipeline. Fully customizable.
+	
+- Rendering pipeline stages
+
+	Front-end vs. Back-end
+	
+	Front-end: Vertex fetching/pulling (FF); Vertex shader; Tessellation (Tessellation Control shader + Tessellation Engine (FF) + Tessellation Evaluation shader); Geometry shader.
+	Intermediate stage (FF): Primitive assembly; Clipping; Rasterization; Normalized-device coordinates (NDC) transformation; Screen space transformation.
+	Back-end: Fragment shader; Compute shader; Frame-buffering and testing (FF).
+	
+	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.
+	
+- Vertex attribute
+
+	An input variable to the vertex shader, i.e. input to the OpenGL graphics pipeline.
+	It is how vertex data is introduced into the OpenGL pipeline.

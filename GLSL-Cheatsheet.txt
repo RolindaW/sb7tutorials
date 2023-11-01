@@ -1,13 +1,32 @@
 
+- in
+
+	Description: A storage qualifier (keyword) to define input variables.
+	Use: All
+	Type: Custom input variable
+	Example:
+	
+		layout (location = 0) in vec4 offset;
+		gl_Position = vertices[gl_VertexID] + offset;
+		
 - out
 
-	Description: A keyword to define output variables.
+	Description: A storage qualifier to define output variables.
 	Use: All
 	Type: Custom output variable
 	Example:
 	
 		out vec4 color;
 		color = vec4(0.0, 0.8, 1.0, 1.0);
+		
+- layout
+
+	Description: A layout qualifier (keyword) to affect where the storage for a variable comes from.
+	Use: All
+	Type: Custom input/output variable
+	Example:
+	
+		layout (location = 0) in vec4 offset;
 
 - gl_Position
 

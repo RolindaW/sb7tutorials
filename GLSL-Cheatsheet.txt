@@ -19,6 +19,19 @@
 		out vec4 color;
 		color = vec4(0.0, 0.8, 1.0, 1.0);
 		
+- interface blocks
+
+	Description: Group together a number of input/output variables. Block name (uppercase; match between stages - shaders) vs. instance name (lowercase; reference in shader).
+	Use: All
+	Type: Custom input/output variable
+	Example:
+	
+		out vS_OUT
+		{
+			vec4 color;
+		} vs_out;
+		vs_out.color = vec4(0.0, 0.8, 1.0, 1.0);
+		
 - layout
 
 	Description: A layout qualifier (keyword) to affect where the storage for a variable comes from.

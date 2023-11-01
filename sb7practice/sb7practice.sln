@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch02app03firsttriangle", "c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch03app01vertexattributes", "ch03app01vertexattributes\ch03app01vertexattributes.vcxproj", "{313291E4-DECF-485C-8B85-EAC695789853}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch03app02databetweenstages", "ch03app02databetweenstages\ch03app02databetweenstages.vcxproj", "{33604555-03AB-4E9A-A36C-EA47F0C1D78E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -39,6 +41,10 @@ Global
 		{313291E4-DECF-485C-8B85-EAC695789853}.Debug|x64.Build.0 = Debug|x64
 		{313291E4-DECF-485C-8B85-EAC695789853}.Release|x64.ActiveCfg = Release|x64
 		{313291E4-DECF-485C-8B85-EAC695789853}.Release|x64.Build.0 = Release|x64
+		{33604555-03AB-4E9A-A36C-EA47F0C1D78E}.Debug|x64.ActiveCfg = Debug|x64
+		{33604555-03AB-4E9A-A36C-EA47F0C1D78E}.Debug|x64.Build.0 = Debug|x64
+		{33604555-03AB-4E9A-A36C-EA47F0C1D78E}.Release|x64.ActiveCfg = Release|x64
+		{33604555-03AB-4E9A-A36C-EA47F0C1D78E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

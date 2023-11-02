@@ -23,6 +23,9 @@
 	Back-end: Fragment shader; Compute shader; Frame-buffering and testing (FF).
 	
 	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.
+	Tessellation control shader: Calculate (LOD: Level of Detail) tessellation level (inner and outer) to be input into the tessellation engine and define data to be passed to the tessellation evaluation shader.
+	Tessellation engine: Generate new vertices based on specified tessellation levels.
+	Tessellation evaluation shader: calculate position (and others) for newly generated vertices.
 	
 - Vertex attribute
 

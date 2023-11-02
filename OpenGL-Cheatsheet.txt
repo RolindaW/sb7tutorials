@@ -129,11 +129,19 @@
 
 - glDrawArrays
 
-	Description: Drawing command (of specified primitive type: GL_POINTS; GL_LINES; GL_TRIANGLES) that send vertices to the OpenGL pipeline.
+	Description: Drawing command (of specified primitive type: GL_POINTS; GL_LINES; GL_TRIANGLES; GL_PATCHES) that send vertices to the OpenGL pipeline.
 	Use: Rendering
 	Example:
 	
 		glDrawArrays(GL_POINTS, 0, 1);
+		
+- glPatchParameteri
+
+	Description: Set the value of specified patch parameter, e.g. the number of control points per patch (by default, 3).
+	Use: Rendering
+	Example:
+	
+		glPatchParameteri(GL_PATCH_VERTICES, 4);
 		
 - glPointSize
 
@@ -142,3 +150,11 @@
 	Example:
 	
 		glPointSize(40.0f);
+
+- glPolygonMode
+
+	Description: Determine how to draw (GL_POINT; GL_LINE; GL_FILL) specified polygons (GL_FRONT; GL_BACK; GL_FRONT_AND_BACK).
+	Use: Rendering
+	Example:		
+		
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

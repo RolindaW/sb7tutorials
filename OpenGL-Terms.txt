@@ -19,7 +19,7 @@
 	Front-end vs. Back-end
 	
 	Front-end: Vertex fetching/pulling (FF); Vertex shader; Tessellation (Tessellation Control shader + Tessellation Engine (FF) + Tessellation Evaluation shader); Geometry shader.
-	Intermediate stage (FF): Primitive assembly; Clipping; Rasterization; Normalized-device coordinates (NDC) transformation; Screen space transformation.
+	Vertex post-processing stage (FF): Primitive assembly; Clipping; Rasterization; Normalized-device coordinates (NDC) transformation; Screen space transformation.
 	Back-end: Fragment shader; Compute shader; Frame-buffering and testing (FF).
 	
 	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.

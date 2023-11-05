@@ -31,3 +31,7 @@
 
 	An input variable to the vertex shader, i.e. input to the OpenGL graphics pipeline.
 	It is how vertex data is introduced into the OpenGL pipeline.
+
+- Barycentric Coordinates Interpolation
+
+	Interpolate vertex data across the triangle's surface.

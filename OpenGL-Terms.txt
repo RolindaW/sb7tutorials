@@ -19,7 +19,7 @@
 	Front-end vs. Back-end
 	
 	Front-end: Vertex fetching/pulling (FF); Vertex shader; Tessellation (Tessellation Control shader + Tessellation Engine (FF) + Tessellation Evaluation shader); Geometry shader.
-	Intermediate stage (FF): Primitive assembly; Clipping; Rasterization; Normalized-device coordinates (NDC) transformation; Screen space transformation.
+	Vertex post-processing stage (FF): Primitive assembly; Clipping; Rasterization; Normalized-device coordinates (NDC) transformation; Screen space transformation.
 	Back-end: Fragment shader; Compute shader; Frame-buffering and testing (FF).
 	
 	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.
@@ -31,3 +31,7 @@
 
 	An input variable to the vertex shader, i.e. input to the OpenGL graphics pipeline.
 	It is how vertex data is introduced into the OpenGL pipeline.
+
+- Barycentric Coordinates Interpolation
+
+	Interpolate vertex data across the triangle's surface.

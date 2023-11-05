@@ -33,6 +33,9 @@ public:
 		// Render all polygons in wireframe mode
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+		// Make point size bigger
+		glPointSize(5.0f);
+
 		// Draw one triangle
 		glDrawArrays(GL_PATCHES, 0, 3);
 	}
@@ -57,10 +60,14 @@ private:
 		GLuint vertex_shader;
 		GLuint control_shader;
 		GLuint evaluation_shader;
+		GLuint geometry_shader;
 		GLuint fragment_shader;
 		GLuint program;
 
 		// Source code for vertex shader
+		// - Input: Single vertex (coordinates on local/object space)
+		// - Output: Single vertex (coordinates on clipping space)
+		// - Execution: One per vertex
 		static const GLchar* vertex_shader_source[] =
 		{
 			"#version 450 core														\n"
@@ -84,12 +91,19 @@ private:
 			"	// Add 'offset' to our hard-coded vertex position					\n"
 			"	gl_Position = vertices[gl_VertexID] + offset;						\n"
 			"																		\n"
+			"	const vec4 colors[3] = vec4[3](color,								\n"
+			"								   vec4( 1.0, 0.0, 0.0, 1.0),			\n"
+			"								   vec4( 1.0, 1.0, 0.0, 1.0));			\n"
+			"																		\n"
 			"	// Output a fixed value for 'vs_out.color'							\n"
-			"	vs_out.color = color;												\n"
+			"	vs_out.color = colors[gl_VertexID];									\n"
 			"}																		\n"
 		};
 
 		// Source code for tessellation control shader
+		// - Input: Array of control points (vertices; original control points of the patch)
+		// - Output: Array of control points (input for tessellation evaluation shader)
+		// - Execution: One per control point (vertex) of each patch; all control points of each patch as a batch (iteration index - zero-based - among shader instances)
 		static const GLchar* control_shader_source[] =
 		{
 			"#version 450 core																\n"
@@ -128,6 +142,9 @@ private:
 		};
 
 		// Source code for tessellation evaluation shader
+		// - Input: Array of control points (original control points of the patch) + tessellated vertex data
+		// - Output: Single vertex (must calculate everything manually; input data not interpolated)
+		// - Execution: One per tessellated vertex
 		static const GLchar* evaluation_shader_source[] =
 		{
 			"#version 450 core																\n"
@@ -159,6 +176,43 @@ private:
 			"	es_out.color = (gl_TessCoord.x * es_in[0].color +							\n"
 			"				    gl_TessCoord.y * es_in[1].color +							\n"
 			"				    gl_TessCoord.z * es_in[2].color);							\n"
+			"}																				\n"
+		};
+
+		// Source code for geometry shader
+		// - Input: Array of vertices (all vertices of the primitive)
+		// - Output: Single vertex (multiple times; emit desired geometry)
+		// - Execution: One per primitive
+		static const GLchar* geometry_shader_source[] =
+		{
+			"#version 450 core																\n"
+			"																				\n"
+			"// Expected input and output primitive types									\n"
+			"layout (triangles) in;															\n"
+			"layout (points, max_vertices = 3) out;											\n"
+			"																				\n"
+			"// Declare VS_OUT as an input interface block									\n"
+			"in VS_OUT																		\n"
+			"{																				\n"
+			"	vec4 color;  // Get color from the previous stage							\n"
+			"} gs_in[];																		\n"
+			"																				\n"
+			"// Declare VS_OUT as an output interface block									\n"
+			"out VS_OUT																		\n"
+			"{																				\n"
+			"	vec4 color;  // Send color to the next stage								\n"
+			"} gs_out;																		\n"
+			"																				\n"
+			"void main(void)																\n"
+			"{																				\n"
+			"	int i;																		\n"
+			"																				\n"
+			"	for (i = 0; i < gl_in.length(); i++)										\n"
+			"	{																			\n"
+			"		gl_Position = gl_in[i].gl_Position;										\n"
+			"		gs_out.color = gs_in[i].color;											\n"
+			"		EmitVertex();															\n"
+			"	}																			\n"
 			"}																				\n"
 		};
 
@@ -198,6 +252,11 @@ private:
 		glShaderSource(evaluation_shader, 1, evaluation_shader_source, NULL);
 		glCompileShader(evaluation_shader);
 
+		// Create and compile geometry shader
+		geometry_shader = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geometry_shader, 1, geometry_shader_source, NULL);
+		glCompileShader(geometry_shader);
+
 		// Create and compile fragment shader
 		fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment_shader, 1, fragment_shader_source, NULL);
@@ -208,6 +267,7 @@ private:
 		glAttachShader(program, vertex_shader);
 		glAttachShader(program, control_shader);
 		glAttachShader(program, evaluation_shader);
+		glAttachShader(program, geometry_shader);
 		glAttachShader(program, fragment_shader);
 		glLinkProgram(program);
 
@@ -215,6 +275,7 @@ private:
 		glDeleteShader(vertex_shader);
 		glDeleteShader(control_shader);
 		glDeleteShader(evaluation_shader);
+		glDeleteShader(geometry_shader);
 		glDeleteShader(fragment_shader);
 
 		return program;

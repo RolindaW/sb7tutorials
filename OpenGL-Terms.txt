@@ -20,7 +20,7 @@
 	
 	Front-end (vertex processing): Vertex fetching/pulling (FF); Vertex shader; Tessellation (Tessellation Control shader + Tessellation Engine (FF) + Tessellation Evaluation shader); Geometry shader.
 	Vertex post-processing stage (FF): Primitive assembly; Clipping; Viewport transformation; Culling; Rasterization.
-	Back-end (fragment processing): Fragment shader; Framebuffer operations and testing (FF); Pixel operations; Compute shader.
+	Back-end (fragment processing): Fragment shader; Framebuffer operations (FF); Pixel operations - testing (FF); Compute shader (special; single-stage pipeline).
 	
 	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.
 	Tessellation control shader: Calculate (LOD: Level of Detail) tessellation level (inner and outer) to be input into the tessellation engine and define data to be passed to the tessellation evaluation shader.
@@ -35,9 +35,10 @@
 	Rasterization: Determine which pixels are covered by the primitive (half-space based method for triangles). Fragment (need to be colored) generation.
 	
 	Fragment shader: Determine the color of each fragment.
-	Framebuffer operations: xxx
-	Pixel operations: xxx
-	Compute shader: xxx
+	Framebuffer operations: Represent visible content of the screen and a number of additional regions of memory used to store per-pixel values other than color. Default framebuffer is provided by windowing system. Framebuffer object.
+	Pixel operations - testing: Scissor test, stencil test (any purpose testing), depth test, blending (or logical operation) stage. Each uses its own framebuffer (single or multiple).
+	
+	Compute shader: Can be thought of as a separate pipeline that runs indepdendently of the other graphics-oriented stages. Work item and local workgroups.
 	
 - Vertex attribute
 
@@ -60,3 +61,8 @@
 - Fragment
 
 	An element that may ultimately contribute to the final color of a pixel.
+	
+- OpenGL Extensions
+
+	Enhance OpenGL core functionality.
+	3 major classifications of extensions: vendor, EXT (written together by two or more vendors), and ARB (official part of OpenGL).

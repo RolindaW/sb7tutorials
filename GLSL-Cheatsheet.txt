@@ -114,3 +114,12 @@
 	
 		gl_Position = gl_in[i].gl_Position;
 		EmitVertex();
+		
+- gl_FragCoord
+
+	Description: Position of the fragment within the window.
+	Use: Fragment shader
+	Type: Built-in input variable
+	Example:
+	
+		gl_Position = vec4(0.0, 0.0, 0.5, 1.0);

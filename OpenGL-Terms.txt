@@ -18,14 +18,26 @@
 
 	Front-end vs. Back-end
 	
-	Front-end: Vertex fetching/pulling (FF); Vertex shader; Tessellation (Tessellation Control shader + Tessellation Engine (FF) + Tessellation Evaluation shader); Geometry shader.
-	Vertex post-processing stage (FF): Primitive assembly; Clipping; Rasterization; Normalized-device coordinates (NDC) transformation; Screen space transformation.
-	Back-end: Fragment shader; Compute shader; Frame-buffering and testing (FF).
+	Front-end (vertex processing): Vertex fetching/pulling (FF); Vertex shader; Tessellation (Tessellation Control shader + Tessellation Engine (FF) + Tessellation Evaluation shader); Geometry shader.
+	Vertex post-processing stage (FF): Primitive assembly; Clipping; Viewport transformation; Culling; Rasterization.
+	Back-end (fragment processing): Fragment shader; Framebuffer operations and testing (FF); Pixel operations; Compute shader.
 	
 	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.
 	Tessellation control shader: Calculate (LOD: Level of Detail) tessellation level (inner and outer) to be input into the tessellation engine and define data to be passed to the tessellation evaluation shader.
 	Tessellation engine: Generate new vertices based on specified tessellation levels.
-	Tessellation evaluation shader: calculate position (and others) for newly generated vertices.
+	Tessellation evaluation shader: Calculate position (and others) for newly generated vertices.
+	Geometry shader: Create/Discard geometry.
+	
+	Primitive assembly: Grouping of vertices into points (trivial), lines and triangles, i.e. primitives.
+	Clipping: Determine potentially visible primitives (or which part of them). Occurs in Cartesian space (not in Clipping space; perspective division required). Results in normalized device coordinates (NDC; from -1.0 to 1.0 in x and y dimensions; from 0.0 to 1.0 in z dimension).
+	Viewport transformation: Place geometry in the window (or viewport). Results in window coordinates (from (0, 0) - usually bottom left - to (width - 1, height - 1); Not pixels!!!).
+	Culling: Determine whether the triangle faces toward (front-facing) or away (back-facing) from the viewer and discard desired.
+	Rasterization: Determine which pixels are covered by the primitive (half-space based method for triangles). Fragment (need to be colored) generation.
+	
+	Fragment shader: Determine the color of each fragment.
+	Framebuffer operations: xxx
+	Pixel operations: xxx
+	Compute shader: xxx
 	
 - Vertex attribute
 
@@ -35,3 +47,16 @@
 - Barycentric Coordinates Interpolation
 
 	Interpolate vertex data across the triangle's surface.
+
+- Homogeneous coordinte system
+
+	Used in projective geometry (four-component variables); Here, math is simpler than in regular Cartesian space (three-component variables).
+
+- Perspective division
+
+	Transformation (divide all four components of the position by the last, w component) from homogeneous coordinates (or homogeneous space) to Cartesian coordinates (or Cartesian space).
+	Results in normalized device coordinates (or normalized device space).
+	
+- Fragment
+
+	An element that may ultimately contribute to the final color of a pixel.

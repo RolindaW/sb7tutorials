@@ -158,3 +158,19 @@
 	Example:		
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		
+- glFrontFace (+ glEnable(GL_CULL_FACE))
+
+	Description: Determine winding order (GL_CW; GL_CCW) of the triangle.
+	Use: Rendering (Culling)
+	Example:		
+		
+		glFrontFace(GL_CCW);
+		
+- glCullFace (+ glEnable(GL_CULL_FACE))
+
+	Description: Determine which types of triangles are culled (GL_FRONT; GL_BACK; GL_FRONT_AND_BACK).
+	Use: Rendering (Culling)
+	Example:		
+		
+		glCullFace(GL_BACK);

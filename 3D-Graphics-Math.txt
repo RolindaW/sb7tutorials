@@ -1,0 +1,22 @@
+
+- Vector (or vectors)
+
+	It can represent different type of data: position (space coordinate), direction, force, color, texture coordinate, etc.
+	Properties: module (magnitude, size or length), direction (defined by the line segment) and sense (pointing).
+	Different sizes. Most common in 3D graphics: two-component (or element), e.g. (u, v); three-component, e.g. (x, y, z); four-component, e.g. (r, g, b, a).
+		
+		Important: It is not required to use four-component vectors extensivelly in 3D graphics (e.g. three-component vector is enough to represent surface normal). Four-component vectors are required for most matrix transformations (homogeneous coordinates).
+		
+	Unit vector: module equal to 1. Represent only a direction (not a magnitude). Non-unit vector can be normalized (normalization). Useful to simplify some equations of 3D graphics.
+	Operations:
+		
+		Addition, substraction, unary negation, vector-scalar product, etc.: per-component calculation.
+		Module: square root of the sum of the squares of the components (in 2D is simply Pythagoras’s theorem).
+		Normalization: divide vector by its own module.
+		Dot product (or inner product): returns a scalar: cosine of the angle between two vectors (if unit vectors). Order is not important (commutative).
+		Cross product (or vector product): returns a vector (perpendicular to the plane in which the first two vectors lie). Order is important: resulting vector sense (opposite).
+		Reflection and refraction: during lighting calculation.
+
+- Matrix (or matrices)
+	
+	TODO: Text here...

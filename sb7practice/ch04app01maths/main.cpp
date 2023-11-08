@@ -73,6 +73,15 @@ private:
 		// Refraction
 		float refract_n = 0.0f;
 		//vmath::vec3 r_refract = vmath::refract(r_in, s_norm, refract_n);
+
+		// Most extensively used matrices by size: 2x2, 3x3, 4x4
+		vmath::mat2 m1;
+		vmath::mat3 m2;
+		vmath::mat4 m3;
+
+		// Handmade matrix construction
+		GLfloat matrix[16];  // Nice OpenGL-friendly matrix
+		GLfloat matrix_alt[4][4];  // Not as convenient for OpenGL programmers
 	}
 
 	void custom_math_sample()

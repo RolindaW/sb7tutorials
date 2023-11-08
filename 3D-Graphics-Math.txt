@@ -1,22 +1,110 @@
 
+- Scalar
+
+	Ordinary single number used to represent a magnitude or a specific quantity.
+
 - Vector (or vectors)
 
-	It can represent different type of data: position (space coordinate), direction, force, color, texture coordinate, etc.
+	Mathematical tool used to represent different type of multiple-component data: position (space coordinate), direction, force, color, texture coordinate, etc.
 	Properties: module (magnitude, size or length), direction (defined by the line segment) and sense (pointing).
 	Different sizes. Most common in 3D graphics: two-component (or element), e.g. (u, v); three-component, e.g. (x, y, z); four-component, e.g. (r, g, b, a).
 		
 		Important: It is not required to use four-component vectors extensivelly in 3D graphics (e.g. three-component vector is enough to represent surface normal). Four-component vectors are required for most matrix transformations (homogeneous coordinates).
 		
-	Unit vector: module equal to 1. Represent only a direction (not a magnitude). Non-unit vector can be normalized (normalization). Useful to simplify some equations of 3D graphics.
+	Unit vector: module equal to 1. Represent only a direction (not a magnitude). Non-unit vector can be normalized (normalization) if required (the vector just represents a direction, e.g. normal to a surface). Useful to simplify some equations of 3D graphics.
 	Operations:
 		
-		Addition, substraction, unary negation, vector-scalar product, etc.: per-component calculation.
+		Addition, substraction, vector-scalar product (unary negation, particular case), etc.: per-component calculation.
 		Module: square root of the sum of the squares of the components (in 2D is simply Pythagoras’s theorem).
 		Normalization: divide vector by its own module.
-		Dot product (or inner product): returns a scalar: cosine of the angle between two vectors (if unit vectors). Order is not important (commutative).
-		Cross product (or vector product): returns a vector (perpendicular to the plane in which the first two vectors lie). Order is important: resulting vector sense (opposite).
+		Dot product (or inner product):
+		
+			Returns a scalar: cosine of the angle between two vectors (if unit vectors).
+			Order is not important (commutative).
+			Applications: angle between two vectors, check if an object if facing another one (e.g. player facing a specific light source), projection of one vector onto another one, etc.
+			
+		Cross product (or vector product):
+			
+			Returns a vector (perpendicular to the plane in which the first two vectors lie).
+			Order is important (non-commutative): resulting vector sense (opposite).
+			Applications: Obtain normal to a surface, calculate LookAt matrix, etc.
+			
 		Reflection and refraction: during lighting calculation.
 
 - Matrix (or matrices)
 	
+	Simplifies the process of solving one or more equations with variables that have complex relationships with one another. In 3d graphics widely used for coordinate transformation (locating, rotating, scaling, coordinate space switching, etc.).
+	A set of numbers arranged in uniform rows and columns (in programming terms, a two-dimensional array). Does not have to be square. Can be thought as a table of column (or row) vectors.
+	On most graphics-API, two-dimensional array (row-major order in memory). In OpenGL, a single array of 16 floating-point values (column-major or column-primary layout).
+	Transformation matrix interpretation:
+	
+		First 3 columns: orientation of x, y and z axes in space. Use of directional vectors (fourth-component - homogeneous component w - value equal 0). Can also include scale (uniform or not).
+		Last column: translation (or position).
+		Multiplying all of an object’s vertices by this matrix, transforms the entire object to the given location and orientation in space.
+		
+	Operations:
+	
+		Addition, substraction, matrix-scalar product (unary negation, particular case), etc.: per-component calculation.
+		Multiplication:
+		
+			Multiple transformation matrices can be multiplied each other resulting in a single transformation matrix (associative).
+			Order is important (non-commutative). First applied transformation to a vector is first multipled matrix (column major: apply transformations from right to left).
+			
+- Coordinate spaces
+	
+	Several coordinate spaces: model, world, view, clip, NDC, and screen.
+	
+	Model (object or local) space:
+	
+		Positions relative to a local origin.
+		Origin location must be place somewhere logical: often the point about which you might rotate it to place it into a new orientation.
+		Geometry is stored per each game object.
+	
+	World space:
+	
+		Positions relative to a fixed, global origin.
+		All objects exist in a common frame.
+		Physics (and collisions) and lighting calculations take usually place here.
+		Model-World matrix:
+		
+			Position, orientation and scale of an object placed in the world.
+			Stored per each game object (camera game object also has its own model-world matrix: location and orientation of the camera game object).			
+	
+	View (camera or eye) space:
+		
+		Positions relative to a viewer origin.
+		A virtual fixed coordinate system that is used as a common frame of reference.
+		World-View matrix:
+		
+			Transform (relocate and rotate) positions so the reference system of the main (or active) camera match the reference system of the world (origin position and axes orientation). Positions seen from camera game object point of view.
+			Stored per each camera game object. Required to be updated anytime the location or orientation of the camera is modified. Can be calculated as the inverse of the Model-World matrix of the camera (inverse traslation - match origin - and inverse rotation - match axes).
+			Look at matrix (alternative): Use when camera want to point to specific target (e.g. focus on an enemy in a game). Required to be update anytime the location of the camera or of the target is modified.
+			Camera proyection type does not take part in this transformation.
+			Usually, each game object provides a single Model-View matrix to the shaders so a) improve pipeline efficiency (reduce number of calculations) and b) improve calculation accuracy for game objects close to camera (the origin of the reference system).
+	
+	Clip space:
+		
+		Positions after projection into a non-linear homogeneous coordinate.
+		Projection (or View-Clip) matrix:
+		
+			Transform positions (may also modify homogeneous coordinate fourth-component w) based on camera lens volume design.
+			Orthograpic and perspective most common types. Others: Pannini, Mercator, Fisheye, Miller, Paraboloid / Dual-Paraboloid, Equirectangular, Spherical, Sinusoidal.
+			Camera position and orientation do not take part in this transformation.
+			May be calculated just once, during camera game object initialization (it is not common proyection parameters to be modified during application execution).
+	
+	NDC (normalized device coordinates) space:
+		
+		Positions in canonical space volume.
+		Perspective division transformation.
+		Clipping (discard positions out of fixed planes) occurs in this space.
+		x and y coordinate in range (-1.0, 1.0); z coordinate in range (0.0, 1.0).
+	
+	Screen space:
+		
+		Positions in pixels, relative to the origin of the window (or viewpoint). Relative because many factors to take into account: window size and location, number of monitors, monitor scale and resolution, etc.
+		Viewport transformation.
+		Transform x and y coordinates; keep z (depth) coordinate.
+		
+- Coordinate transformations
+
 	TODO: Text here...

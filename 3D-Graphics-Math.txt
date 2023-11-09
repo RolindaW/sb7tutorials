@@ -78,17 +78,17 @@
 		
 			Transform (relocate and rotate) positions so the reference system of the main (or active) camera match the reference system of the world (origin position and axes orientation). Positions seen from camera game object point of view.
 			Stored per each camera game object. Required to be updated anytime the location or orientation of the camera is modified. Can be calculated as the inverse of the Model-World matrix of the camera (inverse traslation - match origin - and inverse rotation - match axes).
-			Look at matrix (alternative): Use when camera want to point to specific target (e.g. focus on an enemy in a game). Required to be update anytime the location of the camera or of the target is modified.
+			LookAt matrix (alternative): Use when camera want to point to specific target (e.g. focus on an enemy in a game). Required to be update anytime the location of the camera or of the target is modified.
 			Camera proyection type does not take part in this transformation.
-			Usually, each game object provides a single Model-View matrix to the shaders so a) improve pipeline efficiency (reduce number of calculations) and b) improve calculation accuracy for game objects close to camera (the origin of the reference system).
+			Usually, each game object provides a single Model-View (bypass world space) matrix to the shaders so a) improve pipeline efficiency (reduce number of calculations) and b) improve calculation accuracy for game objects close to camera (the origin of the reference system).
 	
 	Clip space:
 		
 		Positions after projection into a non-linear homogeneous coordinate.
 		Projection (or View-Clip) matrix:
 		
-			Transform positions (may also modify homogeneous coordinate fourth-component w) based on camera lens volume design.
-			Orthograpic and perspective most common types. Others: Pannini, Mercator, Fisheye, Miller, Paraboloid / Dual-Paraboloid, Equirectangular, Spherical, Sinusoidal.
+			Transform positions (may also modify homogeneous coordinate fourth-component w) based on camera viewing volume. Define stablish clipping planes: plane equations in 3D space that determine whether geometry can be seen by the viewer.
+			Orthograpic (or parallel) and perspective most common types. Others: Pannini, Mercator, Fisheye, Miller, Paraboloid / Dual-Paraboloid, Equirectangular, Spherical, Sinusoidal.
 			Camera position and orientation do not take part in this transformation.
 			May be calculated just once, during camera game object initialization (it is not common proyection parameters to be modified during application execution).
 	

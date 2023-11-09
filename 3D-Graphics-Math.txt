@@ -105,6 +105,65 @@
 		Viewport transformation.
 		Transform x and y coordinates; keep z (depth) coordinate.
 		
-- Coordinate transformations
+- Coordinate (or modeling) transformations
 
-	TODO: Text here...
+	Identity
+	
+		Multiplying a position by the identity matrix is equivalent to multiplying it by 1; it does nothing to it.
+
+	Translation
+	
+		Move positions along one or more of the three axes: translation vector t = (tx, ty, tz).
+		Inverse matrix is calculated from the opposite (negated) translation vector: -t = (-tx, -ty, -tz).
+	
+	Rotation
+	
+		Rotate an object about one of the axes or, indeed, any arbitrary vector.
+		Different type of rotation techniques: reference frame axis rotation matrices, euler angles and quaternions.
+		
+			Reference frame axis rotation matrices
+			
+				Rotation around x, y or z axes of the reference frame (or system).
+				These three matrices can be merged (multiplied) together to produce a composite transform matrix.
+				Multiple rotation matrices can be merged together to apply multiple rotations to an object. Gimball-lock may occur.
+				Inverse matrix is calculated rotating in oposite sense, e.i. negated angle.
+				Use cases (using axis rotation matrices require rotation vector to be parallel to one of the base rotation axes and passing through the origin of reference system of the world):
+				
+					Rotation around a vector parallel to one of the base rotation axes and passing through the origin of coordinate system.
+					
+						Just apply corresponding rotation matrix.
+						Most basic (and rare) use case.
+					
+					Rotation around a vector parallel to one of the base rotation axes and passing through a point A (i.e. not passing through the origin of coordinate system).
+					
+						Make rotation vector pass through the origin of reference system. Traslate of negated A point: t = (-A).
+						Apply corresponding rotation matrix.
+						Undo traslation: t = (A)
+						
+					Rotation around a vector non-parallel to any of the base rotation axes and passing through the origin of coordinate system.
+					
+						Make rotation vector be parallel to one of the base rotation axes. Rotate (may take multiple - one or two - rotations).
+						Apply corresponding rotation matrix.
+						Undo rotation(s).
+					
+					Rotation around a vector non-parallel to any of the base rotation axes and passing through a point A (i.e. not passing through the origin of coordinate system).
+					
+						Make rotation vector pass through the origin of reference system. Traslate of negated A point: t = (-A).
+						Make rotation vector be parallel to one of the base rotation axes. Rotate (may take multiple - one or two - rotations).
+						Apply corresponding rotation matrix.
+						Undo rotation(s).
+						Undo traslation: t = (A)
+			
+			Euler angles
+			
+				TODO: Text here.
+				Gimball-lock may occur.
+			
+			Quaternions
+			
+				TODO: Text here...
+	
+	Scaling
+	
+		Increase or decrease the dimensions of the object by a specified amount.
+		Stretch and shrink: Scaling can occur non-uniformly, i.e. the various dimensions can be scaled by different amounts.

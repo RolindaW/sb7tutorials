@@ -82,6 +82,26 @@ private:
 		// Handmade matrix construction
 		GLfloat matrix[16];  // Nice OpenGL-friendly matrix
 		GLfloat matrix_alt[4][4];  // Not as convenient for OpenGL programmers
+
+		// Identity matrix
+		GLfloat m1_identity[16] = { 1.0f, 0.0f, 0.0f, 0.0f,		// X Column
+									0.0f, 1.0f, 0.0f, 0.0f,		// Y Column
+									0.0f, 0.0f, 1.0f, 0.0f,		// Z Column
+									0.0f, 0.0f, 0.0f, 1.0f };	// W Column
+
+		vmath::mat4 m2_identity(vmath::vec4(1.0f, 0.0f, 0.0f, 0.0f),	// X Column
+								vmath::vec4(0.0f, 1.0f, 0.0f, 0.0f),	// Y Column
+								vmath::vec4(0.0f, 0.0f, 1.0f, 0.0f),	// Z Column
+								vmath::vec4(0.0f, 0.0f, 0.0f, 1.0f));	// W Column
+
+		vmath::mat2 m3_identity_2x2 = vmath::mat2::identity();
+		vmath::mat3 m3_identity_3x3 = vmath::mat3::identity();
+		vmath::mat4 m3_identity_4x4 = vmath::mat4::identity();
+
+		// Translation matrix
+		vmath::vec3 t(1.0f, -2.5f, 3.0f);
+		vmath::mat4 m1_trans = vmath::translate(t[0], t[1], t[2]);
+		vmath::mat4 m2_trans = vmath::translate(t);
 	}
 
 	void custom_math_sample()

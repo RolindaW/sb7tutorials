@@ -102,6 +102,36 @@ private:
 		vmath::vec3 t(1.0f, -2.5f, 3.0f);
 		vmath::mat4 m1_trans = vmath::translate(t[0], t[1], t[2]);
 		vmath::mat4 m2_trans = vmath::translate(t);
+
+		// Rotation matrix - Rotate around any of the three cardinal axes (x, y or z) of the coordinate system
+		float angle_x = 0.0f;
+		float angle_y = 30.0f;
+		float angle_z = 0.0f;
+		vmath::mat4 m1_rotate = vmath::rotate(angle_x, angle_y, angle_z);
+
+		// Rotation matrix - Rotate around an arbitrary axis (passing through the origin of coordinate system)
+		float angle = 45.0f;
+		vmath::vec3 v_rotate = vmath::vec3(1.0f, 1.0f, 1.0f);
+		vmath::mat4 m2_rotate = vmath::rotate(angle, v_rotate[0], v_rotate[1], v_rotate[2]);
+		vmath::mat4 m2_rotate_alt = vmath::rotate(angle, v_rotate);
+
+		// Rotation matrix - Euler angles
+		float pitch = 0.0f;
+		float yaw = 30.0f;
+		float roll = 0.0f;
+		vmath::mat4 m1_euler = vmath::rotate(pitch, yaw, roll);
+
+		// Rotation matrix - Quaternion
+		vmath::vec4 quaternion = vmath::quaternion(angle, v_rotate[0], v_rotate[1], v_rotate[2]);
+		vmath::vec4 quaternion_alt = vmath::quaternion(angle, v_rotate);
+		vmath::mat4 m1_quaternion = vmath::mat4(quaternion);
+		vmath::mat4 m2_quaternion = vmath::mat4(quaternion_alt);
+
+		// Scaling matrix
+		vmath::vec3 scale(2.5f, 1.0f, 7.0f);
+		vmath::mat4 m1_scale = vmath::scale(scale[0], scale[1], scale[2]);
+		vmath::mat4 m2_scale = vmath::scale(scale);
+		vmath::mat4 m3_scale = vmath::scale(scale[0]);  // Uniform scaling
 	}
 
 	void custom_math_sample()

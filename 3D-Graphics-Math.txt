@@ -119,51 +119,65 @@
 	Rotation
 	
 		Rotate an object about one of the axes or, indeed, any arbitrary vector.
-		Different type of rotation techniques: reference frame axis rotation matrices, euler angles and quaternions.
+		Different type of rotation techniques: coordinate system cardinal axes rotation matrices, euler angles and quaternions.
 		
-			Reference frame axis rotation matrices
+			Coordinate system cardinal axes rotation matrices
 			
 				Rotation around x, y or z axes of the reference frame (or system).
 				These three matrices can be merged (multiplied) together to produce a composite transform matrix.
-				Multiple rotation matrices can be merged together to apply multiple rotations to an object. Gimball-lock may occur.
+				Multiple rotation matrices can be merged together to apply multiple rotations to an object (susceptible to gimbal lock).
 				Inverse matrix is calculated rotating in oposite sense, e.i. negated angle.
-				Use cases (using axis rotation matrices require rotation vector to be parallel to one of the base rotation axes and passing through the origin of reference system of the world):
+				Use cases (using axis rotation matrices require rotation vector to be parallel to one of the coordinate system cardinal axes - for which the rotation will be applied - and passing through the origin of coordinate system of the world):
 				
-					Rotation around a vector parallel to one of the base rotation axes and passing through the origin of coordinate system.
+					Rotation around a vector parallel to one of the coordinate system cardinal axes and passing through the origin of coordinate system.
 					
 						Just apply corresponding rotation matrix.
 						Most basic (and rare) use case.
 					
-					Rotation around a vector parallel to one of the base rotation axes and passing through a point A (i.e. not passing through the origin of coordinate system).
+					Rotation around a vector parallel to one of the coordinate system cardinal axes and passing through a point A different from the origin of coordinate system (i.e. not passing through the origin of coordinate system).
 					
-						Make rotation vector pass through the origin of reference system. Traslate of negated A point: t = (-A).
+						Make rotation vector pass through the origin of coordinate system. Traslate of negated A point: t = (-A).
 						Apply corresponding rotation matrix.
 						Undo traslation: t = (A)
 						
-					Rotation around a vector non-parallel to any of the base rotation axes and passing through the origin of coordinate system.
+					Rotation around a vector non-parallel to any of the coordinate system cardinal axes and passing through the origin of coordinate system.
 					
-						Make rotation vector be parallel to one of the base rotation axes. Rotate (may take multiple - one or two - rotations).
+						Make rotation vector be parallel to one of the coordinate system cardinal axes (may take multiple - one or two - rotations).
 						Apply corresponding rotation matrix.
 						Undo rotation(s).
 					
-					Rotation around a vector non-parallel to any of the base rotation axes and passing through a point A (i.e. not passing through the origin of coordinate system).
+					Rotation around a vector non-parallel to any of the coordinate system cardinal axes and passing through a point A different from the origin of coordinate system.
 					
-						Make rotation vector pass through the origin of reference system. Traslate of negated A point: t = (-A).
-						Make rotation vector be parallel to one of the base rotation axes. Rotate (may take multiple - one or two - rotations).
+						Make rotation vector pass through the origin of coordinate system. Traslate of negated A point: t = (-A).
+						Make rotation vector be parallel to one of the coordinate system cardinal axes (may take multiple - one or two - rotations).
 						Apply corresponding rotation matrix.
 						Undo rotation(s).
 						Undo traslation: t = (A)
 			
 			Euler angles
 			
-				TODO: Text here.
-				Gimball-lock may occur.
+				Set of three angles that represent orientation in space.
+				Each angle represents a rotation around one of three orthogonal vectors that define our frame (e.g. the x, y, and z axes in a three-dimensional frame).
+				Intuitive representation, e.g. hook the angles up to a user interface. Straightforward to interpolate angles (i.e. smooth motion animation).
+				Gimbal lock: a rotation by one angle reorients one of the axes to be aligned with another of the axes, removing a degree of freedom from the system. may occur. Not suitable for concatenating transforms.
 			
 			Quaternions
 			
-				TODO: Text here...
+				A four-dimensional quantity that is similar in some ways to a complex number. It has a real part and three imaginary parts (i, j and k).
+				Operations with quaternions:
+				
+					Addition, substraction, unary negation, module, etc.: same calculation as four-component vector (component-by-component basis).
+					Multiplication (non-commutative).
+					
+				Represents a rotation around any axis.
+				
+					Can be expressed as a real scalar part and a three-component imaginary vector part.
+					Require to be converted to a matrix in order to be used as a transformation resource: real part: angle; imaginary parts (vector): axis.
+					
+				A sequence of rotations can be represented by a series of quaternions multiplied together. Gimbal lock cannot occur.
 	
 	Scaling
 	
 		Increase or decrease the dimensions of the object by a specified amount.
+		Uniform scaling: scale by the same amount in all three dimensions.
 		Stretch and shrink: Scaling can occur non-uniformly, i.e. the various dimensions can be scaled by different amounts.

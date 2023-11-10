@@ -181,3 +181,30 @@
 		Increase or decrease the dimensions of the object by a specified amount.
 		Uniform scaling: scale by the same amount in all three dimensions.
 		Stretch and shrink: Scaling can occur non-uniformly, i.e. the various dimensions can be scaled by different amounts.
+
+Interpolation
+
+	Find values that lie between a set of known points.
+	Types: Linear interpolation; Non-linear interpolation (Bezier curves; Splines; Polinomial interpolation; etc.).
+
+	Linear interpolation
+	
+		Given two points in space A, B: B = A + v (being v vector - module, direction and sense - from A to B: line segment AB).
+		So, any point P falling in that line can be represented as: P = A + t*v (being t scalar). Substituting, P = (1 - t)*A + t*B.
+		Values of t in range (0, 1) results in interpolated points. t = 0 results A. t = 1 results B. beyond this t values, results in extrapolated points.
+		
+		Values of A and B (and therefore P) can have any number of dimensions. Scalar; two-dimensional (2-D texture coordinate: (u, v)); three-dimensional (coordinates in 3-D space or colors); higher-dimension (modeling matrices or images).
+		
+	Bezier curves
+	
+		A curve made up of tree (or more) control points: two of which form endpoints; others, define shape.
+		Cuadratic Bezier curve: 3 control points. Cubic Bezier curve: 4 control points. In practive, curves with more than four control points are not commonly used. Rather, use Splines.
+		
+	Splines
+	
+		A long curve made up of several n smaller curves (e.g. Bezier curves): share endpoints.
+		To interpolate point P along the spline, simply divide it into n regions.
+		
+		Can be used to determine the position or orientation of an object. Must be very careful about our choice of control point locations to keep motion smooth and fluid.	
+		Velocity: rate of change in the value of interpolated point P.
+		Aceleration: rate of change in the value of velocity.

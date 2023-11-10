@@ -123,3 +123,12 @@
 	Example:
 	
 		gl_Position = vec4(0.0, 0.0, 0.5, 1.0);
+
+- mix
+
+	Description: Linear interpolation (taking different dimensionalities of vectors or scalars as the A and B inputs and taking scalars or matching vectors for t).
+	Use: All
+	Type: Function
+	Example:
+
+		mix(A, B, t);

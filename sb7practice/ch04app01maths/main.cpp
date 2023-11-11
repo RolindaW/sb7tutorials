@@ -132,14 +132,15 @@ private:
 		vmath::mat4 m1_lookat = vmath::lookat(eye, target, up);
 
 		// Proyection matrix - Orthograpic
-		float left = 0.0f, right = 0.0f, bottom = 0.0f, top = 0.0f;
-		float n = 0.0f, f = 0.0f;  // Near and far planes.
-		vmath::ortho(left, right, bottom, top, n, f);
+		float left = -10.0f, right = 10.0f, bottom = -4.0f, top = 4.0f;
+		float n = 0.1f, f = 100.0f;  // Near and far planes.
+		vmath::mat4 m1_ortho = vmath::ortho(left, right, bottom, top, n, f);
 
 		// Proyection matrix - Perspective
-		float field_of_view = 0.0f, aspect_ratio = 0.0f;
-		vmath::perspective(field_of_view, aspect_ratio, n, f);
-		vmath::frustum(left, right, bottom, top, n, f);
+		float field_of_view = 45.0f;
+		float aspect_ratio = (float)this->info.windowWidth / (float)this->info.windowHeight;
+		vmath::mat4 m1_pers = vmath::perspective(field_of_view, aspect_ratio, n, f);
+		vmath::mat4 m2_pers = vmath::frustum(left, right, bottom, top, n, f);
 	}
 
 	void custom_math_sample()

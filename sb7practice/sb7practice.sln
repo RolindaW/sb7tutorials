@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch03app06fragmentshader", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch03app06fragmentshader2", "ch03app06fragmentshader2\ch03app06fragmentshader2.vcxproj", "{D7656ABF-E068-45E5-8201-1F85791DA138}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch04app01maths", "ch04app01maths\ch04app01maths.vcxproj", "{0DFA9186-E088-4D58-AA61-FA3EFD248DDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -75,6 +77,10 @@ Global
 		{D7656ABF-E068-45E5-8201-1F85791DA138}.Debug|x64.Build.0 = Debug|x64
 		{D7656ABF-E068-45E5-8201-1F85791DA138}.Release|x64.ActiveCfg = Release|x64
 		{D7656ABF-E068-45E5-8201-1F85791DA138}.Release|x64.Build.0 = Release|x64
+		{0DFA9186-E088-4D58-AA61-FA3EFD248DDF}.Debug|x64.ActiveCfg = Debug|x64
+		{0DFA9186-E088-4D58-AA61-FA3EFD248DDF}.Debug|x64.Build.0 = Debug|x64
+		{0DFA9186-E088-4D58-AA61-FA3EFD248DDF}.Release|x64.ActiveCfg = Release|x64
+		{0DFA9186-E088-4D58-AA61-FA3EFD248DDF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

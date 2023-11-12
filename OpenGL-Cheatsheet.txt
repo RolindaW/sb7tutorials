@@ -1,4 +1,8 @@
 
+*
+* BUFFER *
+*
+
 - glClearBufferfv
 
 	Description: Clear specified buffer(s) to a specific color.
@@ -6,6 +10,51 @@
 	Example:
 
 		glClearBufferfv(GL_COLOR, 0, red);
+
+- glCreateBuffers
+
+	Description: Create specified number of buffer objects (and so corresponding names).
+	Use: Startup
+	Example:
+
+		GLuint buffer;
+		glCreateBuffers(1, &buffer);
+		
+		- other -
+		
+		GLuint buffers[2];
+		glCreateBuffers(2, &buffers[0]);
+		
+- glGenBuffers
+
+	Description: Create specified number of buffer object names (no buffer objects are associated with the returned buffer object names until they are first bound).
+	Use: Startup
+	Example:
+	
+		See "glCreateBuffers".
+
+- glBindBuffer
+
+	Description: Bind a buffer object to a target (GL_ARRAY_BUFFER, GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, etc.) in the current OpenGL context.
+	Use: Startup
+	Example:
+
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		
+- glBufferStorage / glNamedBufferStorage
+
+	Description: Allocate memory (not need to be initialized) for specified buffer object (by target - matches bound buffer object - or by name).
+	Use: Startup
+	Example:
+
+		glNamedBufferStorage(buffer,
+							 1024 * 1024,
+							 NULL,
+							 GL_MAP_WRITE_BIT);
+
+*
+* SHADER *
+*
 
 - glCreateShader
 
@@ -49,6 +98,10 @@
 	
 		glDeleteShader(vertex_shader);
 
+*
+* PROGRAM *
+*
+
 - glCreateProgram
 
 	Description: Create a program object to which you can attach shader objects.
@@ -90,6 +143,10 @@
 	
 		glDeleteProgram(program);
 
+*
+* VERTEX *
+*
+
 - glCreateVertexArrays
 
 	Description: Create a vertex array object (VAO - an object that represents the vertex fetch stage of the OpenGL pipeline; used to supply input to the vertex shader).
@@ -126,6 +183,22 @@
 							 0.0f, 0.0f };
 		// Update the value of vertex attribute 0
 		glVertexAttrib4fv(0, attrib);
+		
+*
+* PATCH
+*
+
+- glPatchParameteri
+
+	Description: Set the value of specified patch parameter, e.g. the number of control points per patch (by default, 3).
+	Use: Rendering
+	Example:
+	
+		glPatchParameteri(GL_PATCH_VERTICES, 4);
+
+*
+* DRAWING
+*
 
 - glDrawArrays
 
@@ -134,15 +207,7 @@
 	Example:
 	
 		glDrawArrays(GL_POINTS, 0, 1);
-		
-- glPatchParameteri
 
-	Description: Set the value of specified patch parameter, e.g. the number of control points per patch (by default, 3).
-	Use: Rendering
-	Example:
-	
-		glPatchParameteri(GL_PATCH_VERTICES, 4);
-		
 - glPointSize
 
 	Description: Set the diameter of the point in pixels.

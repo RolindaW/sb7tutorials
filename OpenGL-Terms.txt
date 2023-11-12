@@ -66,3 +66,14 @@
 
 	Enhance OpenGL core functionality.
 	3 major classifications of extensions: vendor, EXT (written together by two or more vendors), and ARB (official part of OpenGL).
+
+- Buffers
+
+	Linear blocks (memory allocations) of untyped (generic; can be used for a number of purposes - even at same time) data.
+	Buffer object: represent a buffer in OpenGL. Require naming (so it can be identified), memory allocation (so data can be put in and read from) and to be bound to a target (or buffer binding point - so it can be used by OpenGL).
+	
+		Name: identifier for a buffer object. It is possible to generate a buffer name without an associated buffer object, but never the other way around.
+		Data store: (manually) allocated memory for a buffer object. Neither can be resized nor redefined (flags). It can be accessed (write and read) by a) using OpenGL commands (copy existing data) or b) mapping - using also OpenGL commands - the buffer oject (direct access - e.g. load from file).
+	
+	Target: type of use a buffer is intended for. May have multiple binding points.
+	Binding point: access point a buffer is intended to be bound. Only one buffer can be bound at a time. A buffer can be bound to multiple binding points at same time.

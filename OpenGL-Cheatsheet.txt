@@ -27,7 +27,7 @@
 		
 - glGenBuffers
 
-	Description: Create specified number of buffer object names (no buffer objects are associated with the returned buffer object names until they are first bound).
+	Description: Create specified number of buffer object names (no buffer objects are associated with the returned buffer object names until they are first bound - in this situation, error occurs if try to allocate memory).
 	Use: Startup
 	Example:
 	
@@ -43,14 +43,57 @@
 		
 - glBufferStorage / glNamedBufferStorage
 
-	Description: Allocate memory (not need to be initialized) for specified buffer object (by target - matches bound buffer object - or by name).
+	Description: Allocate memory (not need to be initialized) for specified buffer object (by target - matches bound buffer object - or by name). Immutable status (sign a contract with the API that says you will never be allowed to change certain properties of your object).
 	Use: Startup
 	Example:
 
 		glNamedBufferStorage(buffer,
 							 1024 * 1024,
 							 NULL,
-							 GL_MAP_WRITE_BIT);
+							 GL_DYNAMIC_STORAGE_BIT & GL_MAP_WRITE_BIT);
+							 
+- glBufferData / glNamedBufferData
+
+	Description: Orphan the old memory and allocate new storage. Can be called multiple times.
+	Use: Startup
+	Example:
+	
+		glNamedBufferData(buffer,
+						  1024 * 1024,
+						  NULL,
+						  GL_DYNAMIC_STORAGE_BIT & GL_MAP_WRITE_BIT);
+							 
+- glBufferSubData / glNamedBufferSubData
+
+	Description: Copy data into a buffer object.
+	Use: Startup
+	Example:
+
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
+		
+- glMapBuffer / glMapNamedBuffer
+
+	Description: Map (get a pointer to the data store of) a buffer object.
+	Use: Startup
+	Example:
+
+		void* ptr = glMapNamedBuffer(buffer, GL_WRITE_ONLY);
+		
+- glMapBufferRange / glMapNamedBufferRange
+
+	Description: Map only a specific range of the buffer object (grant also additional control). Generally preferred.
+	Use: Startup
+	Example:
+
+		void* ptr = glMapNamedBufferRange(buffer, 0, sizeof(data), GL_MAP_WRITE_BIT);
+		
+- glUnmapBuffer / glUnmapNamedBuffer
+
+	Description: Unmap the buffer object.
+	Use: Startup
+	Example:
+
+		glUnmapNamedBuffer(buffer);
 
 *
 * SHADER *
@@ -239,3 +282,17 @@
 	Example:		
 		
 		glCullFace(GL_BACK);
+		
+*
+* SYSTEM
+*
+
+glGetError returns the value of the error flag
+
+- glGetError
+
+	Description: Returns the value of the error flag.
+	Use: All
+	Example:		
+		
+		GLenum error = glGetError();

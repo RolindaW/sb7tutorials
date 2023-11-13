@@ -18,14 +18,47 @@ public:
 		glNamedBufferStorage(buffer,	// The target the buffer object is bound to
 							 1024 * 1024,	// 1 MiB of space - in bytes
 							 NULL,	// No initial data
-							 GL_MAP_WRITE_BIT);	// Allow map for writting
+							 GL_DYNAMIC_STORAGE_BIT & GL_MAP_WRITE_BIT);	// Allow map for writting
 		/*glBufferStorage(GL_ARRAY_BUFFER,
 						1024 * 1024,
 						NULL,
-						GL_MAP_WRITE_BIT);*/  // Pre-binding required
+						GL_DYNAMIC_STORAGE_BIT & GL_MAP_WRITE_BIT);*/  // Pre-binding required
 
 		// Bind a named buffer object to a target
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);  // Store vertex data
+
+		// This is the data that we will place into the buffer object
+		static const float data[] = {
+			 0.25, -0.25, 0.5, 1.0,
+			-0.25, -0.25, 0.5, 1.0,
+			 0.25,  0.25, 0.5, 1.0
+		};
+		
+		// Put the data into the buffer
+		bool map = false;
+		if (map)
+		{
+			// Copy data
+			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
+			//glNamedBufferSubData(buffer, 0, sizeof(data), data);
+		}
+		else  // Map buffer object and then copy the data there yourself.
+		{
+			// Get a pointer to the buffer's data store
+			void* ptr = glMapNamedBuffer(buffer, GL_WRITE_ONLY);
+			//glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+			// Get a pointer to specific range of the buffer's data store
+			//void* ptr = glMapNamedBufferRange(buffer, 0, sizeof(data), GL_MAP_WRITE_BIT);
+			//void* ptr = glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(data), GL_MAP_WRITE_BIT);
+
+			// Copy data into the data store
+			memcpy(ptr, data, sizeof(data));
+
+			// Unmap the buffer
+			glUnmapNamedBuffer(buffer);
+			//glUnmapBuffer(GL_ARRAY_BUFFER);
+		}
 	}
 };
 

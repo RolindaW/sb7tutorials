@@ -1,4 +1,8 @@
 
+*
+* BUFFER *
+*
+
 - glClearBufferfv
 
 	Description: Clear specified buffer(s) to a specific color.
@@ -6,6 +10,138 @@
 	Example:
 
 		glClearBufferfv(GL_COLOR, 0, red);
+
+- glCreateBuffers
+
+	Description: Create specified number of buffer objects (and so corresponding names).
+	Use: Startup
+	Example:
+
+		GLuint buffer;
+		glCreateBuffers(1, &buffer);
+		
+		- other -
+		
+		GLuint buffers[2];
+		glCreateBuffers(2, &buffers[0]);
+		
+- glGenBuffers
+
+	Description: Create specified number of buffer object names (no buffer objects are associated with the returned buffer object names until they are first bound - in this situation, error occurs if try to allocate memory).
+	Use: Startup
+	Example:
+	
+		See "glCreateBuffers".
+		
+- glIsBuffer
+
+	Description: Determine if a name corresponds to a buffer object.
+	Use: All
+	Example:
+	
+		glIsBuffer(buffer).
+
+- glBindBuffer
+
+	Description: Bind a buffer object to a target (GL_ARRAY_BUFFER, GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, etc.) in the current OpenGL context.
+	Use: Startup
+	Example:
+
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		
+- glBufferStorage / glNamedBufferStorage
+
+	Description: Allocate memory (not need to be initialized) for specified buffer object (by target - matches bound buffer object - or by name). Immutable status (sign a contract with the API that says you will never be allowed to change certain properties of your object).
+	Use: Startup
+	Example:
+
+		glNamedBufferStorage(buffer,
+							 1024 * 1024,
+							 NULL,
+							 GL_DYNAMIC_STORAGE_BIT & GL_MAP_WRITE_BIT);
+							 
+- glBufferData / glNamedBufferData
+
+	Description: Orphan the old memory and allocate new storage. Can be called multiple times.
+	Use: Startup
+	Example:
+	
+		glNamedBufferData(buffer,
+						  1024 * 1024,
+						  NULL,
+						  GL_DYNAMIC_STORAGE_BIT & GL_MAP_WRITE_BIT);
+							 
+- glBufferSubData / glNamedBufferSubData
+
+	Description: Copy data into a buffer object.
+	Use: Startup
+	Example:
+
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
+		
+- glClearBufferData / glClearNamedBufferData
+
+	Description: Fill a buffer object's data store with a fixed value.
+	Use: Startup
+	Example:
+
+		glClearNamedBufferSubData(buffer, 0, sizeof(data), data);
+		
+- glClearBufferSubData / glClearNamedBufferSubData
+
+	Description: Fill all or part of buffer object's data store with a fixed value.
+	Use: Startup
+	Example:
+
+		glClearNamedBufferSubData(buffer, 0, sizeof(data), data);
+		
+- glMapBuffer / glMapNamedBuffer
+
+	Description: Map (get a pointer to the data store of) a buffer object.
+	Use: Startup
+	Example:
+
+		void* ptr = glMapNamedBuffer(buffer, GL_WRITE_ONLY);
+		
+- glMapBufferRange / glMapNamedBufferRange
+
+	Description: Map only a specific range of the buffer object (grant also additional control). Generally preferred.
+	Use: Startup
+	Example:
+
+		void* ptr = glMapNamedBufferRange(buffer, 0, sizeof(data), GL_MAP_WRITE_BIT);
+		
+- glCopyBufferSubData / glCopyNamedBufferSubData
+
+	Description: Copy data between buffers (dedicated GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER targets - use when read and write buffers are bound to same target).
+	Use: Startup
+	Example:
+
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, 1024 * 1024);
+		
+- glUnmapBuffer / glUnmapNamedBuffer
+
+	Description: Unmap the buffer object.
+	Use: Startup
+	Example:
+
+		glUnmapNamedBuffer(buffer);
+		
+- glDeleteBuffers
+
+	Description: Delete specified number of buffer objects.
+	Use: Shutdown
+	Example:
+
+		glDeleteBuffers(1, &buffer);
+		
+		- other -
+		
+		glCreateBuffers(2, &buffers[0]);
+
+*
+* SHADER *
+*
 
 - glCreateShader
 
@@ -49,6 +185,10 @@
 	
 		glDeleteShader(vertex_shader);
 
+*
+* PROGRAM *
+*
+
 - glCreateProgram
 
 	Description: Create a program object to which you can attach shader objects.
@@ -90,6 +230,10 @@
 	
 		glDeleteProgram(program);
 
+*
+* VERTEX *
+*
+
 - glCreateVertexArrays
 
 	Description: Create a vertex array object (VAO - an object that represents the vertex fetch stage of the OpenGL pipeline; used to supply input to the vertex shader).
@@ -126,6 +270,22 @@
 							 0.0f, 0.0f };
 		// Update the value of vertex attribute 0
 		glVertexAttrib4fv(0, attrib);
+		
+*
+* PATCH
+*
+
+- glPatchParameteri
+
+	Description: Set the value of specified patch parameter, e.g. the number of control points per patch (by default, 3).
+	Use: Rendering
+	Example:
+	
+		glPatchParameteri(GL_PATCH_VERTICES, 4);
+
+*
+* DRAWING
+*
 
 - glDrawArrays
 
@@ -134,15 +294,7 @@
 	Example:
 	
 		glDrawArrays(GL_POINTS, 0, 1);
-		
-- glPatchParameteri
 
-	Description: Set the value of specified patch parameter, e.g. the number of control points per patch (by default, 3).
-	Use: Rendering
-	Example:
-	
-		glPatchParameteri(GL_PATCH_VERTICES, 4);
-		
 - glPointSize
 
 	Description: Set the diameter of the point in pixels.
@@ -174,3 +326,17 @@
 	Example:		
 		
 		glCullFace(GL_BACK);
+		
+*
+* SYSTEM
+*
+
+glGetError returns the value of the error flag
+
+- glGetError
+
+	Description: Returns the value of the error flag.
+	Use: All
+	Example:		
+		
+		GLenum error = glGetError();

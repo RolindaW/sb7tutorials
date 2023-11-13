@@ -32,6 +32,14 @@
 	Example:
 	
 		See "glCreateBuffers".
+		
+- glIsBuffer
+
+	Description: Determine if a name corresponds to a buffer object.
+	Use: All
+	Example:
+	
+		glIsBuffer(buffer).
 
 - glBindBuffer
 
@@ -71,6 +79,22 @@
 
 		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(data), data);
 		
+- glClearBufferData / glClearNamedBufferData
+
+	Description: Fill a buffer object's data store with a fixed value.
+	Use: Startup
+	Example:
+
+		glClearNamedBufferSubData(buffer, 0, sizeof(data), data);
+		
+- glClearBufferSubData / glClearNamedBufferSubData
+
+	Description: Fill all or part of buffer object's data store with a fixed value.
+	Use: Startup
+	Example:
+
+		glClearNamedBufferSubData(buffer, 0, sizeof(data), data);
+		
 - glMapBuffer / glMapNamedBuffer
 
 	Description: Map (get a pointer to the data store of) a buffer object.
@@ -87,6 +111,14 @@
 
 		void* ptr = glMapNamedBufferRange(buffer, 0, sizeof(data), GL_MAP_WRITE_BIT);
 		
+- glCopyBufferSubData / glCopyNamedBufferSubData
+
+	Description: Copy data between buffers (dedicated GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER targets - use when read and write buffers are bound to same target).
+	Use: Startup
+	Example:
+
+		glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, 1024 * 1024);
+		
 - glUnmapBuffer / glUnmapNamedBuffer
 
 	Description: Unmap the buffer object.
@@ -94,6 +126,18 @@
 	Example:
 
 		glUnmapNamedBuffer(buffer);
+		
+- glDeleteBuffers
+
+	Description: Delete specified number of buffer objects.
+	Use: Shutdown
+	Example:
+
+		glDeleteBuffers(1, &buffer);
+		
+		- other -
+		
+		glCreateBuffers(2, &buffers[0]);
 
 *
 * SHADER *

@@ -39,11 +39,21 @@
 	Pixel operations - testing: Scissor test, stencil test (any purpose testing), depth test, blending (or logical operation) stage. Each uses its own framebuffer (single or multiple).
 	
 	Compute shader: Can be thought of as a separate pipeline that runs indepdendently of the other graphics-oriented stages. Work item and local workgroups.
-	
+
+- Vertex array object
+
+	Represent the vertex fetch stage of the OpenGL pipeline.
+	Maintains all of the state related to the input to the OpenGL pipeline.
+	Only one active (bound to the OpenGL context) at a time (in practice, usually the one related to the game object being drawn).
+
 - Vertex attribute
 
-	An input variable to the vertex shader, i.e. input to the OpenGL graphics pipeline.
+	An input variable to the vertex shader (i.e. input to the OpenGL graphics pipeline).
 	It is how vertex data is introduced into the OpenGL pipeline.
+	Can be indepdendently set up (i.e. each can be feed - value assignment - different way).
+	
+		Static value: same value for all vertices on drawing command invoke (e.g. color of the material bound to a game object). Set by command.
+		Dynamic value: own value for each vertex on drawing command invoke (e.g. space coordinates - position, surface normal or texture coordinates of a vertex relative to the geometry of a game object). Feed from buffer (require specifying data location and format).
 
 - Barycentric Coordinates Interpolation
 
@@ -73,7 +83,11 @@
 	Buffer object: represent a buffer in OpenGL. Require naming (so it can be identified), memory allocation (so data can be put in and read from) and to be bound to a target (or buffer binding point - so it can be used by OpenGL).
 	
 		Name: identifier for a buffer object. It is possible to generate a buffer name without an associated buffer object, but never the other way around.
-		Data store: (manually) allocated memory for a buffer object. Depending on used allocation command, can become immutable (neither can be resized nor redefined - flags). It can be accessed (write and read) by a) using OpenGL commands (copy existing data) or b) mapping - using also OpenGL commands - the buffer oject (direct access - e.g. load from file).
+		Data store: (manually) allocated memory (server side; in the memory of the graphics card) for a buffer object. Depending on used allocation command, can become immutable (neither can be resized nor redefined - flags). It can be accessed (write and read) by a) using OpenGL commands (copy existing data) or b) mapping - using also OpenGL commands - the buffer oject (direct access - e.g. load from file).
 	
 	Target: type of use a buffer is intended for. May have multiple binding points.
 	Binding point: access point a buffer is intended to be bound. Only one buffer can be bound at a time. A buffer can be bound to multiple binding points at same time.
+
+- Vertex buffer object
+
+	Common buffer object (same as any other buffer object) intended to store vertex data (so its name).

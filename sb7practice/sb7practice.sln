@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch04app01maths", "ch04app01
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app01bufferinitialization", "ch05app01bufferinitialization\ch05app01bufferinitialization.vcxproj", "{B5362BBB-C902-42D9-914D-8A715A1567AE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app02feedvertexshader", "ch05app02feedvertexshader\ch05app02feedvertexshader.vcxproj", "{9CD0C81E-77AB-4D14-9451-145A163E3E9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -87,6 +89,10 @@ Global
 		{B5362BBB-C902-42D9-914D-8A715A1567AE}.Debug|x64.Build.0 = Debug|x64
 		{B5362BBB-C902-42D9-914D-8A715A1567AE}.Release|x64.ActiveCfg = Release|x64
 		{B5362BBB-C902-42D9-914D-8A715A1567AE}.Release|x64.Build.0 = Release|x64
+		{9CD0C81E-77AB-4D14-9451-145A163E3E9B}.Debug|x64.ActiveCfg = Debug|x64
+		{9CD0C81E-77AB-4D14-9451-145A163E3E9B}.Debug|x64.Build.0 = Debug|x64
+		{9CD0C81E-77AB-4D14-9451-145A163E3E9B}.Release|x64.ActiveCfg = Release|x64
+		{9CD0C81E-77AB-4D14-9451-145A163E3E9B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

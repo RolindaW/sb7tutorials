@@ -246,7 +246,7 @@
 - glBindVertexArray
 
 	Description: Attach (or bind) a VAO to the OpenGL context.
-	Use: Startup
+	Use: Rendering
 	Example:
 	
 		glBindVertexArray(vertex_array_object);
@@ -261,7 +261,7 @@
 		
 - glVertexAttrib*
 
-	Description: Fill the value of specified vertex attribute.
+	Description: Fill the (static) value of specified vertex attribute.
 	Use: Rendering
 	Example:
 	
@@ -270,7 +270,51 @@
 							 0.0f, 0.0f };
 		// Update the value of vertex attribute 0
 		glVertexAttrib4fv(0, attrib);
-		
+
+- glVertexArrayAttribBinding
+
+	Description:
+	
+		Set the binding that a vertex attribute uses to reference a buffer (vertex attribute index matches the location modifier used in the shader; binding index represents the relationship of a (vertex) buffer object and a vertex attribute).
+		Tell OpenGL that when specific vertex array object is bound, the vertex attribute at specified index should source its data from specified buffer index.
+
+	Use: Startup
+	Example:
+	
+		glVertexArrayAttribBinding(vao, 0, 0);
+
+- glVertexArrayVertexBuffer
+
+	Description:
+	
+		Bind a (vertex) buffer object to one of the vertex buffer bindings.
+		Tell OpenGL which buffer object our data is in and where in that buffer object the data resides (by vertex - not by vertex attribute; in bytes).
+	
+	Use: Startup
+	Example:
+	
+		glVertexArrayVertexBuffer(vao, 0, buffer, 0, sizeof(float) * 4);
+
+- glVertexArrayAttribFormat
+
+	Description: Describe the layout and format of the data (by vertex attribute).
+	Use: Startup
+	Example:
+	
+		glVertexArrayAttribFormat(vao, 0, 4, GL_FLOAT, GL_FALSE, 0);
+
+- glEnableVertexArrayAttrib / glDisableVertexArrayAttrib
+
+	Description:
+	
+		Enable/Disable automatic filling of a vertex attribute.
+		When the attribute is disabled, the vertex shader will be provided with the static information provided with glVertexAttrib*().
+
+	Use: Startup
+	Example:
+	
+		glEnableVertexArrayAttrib(vao, 0);
+
 *
 * PATCH
 *

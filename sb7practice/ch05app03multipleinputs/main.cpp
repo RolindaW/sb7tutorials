@@ -14,7 +14,8 @@ public:
 		glCreateVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
-		num_buffers = create_buffers(0, vao, buffers);
+		int buffer_mode = 2;
+		num_buffers = create_buffers(buffer_mode, vao, &buffers);
 		if (num_buffers == -1) glfwSetWindowShouldClose(window, 1);
 	}
 
@@ -34,7 +35,7 @@ public:
 	void shutdown()
 	{
 		glDeleteProgram(rendering_program);
-		glDeleteBuffers(num_buffers, buffers);
+		glDeleteBuffers(num_buffers, buffers);  // TODO: Check why pointer is losing memory addres of the buffer object name array
 		glDeleteVertexArrays(1, &vao);
 	}
 
@@ -113,7 +114,7 @@ private:
 	/// <param name="vao">Target vertex array object.</param>
 	/// <param name="buffers">Created buffer object(s) name(s).</param>
 	/// <returns></returns>
-	int create_buffers(int buffer_mode, GLuint vao, GLuint* buffers)
+	int create_buffers(int buffer_mode, GLuint vao, GLuint** buffers)
 	{
 		switch (buffer_mode)
 		{
@@ -132,7 +133,7 @@ private:
 		}
 	}
 
-	int create_single_buffer_separated_attributes(GLuint vao, GLuint* buffers)
+	int create_single_buffer_separated_attributes(GLuint vao, GLuint** buffers)
 	{
 		const int num_buffers = 1;
 
@@ -147,30 +148,86 @@ private:
 			 1.0, 0.8, 0.0
 		};
 
-		GLuint* buffer = NULL;
-		glCreateBuffers(num_buffers, buffer);
+		// Create buffer object
+		GLuint buffer;
+		glCreateBuffers(num_buffers, &buffer);
 
-		GLenum error = glGetError();
+		// Allocate memory and copy data
+		glNamedBufferStorage(buffer, sizeof(positions) + sizeof(colors), NULL, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferSubData(buffer, 0, sizeof(positions), positions);
+		glNamedBufferSubData(buffer, sizeof(positions), sizeof(colors), colors);
 
-		glBindBuffer(GL_ARRAY_BUFFER, *buffers);
+		// Bind as a vertex buffer object
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
+		// Set up vertex attribute "position" (location = 0) and enable automatic load
+		int position_attribute_size = sizeof(float) * 3;
+		glVertexArrayAttribBinding(vao, 0, 0);
+		glVertexArrayVertexBuffer(vao, 0, buffer, 0, position_attribute_size);  // Each vertex "position" attribute data can be found each 3 float values (position; position; ...), starting from the beginning
+		glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+		glEnableVertexArrayAttrib(vao, 0);
 
+		// Set up vertex attribute "color" (location = 1) and enable automatic load
+		int color_attribute_size = sizeof(float) * 3;
+		glVertexArrayAttribBinding(vao, 1, 1);
+		glVertexArrayVertexBuffer(vao, 1, buffer, sizeof(positions), color_attribute_size);  // Each vertex "color" attribute data can be found each 3 float values (color; color; ...), starting after "positions" data
+		glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, 0);
+		glEnableVertexArrayAttrib(vao, 1);
 
+		*buffers = &buffer;  // Save the memory address of the buffer name variable
 		return num_buffers;
 	}
 
-	int create_multiple_buffers_separated_attributes(GLuint vao, GLuint* buffers)
+	int create_multiple_buffers_separated_attributes(GLuint vao, GLuint** buffers)
 	{
 		const int num_buffers = 2;
 
+		static const float positions[] = {
+			 0.25, -0.25, 0.5,
+			-0.25, -0.25, 0.5,
+			 0.25,  0.25, 0.5
+		};
+		static const float colors[] = {
+			 0.0, 0.8, 1.0,
+			 0.8, 0.0, 1.0,
+			 1.0, 0.8, 0.0
+		};
 
+		// Create buffer objects
+		GLuint buffer[num_buffers];
+		glCreateBuffers(num_buffers, &buffer[0]);  // Or just use "glCreateBuffers(num_buffers, buffer);", it is the same
 
+		// Allocate memory and copy data - POSITIONS
+		glNamedBufferStorage(buffer[0], sizeof(positions), positions, 0);
 
+		// Bind as a vertex buffer object - POSITIONS
+		glBindBuffer(GL_ARRAY_BUFFER, buffer[0]);
 
+		// Allocate memory and copy data - COLORS
+		glNamedBufferStorage(buffer[1], sizeof(colors), colors, 0);
+
+		// Bind as a vertex buffer object - COLORS
+		glBindBuffer(GL_ARRAY_BUFFER, buffer[1]);
+
+		// Set up vertex attribute "position" (location = 0) and enable automatic load
+		int position_attribute_size = sizeof(float) * 3;
+		glVertexArrayAttribBinding(vao, 0, 0);
+		glVertexArrayVertexBuffer(vao, 0, buffer[0], 0, position_attribute_size);  // Each vertex "position" attribute data can be found each 3 float values (position; position; ...), starting from the beginning
+		glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+		glEnableVertexArrayAttrib(vao, 0);
+
+		// Set up vertex attribute "color" (location = 1) and enable automatic load
+		int color_attribute_size = sizeof(float) * 3;
+		glVertexArrayAttribBinding(vao, 1, 1);
+		glVertexArrayVertexBuffer(vao, 1, buffer[1], 0, color_attribute_size);  // Each vertex "color" attribute data can be found each 3 float values (color; color; ...), starting from the beginning
+		glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, 0);
+		glEnableVertexArrayAttrib(vao, 1);
+
+		*buffers = &buffer[0];  // Save the memory address of the buffer name array
 		return num_buffers;
 	}
 
-	int create_single_buffer_interleaved_attributes(GLuint vao, GLuint* buffers)
+	int create_single_buffer_interleaved_attributes(GLuint vao, GLuint** buffers)
 	{
 		const int num_buffers = 1;
 
@@ -180,9 +237,30 @@ private:
 			 0.25,  0.25, 0.5, 1.0, 0.8, 0.0
 		};
 
+		// Create buffer object
+		GLuint buffer;
+		glCreateBuffers(num_buffers, &buffer);
 
+		// Allocate memory and copy data
+		glNamedBufferStorage(buffer, sizeof(data), data, 0);
 
+		// Bind as a vertex buffer object
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
+		// Set up vertex attribute "position" (location = 0) and enable automatic load
+		int vertex_size = sizeof(float) * 3 + sizeof(float) * 3;
+		glVertexArrayAttribBinding(vao, 0, 0);
+		glVertexArrayVertexBuffer(vao, 0, buffer, 0, vertex_size);
+		glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, GL_FALSE, 0);
+		glEnableVertexArrayAttrib(vao, 0);
+
+		// Set up vertex attribute "color" (location = 1) and enable automatic load
+		glVertexArrayAttribBinding(vao, 1, 1);
+		glVertexArrayVertexBuffer(vao, 1, buffer, 0, vertex_size);
+		glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3);  // Vertex attribute "color" can be found after vertex attribute "position" (3 float values)
+		glEnableVertexArrayAttrib(vao, 1);
+
+		*buffers = &buffer;  // Save the memory address of the buffer name variable
 		return num_buffers;
 	}
 

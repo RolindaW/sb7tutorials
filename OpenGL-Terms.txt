@@ -43,17 +43,23 @@
 - Vertex array object
 
 	Represent the vertex fetch stage of the OpenGL pipeline.
-	Maintains all of the state related to the input to the OpenGL pipeline.
+	Maintains all of the state related to the input to the OpenGL pipeline: vertex attributes static values, (vertex) buffer bindings, etc.
 	Only one active (bound to the OpenGL context) at a time (in practice, usually the one related to the game object being drawn).
 
 - Vertex attribute
 
 	An input variable to the vertex shader (i.e. input to the OpenGL graphics pipeline).
 	It is how vertex data is introduced into the OpenGL pipeline.
+	If you don’t specify locations in shader code, OpenGL will assign locations for you (it is possible to get these indices later).
 	Can be indepdendently set up (i.e. each can be feed - value assignment - different way).
 	
 		Static value: same value for all vertices on drawing command invoke (e.g. color of the material bound to a game object). Set by command.
 		Dynamic value: own value for each vertex on drawing command invoke (e.g. space coordinates - position, surface normal or texture coordinates of a vertex relative to the geometry of a game object). Feed from buffer (require specifying data location and format).
+	
+	Depending on how data for dynamic values is stored,
+	
+		Separate attributes: Located either in different buffers or at least at different locations (offsets) in the same buffer. Structure-of-arrays (SoA) data (a set of tightly packed, independent arrays of data).
+		Interleaved attributes: Located in the same buffer. Array-of-structures (AoS) form of data.
 
 - Barycentric Coordinates Interpolation
 

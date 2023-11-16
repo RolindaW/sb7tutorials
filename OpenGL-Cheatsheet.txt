@@ -315,6 +315,15 @@
 	
 		glEnableVertexArrayAttrib(vao, 0);
 
+- glGetAttribLocation
+
+	Description: Determine the location of a vertex shader input (by name). Passing something that is not the name of a vertex shader input will return -1.
+	Use: Startup
+	Example:
+
+		GLint attrib_index;
+		attrib_index = glGetAttribLocation(rendering_program, "position");
+
 *
 * PATCH
 *

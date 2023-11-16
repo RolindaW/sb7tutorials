@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app01bufferinitializati
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app02feedvertexshader", "ch05app02feedvertexshader\ch05app02feedvertexshader.vcxproj", "{9CD0C81E-77AB-4D14-9451-145A163E3E9B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app03multipleinputs", "ch05app03multipleinputs\ch05app03multipleinputs.vcxproj", "{014FEEB1-D4DF-40F5-A20A-9521096931C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -93,6 +95,10 @@ Global
 		{9CD0C81E-77AB-4D14-9451-145A163E3E9B}.Debug|x64.Build.0 = Debug|x64
 		{9CD0C81E-77AB-4D14-9451-145A163E3E9B}.Release|x64.ActiveCfg = Release|x64
 		{9CD0C81E-77AB-4D14-9451-145A163E3E9B}.Release|x64.Build.0 = Release|x64
+		{014FEEB1-D4DF-40F5-A20A-9521096931C2}.Debug|x64.ActiveCfg = Debug|x64
+		{014FEEB1-D4DF-40F5-A20A-9521096931C2}.Debug|x64.Build.0 = Debug|x64
+		{014FEEB1-D4DF-40F5-A20A-9521096931C2}.Release|x64.ActiveCfg = Release|x64
+		{014FEEB1-D4DF-40F5-A20A-9521096931C2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

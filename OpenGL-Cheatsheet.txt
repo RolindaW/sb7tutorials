@@ -231,6 +231,37 @@
 		glDeleteProgram(program);
 
 *
+* UNIFORM *
+*
+
+- glGetUniformLocation
+
+	Description: Determine the location of a uniform (by name). Passing something that is not the name of a uniform will return -1.
+	Use: Rendering
+	Example:
+
+		GLint uniform_location;
+		uniform_location = glGetUniformLocation(rendering_program, "mvpMatrix");
+		
+- glProgramUniform* / glProgramUniformMatrix*
+
+	Description: Fill the value of specified uniform from specified program.
+	Use: Rendering
+	Example:
+	
+		const GLfloat material_color[3] = { 1.0f, 0.0f, 0.5f };
+		glProgramUniform3fv(rendering_program, uniform_location, 1, material_color);
+
+- glUniform* / glUniformMatrix*
+
+	Description: Fill the value of specified uniform from bound program.
+	Use: Rendering
+	Example:
+	
+		const GLfloat material_color[3] = { 1.0f, 0.0f, 0.5f };
+		glUniform3fv(uniform_location, 1, material_color);
+
+*
 * VERTEX *
 *
 

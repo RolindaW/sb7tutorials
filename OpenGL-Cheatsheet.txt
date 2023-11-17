@@ -44,10 +44,18 @@
 - glBindBuffer
 
 	Description: Bind a buffer object to a target (GL_ARRAY_BUFFER, GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, etc.) in the current OpenGL context.
-	Use: Startup
+	Use: Rendering
 	Example:
 
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		
+- glBindBufferBase
+
+	Description: Bind a buffer object to an indexed buffer target (GL_UNIFORM_BUFFER, GL_ATOMIC_COUNTER_BUFFER, etc.).
+	Use: Rendering
+	Example:
+
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, buffer);
 		
 - glBufferStorage / glNamedBufferStorage
 
@@ -260,6 +268,22 @@
 	
 		const GLfloat material_color[3] = { 1.0f, 0.0f, 0.5f };
 		glUniform3fv(uniform_location, 1, material_color);
+		
+- glGetUniformBlockIndex
+
+	Description: Find the index of a uniform block in a program.
+	Use: Rendering
+	Example:
+	
+		GLuint uniform_index = glGetUniformBlockIndex(program, "StdLayoutMaterialUniformBlock");
+
+- glUniformBlockBinding
+
+	Description: Assign a binding point to a uniform block.
+	Use: Rendering
+	Example:
+
+		glUniformBlockBinding(program, uniform_index, 0);
 
 *
 * VERTEX *

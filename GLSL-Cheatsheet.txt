@@ -41,6 +41,19 @@
 		} vs_out;
 		vs_out.color = vec4(0.0, 0.8, 1.0, 1.0);
 		
+- uniform blocks
+
+	Description: Use case of interface blocks. It is possibly specifying a layout qualifier (packed, shared - default, std140, etc.) for the memory layout.
+	Use: All
+	Type: Custom constant input variable
+	Example:
+	
+		layout (std140) uniform StdLayoutMaterialUniformBlock
+		{
+			vec3 color;
+		} material;
+		vec3 mixed_color = mix(color, material.color, 0.4);
+		
 - layout
 
 	Description: A layout qualifier (keyword) to affect where the storage for a variable comes from.

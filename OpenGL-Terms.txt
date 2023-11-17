@@ -63,14 +63,24 @@
 		
 - Uniforms
 
-	Data that stays tha same for an entire primitive batch (e.g. transformation matrix of the geometry attached to a single game object) or longer.
+	Data that stays tha same for an entire primitive batch (e.g. transformation matrix of the geometry attached to a single game object) or longer (e.g. light sources of an entire scene).
 	Pass data (not really a form of storage) directly from your application into any shader stage.
-	If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later). All non-array/struct types will be assigned a single location.
 	Depending on usage in a program: active uniforms (affects the stage output; exposed by a fully linked program) vs. inactive uniforms (the compiler discards unused declared uniforms out).
 	Depending on how they are declared: default block uniforms vs. uniform blocks.
 	
-	Default block uniforms (or non-buffered uniforms): uniforms declared in the default block (using GLSL uniform keyword).
+	Default block uniforms (or non-buffered uniforms): uniforms declared in the default block - at the global scope in a shader (using GLSL uniform keyword).
+	
+		If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later). All non-array/struct types will be assigned a single location
+	
 	(Named) Uniform blocks (or buffered uniforms): uniforms declared in a named block (using GLSL interface blocks) whose values are stored in buffer objects.
+	
+		Efficient usage: single call to command to bind a uniform buffer object to a program (set values of all related uniform) - vs. multiple calls to command to set the value of all required uniforms from default block.
+		Easy to reuse: use same uniform values on different programs.
+		Easy to update (depending of represented data a uniform may be updated more or less frequently): update the value once in a unique buffer with a single call to command.
+		Depending on memory layout (how data is stored in the buffer): standard layout vs. shared layout
+		
+		Standard layout: assume (following a set of rules) specific locations (offset; can be directly specified in shader code) for members within the block. May leave some empty space between the various members of the block (making the buffer larger than it needs to be - performance loss).
+		Shared layout (by default): let OpenGL decide where it would like the data (application needs to figure out - query - where to put the data so that OpenGL can read it; requires more work from the application) - most efficient.
 
 - Barycentric Coordinates Interpolation
 

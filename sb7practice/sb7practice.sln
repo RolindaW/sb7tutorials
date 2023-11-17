@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app04defaultblockunifor
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app05uniformblocks", "ch05app05uniformblocks\ch05app05uniformblocks.vcxproj", "{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app05uniformblocks2", "ch05app05uniformblocks2\ch05app05uniformblocks2.vcxproj", "{71EC17D2-0414-4CFB-8087-98B6A066F558}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -111,6 +113,10 @@ Global
 		{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}.Debug|x64.Build.0 = Debug|x64
 		{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}.Release|x64.ActiveCfg = Release|x64
 		{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}.Release|x64.Build.0 = Release|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Debug|x64.ActiveCfg = Debug|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Debug|x64.Build.0 = Debug|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Release|x64.ActiveCfg = Release|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

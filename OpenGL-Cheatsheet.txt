@@ -245,7 +245,7 @@
 - glGetUniformLocation
 
 	Description: Determine the location of a uniform (by name). Passing something that is not the name of a uniform will return -1.
-	Use: Rendering
+	Use: Startup / Rendering
 	Example:
 
 		GLint uniform_location;
@@ -254,7 +254,7 @@
 - glProgramUniform* / glProgramUniformMatrix*
 
 	Description: Fill the value of specified uniform from specified program.
-	Use: Rendering
+	Use: Startup / Rendering
 	Example:
 	
 		const GLfloat material_color[3] = { 1.0f, 0.0f, 0.5f };
@@ -263,16 +263,32 @@
 - glUniform* / glUniformMatrix*
 
 	Description: Fill the value of specified uniform from bound program.
-	Use: Rendering
+	Use: Startup / Rendering
 	Example:
 	
 		const GLfloat material_color[3] = { 1.0f, 0.0f, 0.5f };
 		glUniform3fv(uniform_location, 1, material_color);
-		
+
+- glGetUniformIndices
+
+	Description: Get the indices of a large set of uniform block members.
+	Use: Startup / Rendering
+	Example:
+	
+		glGetUniformIndices(program, 2, uniform_names, uniform_indices);
+
+- glGetActiveUniformsiv
+
+	Description: Get information (GL_UNIFORM_OFFSET, GL_UNIFORM_ARRAY_STRIDE, GL_UNIFORM_MATRIX_STRIDE, etc.) about specific uniform block members.
+	Use: Startup / Rendering
+	Example:
+	
+		glGetActiveUniformsiv(program, 2, uniform_indices, GL_UNIFORM_OFFSET, uniform_offsets);
+
 - glGetUniformBlockIndex
 
 	Description: Find the index of a uniform block in a program.
-	Use: Rendering
+	Use: Startup / Rendering
 	Example:
 	
 		GLuint uniform_index = glGetUniformBlockIndex(program, "StdLayoutMaterialUniformBlock");
@@ -280,7 +296,7 @@
 - glUniformBlockBinding
 
 	Description: Assign a binding point to a uniform block.
-	Use: Rendering
+	Use: Startup / Rendering
 	Example:
 
 		glUniformBlockBinding(program, uniform_index, 0);

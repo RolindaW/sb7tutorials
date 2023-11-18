@@ -33,6 +33,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app02feedvertexshader",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app03multipleinputs", "ch05app03multipleinputs\ch05app03multipleinputs.vcxproj", "{014FEEB1-D4DF-40F5-A20A-9521096931C2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app04defaultblockuniforms", "ch05app04defaultblockuniforms\ch05app04defaultblockuniforms.vcxproj", "{FF6F1371-F0A3-40A4-A010-BEA921E8D74A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app05uniformblocks", "ch05app05uniformblocks\ch05app05uniformblocks.vcxproj", "{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app05uniformblocks2", "ch05app05uniformblocks2\ch05app05uniformblocks2.vcxproj", "{71EC17D2-0414-4CFB-8087-98B6A066F558}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app06transformgeometry", "ch05app06transformgeometry\ch05app06transformgeometry.vcxproj", "{07F03019-E42D-4C26-9F1E-C3C9478D08B5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app06transformgeometry2", "ch05app06transformgeometry2\ch05app06transformgeometry2.vcxproj", "{DB66F5D3-BD7E-44DB-AF3C-1E42A60A19D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -99,6 +109,26 @@ Global
 		{014FEEB1-D4DF-40F5-A20A-9521096931C2}.Debug|x64.Build.0 = Debug|x64
 		{014FEEB1-D4DF-40F5-A20A-9521096931C2}.Release|x64.ActiveCfg = Release|x64
 		{014FEEB1-D4DF-40F5-A20A-9521096931C2}.Release|x64.Build.0 = Release|x64
+		{FF6F1371-F0A3-40A4-A010-BEA921E8D74A}.Debug|x64.ActiveCfg = Debug|x64
+		{FF6F1371-F0A3-40A4-A010-BEA921E8D74A}.Debug|x64.Build.0 = Debug|x64
+		{FF6F1371-F0A3-40A4-A010-BEA921E8D74A}.Release|x64.ActiveCfg = Release|x64
+		{FF6F1371-F0A3-40A4-A010-BEA921E8D74A}.Release|x64.Build.0 = Release|x64
+		{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}.Debug|x64.ActiveCfg = Debug|x64
+		{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}.Debug|x64.Build.0 = Debug|x64
+		{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}.Release|x64.ActiveCfg = Release|x64
+		{64C0177F-5EB2-4DD0-AFBA-EC7815EAEC02}.Release|x64.Build.0 = Release|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Debug|x64.ActiveCfg = Debug|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Debug|x64.Build.0 = Debug|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Release|x64.ActiveCfg = Release|x64
+		{71EC17D2-0414-4CFB-8087-98B6A066F558}.Release|x64.Build.0 = Release|x64
+		{07F03019-E42D-4C26-9F1E-C3C9478D08B5}.Debug|x64.ActiveCfg = Debug|x64
+		{07F03019-E42D-4C26-9F1E-C3C9478D08B5}.Debug|x64.Build.0 = Debug|x64
+		{07F03019-E42D-4C26-9F1E-C3C9478D08B5}.Release|x64.ActiveCfg = Release|x64
+		{07F03019-E42D-4C26-9F1E-C3C9478D08B5}.Release|x64.Build.0 = Release|x64
+		{DB66F5D3-BD7E-44DB-AF3C-1E42A60A19D7}.Debug|x64.ActiveCfg = Debug|x64
+		{DB66F5D3-BD7E-44DB-AF3C-1E42A60A19D7}.Debug|x64.Build.0 = Debug|x64
+		{DB66F5D3-BD7E-44DB-AF3C-1E42A60A19D7}.Release|x64.ActiveCfg = Release|x64
+		{DB66F5D3-BD7E-44DB-AF3C-1E42A60A19D7}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -50,16 +50,37 @@
 
 	An input variable to the vertex shader (i.e. input to the OpenGL graphics pipeline).
 	It is how vertex data is introduced into the OpenGL pipeline.
-	If you don’t specify locations in shader code, OpenGL will assign locations for you (it is possible to get these indices later).
+	If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later).
 	Can be indepdendently set up (i.e. each can be feed - value assignment - different way).
 	
 		Static value: same value for all vertices on drawing command invoke (e.g. color of the material bound to a game object). Set by command.
 		Dynamic value: own value for each vertex on drawing command invoke (e.g. space coordinates - position, surface normal or texture coordinates of a vertex relative to the geometry of a game object). Feed from buffer (require specifying data location and format).
 	
-	Depending on how data for dynamic values is stored,
+	Depending on how data for dynamic values is stored:
 	
 		Separate attributes: Located either in different buffers or at least at different locations (offsets) in the same buffer. Structure-of-arrays (SoA) data (a set of tightly packed, independent arrays of data).
 		Interleaved attributes: Located in the same buffer. Array-of-structures (AoS) form of data.
+		
+- Uniforms
+
+	Data that stays tha same for an entire primitive batch (e.g. transformation matrix of the geometry attached to a single game object) or longer (e.g. light sources of an entire scene).
+	Pass data (not really a form of storage) directly from your application into any shader stage.
+	Depending on usage in a program: active uniforms (affects the stage output; exposed by a fully linked program) vs. inactive uniforms (the compiler discards unused declared uniforms out).
+	Depending on how they are declared: default block uniforms vs. uniform blocks.
+	
+	Default block uniforms (or non-buffered uniforms): uniforms declared in the default block - at the global scope in a shader (using GLSL uniform keyword).
+	
+		If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later). All non-array/struct types will be assigned a single location
+	
+	(Named) Uniform blocks (or buffered uniforms): uniforms declared in a named block (using GLSL interface blocks) whose values are stored in buffer objects.
+	
+		Efficient usage: single call to command to bind a uniform buffer object to a program (set values of all related uniform) - vs. multiple calls to command to set the value of all required uniforms from default block.
+		Easy to reuse: use same uniform values on different programs.
+		Easy to update (depending of represented data a uniform may be updated more or less frequently): update the value once in a unique buffer with a single call to command.
+		Depending on memory layout (how data is stored in the buffer): standard layout vs. shared layout
+		
+		Standard layout: assume (following a set of rules) specific locations (offset; can be directly specified in shader code) for members within the block. May leave some empty space between the various members of the block (making the buffer larger than it needs to be - performance loss).
+		Shared layout (by default): let OpenGL decide where it would like the data (application needs to figure out - query - where to put the data so that OpenGL can read it; requires more work from the application) - most efficient.
 
 - Barycentric Coordinates Interpolation
 
@@ -94,6 +115,10 @@
 	Target: type of use a buffer is intended for. May have multiple binding points.
 	Binding point: access point a buffer is intended to be bound. Only one buffer can be bound at a time. A buffer can be bound to multiple binding points at same time.
 
-- Vertex buffer object
+- Vertex buffer object (VBO)
 
-	Common buffer object (same as any other buffer object) intended to store vertex data (so its name).
+	Common buffer object (same as any other buffer object) intended to store vertex data (so its name) for a vertex array object.
+
+- Uniform buffer object (UBO)
+
+	Common buffer object intended to store uniform data for a program object.

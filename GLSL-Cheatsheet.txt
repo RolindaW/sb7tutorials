@@ -19,6 +19,15 @@
 		out vec4 color;
 		color = vec4(0.0, 0.8, 1.0, 1.0);
 		
+- uniform
+
+	Description: A storage qualifier to define input variables. It is possible to initialize them to a default value in a shader.
+	Use: All
+	Type: Custom constant input variable
+	Example:
+	
+		uniform vec4 material_color;
+		
 - interface blocks
 
 	Description: Group together a number of input/output variables. Block name (uppercase; match between stages - shaders) vs. instance name (lowercase; reference in shader). Only between stages; not input/output to/from OpenGL graphics pipeline.
@@ -31,6 +40,19 @@
 			vec4 color;
 		} vs_out;
 		vs_out.color = vec4(0.0, 0.8, 1.0, 1.0);
+		
+- uniform blocks
+
+	Description: Use case of interface blocks. It is possibly specifying a layout qualifier (packed, shared - default, std140, etc.) for the memory layout.
+	Use: All
+	Type: Custom constant input variable
+	Example:
+	
+		layout (std140) uniform StdLayoutMaterialUniformBlock
+		{
+			vec3 color;
+		} material;
+		vec3 mixed_color = mix(color, material.color, 0.4);
 		
 - layout
 

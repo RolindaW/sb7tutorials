@@ -61,7 +61,7 @@
 		Separate attributes: Located either in different buffers or at least at different locations (offsets) in the same buffer. Structure-of-arrays (SoA) data (a set of tightly packed, independent arrays of data).
 		Interleaved attributes: Located in the same buffer. Array-of-structures (AoS) form of data.
 		
-- Uniforms
+- Uniform
 
 	Data that stays tha same for an entire primitive batch (e.g. transformation matrix of the geometry attached to a single game object) or longer (e.g. light sources of an entire scene).
 	Pass data (not really a form of storage) directly from your application into any shader stage.
@@ -70,17 +70,45 @@
 	
 	Default block uniforms (or non-buffered uniforms): uniforms declared in the default block - at the global scope in a shader (using GLSL uniform keyword).
 	
-		If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later). All non-array/struct types will be assigned a single location
+		If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later). All non-array/struct types will be assigned a single location.
 	
 	(Named) Uniform blocks (or buffered uniforms): uniforms declared in a named block (using GLSL interface blocks) whose values are stored in buffer objects.
 	
 		Efficient usage: single call to command to bind a uniform buffer object to a program (set values of all related uniform) - vs. multiple calls to command to set the value of all required uniforms from default block.
 		Easy to reuse: use same uniform values on different programs.
 		Easy to update (depending of represented data a uniform may be updated more or less frequently): update the value once in a unique buffer with a single call to command.
-		Depending on memory layout (how data is stored in the buffer): standard layout vs. shared layout
+		Depending on memory layout (how data is stored in the buffer): standard layout vs. shared layout.
 		
 		Standard layout: assume (following a set of rules) specific locations (offset; can be directly specified in shader code) for members within the block. May leave some empty space between the various members of the block (making the buffer larger than it needs to be - performance loss).
 		Shared layout (by default): let OpenGL decide where it would like the data (application needs to figure out - query - where to put the data so that OpenGL can read it; requires more work from the application) - most efficient.
+
+- Shader storage block
+
+	Buffered storage that can be both read and write (therefore more versatile than uniforms but slower access) by a shader. 
+	Declared in a named block (using GLSL interface blocks).
+	Supports the more efficient "std430" packing layout qualifier.
+	Unlimited (only by hardware resources) size.
+	
+- Atomic counter
+
+	Buffered counter that can be both read and write by a shader.
+
+- Memory access safety mechanisms
+
+	OpenGL is expected to be running in deeply pipelined and highly parallel systems: multithreading (multiple shader instances running simultaneously).
+	Multiple processes accessing same memory at same time to perform read and write operations is potentially risky: incomplete cycle of operations and improper ordering of operations (memory hazards: RAW or read-after-write, WAW and WAR).
+	OpenGL include mechanisms to alleviate and control these dangers: atomic memory operations and memory barriers.
+	
+	Atomic memory operation:
+	
+		Sequence of a read from memory potentially followed by a write to memory that must be uninterrupted for the result to be correct.
+		Operations are serialized to avoid contention (condition on which two or more threads of execution attempt to use a single shared resource), i.e. only one will get to go at one time.
+		On shader code (on a member of a shader storage block).
+	
+	Memory barrier (or memory ordering):
+	
+		Synchronize (await) access to memory.
+		On both application and shader code.
 
 - Barycentric Coordinates Interpolation
 
@@ -118,7 +146,19 @@
 - Vertex buffer object (VBO)
 
 	Common buffer object (same as any other buffer object) intended to store vertex data (so its name) for a vertex array object.
+	Target: GL_ARRAY_BUFFER
 
 - Uniform buffer object (UBO)
 
-	Common buffer object intended to store uniform data for a program object.
+	Common buffer object intended to store uniform data (read-only) for a program object.
+	Target: GL_UNIFORM_BUFFER
+	
+- Shader storage buffer object (SSBO)
+
+	Common buffer object intended to store shader data for a program object.
+	Target: GL_SHADER_STORAGE_BUFFER
+
+- Atomic counter buffer object (ACBO)
+
+	Common buffer object intended to store atomic counter data for a program object.
+	Target: GL_ATOMIC_COUNTER_BUFFER

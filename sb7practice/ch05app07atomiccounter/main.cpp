@@ -26,15 +26,43 @@ public:
 		// Update uniform values
 		UpdateUbo();
 
-		glMemoryBarrier(GL_UNIFORM_BARRIER_BIT);
+		//glMemoryBarrier(GL_UNIFORM_BARRIER_BIT);
+
+		// Clear the value of the counter into the buffer
+		GLuint* acboData = (GLuint*)glMapNamedBufferRange(acbo,
+															0, sizeof(GLuint) * 5,
+															GL_MAP_WRITE_BIT);
+		acboData[2] = 0;  // Offset qualifier 8 (position for third unsigned int atomic counter) specified in uniform declaration in shader code.
+		//acboData[2] = (info.windowWidth * info.windowHeight) /2;
+		glUnmapNamedBuffer(acbo);
+
+		//glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
 
 		// Use counter program to count filled area
-		//glUseProgram(programCounter);
-		//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);  // Turn off writting to the framebuffer
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glUseProgram(programCounter);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);  // Turn off writting to the framebuffer
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		//glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
+
+		// Read the value of the counter from the buffer
+		acboData = (GLuint*)glMapNamedBufferRange(acbo,
+													0, sizeof(GLuint) * 5,
+													GL_MAP_READ_BIT);
+		GLuint counterValue = acboData[2];
+		glUnmapNamedBuffer(acbo);
+
+		if (counterValue > 0)
+		{
+			counterValue = counterValue;
+		}
 
 		// Use render program to display the object
 		glUseProgram(programRender);
+
+		// Update uniforms
+		glUniform1ui(2, (GLuint)info.windowWidth * info.windowHeight);  // Max area
+
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);  // Turn on writting to the framebuffer
 		glDrawArrays(GL_TRIANGLES, 0, 36);  // Draw 6 faces of 2 triangles of 3 vertices each = 36 vertices
 	}
@@ -75,8 +103,7 @@ private:
 		CreateVao();
 		CreateVbo();
 		CreateUbo();
-
-		// TODO: Atomic Counter
+		CreateAcbo();
 	}
 
 	void CreatePrograms()
@@ -114,19 +141,15 @@ private:
 		glCompileShader(vertexShader);
 
 		// Fragment shader: counter
+		// TODO: This part - incrementing the value of the atomic counter - is not working. Why??? May buffer flags not properly declared???
 		const GLchar* fragmentShaderCounterSource[] = {
 			"#version 450 core																				\n"
 			"																								\n"
-			"layout(binding = 3, offset = 8) uniform atomic_uint counter;									\n"
-			"																								\n"
-			"in VS_OUT																						\n"
-			"{																								\n"
-			"	vec3 color;																					\n"
-			"} fs_in;																						\n"
+			"layout(binding = 3, offset = 8) uniform atomic_uint area;										\n"
 			"																								\n"
 			"void main(void)																				\n"
 			"{																								\n"
-			"	atomicCounterIncrement(counter);															\n"
+			"	atomicCounterIncrement(area);																\n"
 			"}																								\n"
 		};
 
@@ -135,14 +158,18 @@ private:
 		glCompileShader(fragmentShaderCounter);
 
 		// Fragment shader: render
-		const GLchar* fragmentShaderRenderSource_Bck[] = {
+		const GLchar* fragmentShaderRenderSource[] = {
 			"#version 450 core																				\n"
 			"																								\n"
-			"layout(location = 0) uniform float max_area;													\n"
+			"layout(location = 2) uniform uint max_area;													\n"
 			"																								\n"
-			"layout(binding = 0) uniform AREA_BLOCK															\n"
+			"layout(std140, binding = 1) uniform AREA_BLOCK													\n"
 			"{																								\n"
-			"	uint counter_value;																			\n"
+			"	uint counter0;																				\n"
+			"	uint counter1;																				\n"
+			"	uint counter2;																				\n"
+			"	uint counter3;																				\n"
+			"	uint counter4;																				\n"
 			"} area_block;																					\n"
 			"																								\n"
 			"in VS_OUT																						\n"
@@ -154,28 +181,10 @@ private:
 			"																								\n"
 			"void main(void)																				\n"
 			"{																								\n"
-			"	float brightness = clamp(float(area_block.counter_value) / max_area,						\n"
-			"							 0.0, 1.0);															\n"
+			"	float brightness = clamp(float(area_block.counter2) / float(max_area), 0.0, 1.0);			\n"
 			"																								\n"
 			"	color = vec4(mix(fs_in.color, vec3(1.0, 1.0, 1.0), brightness), 1.0);						\n"
 			"}																								\n"
-		};
-
-		const GLchar* fragmentShaderRenderSource[] = {
-	"#version 450 core																				\n"
-	"																								\n"
-	"in VS_OUT																						\n"
-	"{																								\n"
-	"	vec3 color;																					\n"
-	"} fs_in;																						\n"
-	"																								\n"
-	"out vec4 color;																				\n"
-	"																								\n"
-	"void main(void)																				\n"
-	"{																								\n"
-	"																								\n"
-	"	color = vec4(fs_in.color, 1.0);						\n"
-	"}																								\n"
 		};
 
 		GLuint fragmentShaderRender = glCreateShader(GL_FRAGMENT_SHADER);
@@ -286,7 +295,7 @@ private:
 	{
 		glCreateBuffers(1, &ubo);
 		glNamedBufferStorage(ubo, sizeof(float) * 4 * 4 * 2, NULL, GL_DYNAMIC_STORAGE_BIT);  // Size: x2 4x4 float matrix
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);  // Binding qualifier 0 specified in uniform declaration in shader code.
 	}
 
 	void UpdateUbo()
@@ -302,12 +311,26 @@ private:
 		glNamedBufferSubData(ubo, sizeof(float) * 4 * 4, sizeof(float) * 4 * 4, cameraProjectionMatrix);
 	}
 
+	void CreateAcbo()
+	{
+		const GLuint data[] = {
+			1, 4, 7, 0, 5
+		};
+
+		glCreateBuffers(1, &acbo);
+		glNamedBufferStorage(acbo, sizeof(GLuint) * 5, data, GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);  // Because this buffer is aimed to store up to 5 unsigned int atomic counter
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 3, acbo);  // Binding qualifier 3 specified in uniform declaration in shader code.
+
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, acbo);  // Binding qualifier 1 specified in uniform declaration in shader code.
+	}
+
 	void DeleteObject()
 	{
 		DeletePrograms();
 		DeleteVao();
 		DeleteVbo();
 		DeleteUbo();
+		DeleteAcbo();
 	}
 
 	void DeletePrograms()
@@ -331,9 +354,15 @@ private:
 		glDeleteBuffers(1, &ubo);
 	}
 
+	void DeleteAcbo()
+	{
+		glDeleteBuffers(1, &acbo);
+	}
+
 	void SimulateObjectPose(double currentTime)
 	{
-		const vmath::vec3 initPosition = cameraPosition;
+		//const vmath::vec3 initPosition = cameraPosition;
+		const vmath::vec3 initPosition = vmath::vec3(1.0f, 1.0f, 3.0f);
 		vmath::mat4 initPoseMatrix = vmath::translate(initPosition);
 
 		const vmath::vec3 endPosition(0.0f, 0.0f, 0.0f);

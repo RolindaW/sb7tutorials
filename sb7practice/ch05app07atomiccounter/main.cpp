@@ -163,9 +163,13 @@ private:
 			"																								\n"
 			"void main(void)																				\n"
 			"{																								\n"
+			"	// Calculate brightness as the ratio between used window area and total window area			\n"
 			"	float brightness = clamp(float(counters.area_counter) / float(window_area), 0.0, 1.0);		\n"
-			"																								\n"
-			"	color = vec4(mix(fs_in.color, vec3(1.0, 1.0, 1.0), brightness), 1.0);						\n"
+			"	// Mix objects color and brightness color													\n"
+			"	vec3 mixed_color = mix(fs_in.color, vec3(brightness, brightness, brightness), 0.5);			\n"
+			"	// SuperBible example: use only brightness to define fragments color						\n"
+			"	//mixed_color = vec3(brightness, brightness, brightness);									\n"
+			"	color = vec4(mixed_color, 1.0);																\n"
 			"}																								\n"
 		};
 

@@ -51,7 +51,7 @@ public:
 		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
 		// Update window area uniform value
-		glUniform1ui(2, (GLuint)info.windowWidth * info.windowHeight);
+		glUniform1ui(0, (GLuint)info.windowWidth * info.windowHeight);
 
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
@@ -59,6 +59,19 @@ public:
 	void shutdown()
 	{
 		DeleteObject();
+	}
+
+public:
+	void onResize(int w, int h)
+	{
+		sb7::application::onResize(w, h);
+
+		// Update viewport
+		int pos_x, pos_y;
+		glfwGetWindowPos(window, &pos_x, &pos_y);
+		glViewport(pos_x, pos_y, info.windowWidth, info.windowHeight);
+
+		UpdateProjectionMatrix();
 	}
 
 private:
@@ -78,7 +91,12 @@ private:
 		cameraViewMatrix = vmath::lookat(cameraPosition, target, up);
 
 		// Projection: perspecive
-		// Note (NOT IMPLEMENTED): Is is required to update de projection matrix anytime the window (viewpoint) is resized
+		// Note: Is is required to update de projection matrix anytime the window (viewpoint) is resized
+		UpdateProjectionMatrix();
+	}
+
+	void UpdateProjectionMatrix()
+	{
 		float fov = 45.0f;
 		float aspect = (float)info.windowWidth / (float)info.windowHeight;
 		float n = 0.1f, f = 1000.0f;
@@ -147,7 +165,7 @@ private:
 		const GLchar* fragmentShaderRenderSource[] = {
 			"#version 450 core																				\n"
 			"																								\n"
-			"layout(location = 2) uniform uint window_area;													\n"
+			"layout(location = 0) uniform uint window_area;													\n"
 			"																								\n"
 			"layout(std140, binding = 1) uniform COUNTERS													\n"
 			"{																								\n"

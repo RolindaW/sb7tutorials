@@ -16,55 +16,44 @@ public:
 
 	void render(double currentTime)
 	{
-		// Simply clear the window with red
+		// Simply clear the window
 		static const GLfloat color[] = { 0.0f, 0.2f, 0.0f, 1.0f };
 		glClearBufferfv(GL_COLOR, 0, color);
 
 		// Calculate object pose
 		SimulateObjectPose(currentTime);
 
-		// Update uniform values
+		// Update objec model-view and camera projection matrices uniform values
 		UpdateUbo();
 
-		//glMemoryBarrier(GL_UNIFORM_BARRIER_BIT);
-
-		// Clear the value of the counter into the buffer
+		// Clear the value of corresponding atomic counter within the buffer
 		GLuint* acboData = (GLuint*)glMapNamedBufferRange(acbo,
 															0, sizeof(GLuint) * 5,
 															GL_MAP_WRITE_BIT);
-		acboData[2] = 0;  // Offset qualifier 8 (position for third unsigned int atomic counter) specified in uniform declaration in shader code.
-		//acboData[2] = (info.windowWidth * info.windowHeight) /2;
+		acboData[2] = 0;  // Offset qualifier 8 (position for third unsigned int atomic counter) specified in uniform declaration in shader code
 		glUnmapNamedBuffer(acbo);
 
-		//glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
+		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 
-		// Use counter program to count filled area
+		// Use counter program to count used window (viewport) area by the object (number of generated fragments)
 		glUseProgram(programCounter);
-		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);  // Turn off writting to the framebuffer
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);  // Note: If writting to the framebuffer is turned-off, atomic counter does not update the buffer
+		glDrawArrays(GL_TRIANGLES, 0, 36);  // Draw 6 faces of 2 triangles of 3 vertices each = 36 vertices
 
-		//glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
-
-		// Read the value of the counter from the buffer
-		acboData = (GLuint*)glMapNamedBufferRange(acbo,
+		// Read the value of the counter from the buffer: only for checking purpose.
+		/*acboData = (GLuint*)glMapNamedBufferRange(acbo,
 													0, sizeof(GLuint) * 5,
 													GL_MAP_READ_BIT);
-		GLuint counterValue = acboData[2];
-		glUnmapNamedBuffer(acbo);
+		glUnmapNamedBuffer(acbo);*/
 
-		if (counterValue > 0)
-		{
-			counterValue = counterValue;
-		}
-
-		// Use render program to display the object
+		// Use render program to display the object applying corresponding brightness (based on previously calculated used window area)
 		glUseProgram(programRender);
+		//glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-		// Update uniforms
-		glUniform1ui(2, (GLuint)info.windowWidth * info.windowHeight);  // Max area
+		// Update window area uniform value
+		glUniform1ui(2, (GLuint)info.windowWidth * info.windowHeight);
 
-		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);  // Turn on writting to the framebuffer
-		glDrawArrays(GL_TRIANGLES, 0, 36);  // Draw 6 faces of 2 triangles of 3 vertices each = 36 vertices
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
 	void shutdown()
@@ -78,18 +67,18 @@ private:
 		// Pose (position and orientation)
 		cameraPosition = vmath::vec3(1.0f, 1.0f, 5.0f);
 
-		// Method 1: Calculate the inverse of the model-world matri of the camera.
+		// Method 1: Calculate the inverse of the model-world matrix of the camera
 		//cameraViewMatrix = vmath::translate(-position);
 
 		// Method 2: Calculate the lookat matrix
-		// Note: It is required to update the up vector anytime the matrix is recalculated.
-		// Note: If camera is only translated in +z (e.g. (0.0, 0.0, 5.0)), resulting matrix should be the equal.
+		// Note: It is required to update the up vector anytime the matrix is recalculated
+		// Note: If camera is only translated in +z (e.g. (0.0, 0.0, 5.0)), resulting matrix should be the equal
 		vmath::vec3 target(0.0f, 0.0f, 0.0f);
 		vmath::vec3 up(0.0f, 1.0f, 0.0f);
 		cameraViewMatrix = vmath::lookat(cameraPosition, target, up);
 
 		// Projection: perspecive
-		// Note: Is is required to update de projection matrix anytime the window (viewpoint) is resized. NOT IMPLEMENTED
+		// Note (NOT IMPLEMENTED): Is is required to update de projection matrix anytime the window (viewpoint) is resized
 		float fov = 45.0f;
 		float aspect = (float)info.windowWidth / (float)info.windowHeight;
 		float n = 0.1f, f = 1000.0f;
@@ -117,8 +106,6 @@ private:
 			"	mat4 mv_matrix;																				\n"
 			"	mat4 projection_matrix;																		\n"
 			"} transforms;																					\n"
-			"//layout(location = 0) uniform mat4 mv_matrix;													\n"
-			"//layout(location = 1) uniform mat4 projection_matrix;											\n"
 			"																								\n"
 			"layout(location = 0) in vec3 position;															\n"
 			"layout(location = 1) in vec3 color;															\n"
@@ -131,7 +118,6 @@ private:
 			"void main(void)																				\n"
 			"{																								\n"
 			"	gl_Position = transforms.projection_matrix * transforms.mv_matrix * vec4(position, 1.0);	\n"
-			"	//gl_Position = projection_matrix * mv_matrix * vec4(position, 1.0);						\n"
 			"	vs_out.color = color;																		\n"
 			"}																								\n"
 		};
@@ -141,15 +127,15 @@ private:
 		glCompileShader(vertexShader);
 
 		// Fragment shader: counter
-		// TODO: This part - incrementing the value of the atomic counter - is not working. Why??? May buffer flags not properly declared???
 		const GLchar* fragmentShaderCounterSource[] = {
 			"#version 450 core																				\n"
 			"																								\n"
-			"layout(binding = 3, offset = 8) uniform atomic_uint area;										\n"
+			"layout(binding = 3, offset = 8) uniform atomic_uint area_counter;								\n"
 			"																								\n"
 			"void main(void)																				\n"
 			"{																								\n"
-			"	atomicCounterIncrement(area);																\n"
+			"	atomicCounterIncrement(area_counter);														\n"
+			"	memoryBarrierAtomicCounter();																\n"
 			"}																								\n"
 		};
 
@@ -161,16 +147,12 @@ private:
 		const GLchar* fragmentShaderRenderSource[] = {
 			"#version 450 core																				\n"
 			"																								\n"
-			"layout(location = 2) uniform uint max_area;													\n"
+			"layout(location = 2) uniform uint window_area;													\n"
 			"																								\n"
-			"layout(std140, binding = 1) uniform AREA_BLOCK													\n"
+			"layout(std140, binding = 1) uniform COUNTERS													\n"
 			"{																								\n"
-			"	uint counter0;																				\n"
-			"	uint counter1;																				\n"
-			"	uint counter2;																				\n"
-			"	uint counter3;																				\n"
-			"	uint counter4;																				\n"
-			"} area_block;																					\n"
+			"	layout (offset = 8) uint area_counter;														\n"
+			"} counters;																					\n"
 			"																								\n"
 			"in VS_OUT																						\n"
 			"{																								\n"
@@ -181,7 +163,7 @@ private:
 			"																								\n"
 			"void main(void)																				\n"
 			"{																								\n"
-			"	float brightness = clamp(float(area_block.counter2) / float(max_area), 0.0, 1.0);			\n"
+			"	float brightness = clamp(float(counters.area_counter) / float(window_area), 0.0, 1.0);		\n"
 			"																								\n"
 			"	color = vec4(mix(fs_in.color, vec3(1.0, 1.0, 1.0), brightness), 1.0);						\n"
 			"}																								\n"
@@ -302,11 +284,7 @@ private:
 	{
 		vmath::mat4 modelViewMatrix = cameraViewMatrix * modelWorldMatrix;
 
-		// Case 1: Using default block uniforms
-		//glUniformMatrix4fv(0, 1, GL_FALSE, modelViewMatrix);
-		//glUniformMatrix4fv(1, 1, GL_FALSE, cameraProjectionMatrix);
-
-		// Case 2: Using standard layout uniform block
+		// Using standard layout uniform block
 		glNamedBufferSubData(ubo, 0, sizeof(float) * 4 * 4, modelViewMatrix);
 		glNamedBufferSubData(ubo, sizeof(float) * 4 * 4, sizeof(float) * 4 * 4, cameraProjectionMatrix);
 	}
@@ -314,7 +292,7 @@ private:
 	void CreateAcbo()
 	{
 		const GLuint data[] = {
-			1, 4, 7, 0, 5
+			1, 2, 3, 4, 5
 		};
 
 		glCreateBuffers(1, &acbo);
@@ -361,8 +339,7 @@ private:
 
 	void SimulateObjectPose(double currentTime)
 	{
-		//const vmath::vec3 initPosition = cameraPosition;
-		const vmath::vec3 initPosition = vmath::vec3(1.0f, 1.0f, 3.0f);
+		const vmath::vec3 initPosition = cameraPosition;
 		vmath::mat4 initPoseMatrix = vmath::translate(initPosition);
 
 		const vmath::vec3 endPosition(0.0f, 0.0f, 0.0f);

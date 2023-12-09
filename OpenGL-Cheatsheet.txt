@@ -455,8 +455,6 @@
 * SYSTEM
 *
 
-glGetError returns the value of the error flag
-
 - glGetError
 
 	Description: Returns the value of the error flag.
@@ -464,3 +462,11 @@ glGetError returns the value of the error flag
 	Example:		
 		
 		GLenum error = glGetError();
+
+- glMemoryBarrier
+
+	Description: Specify which of OpenGL’s memory subsystems (GL_ALL_BARRIER_BITS, GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT, GL_UNIFORM_BARRIER_BIT, GL_SHADER_STORAGE_BARRIER_BIT, GL_ATOMIC_COUNTER_BARRIER_BIT, etc.) should obey the barrier and which are free to ignore it and continue as they would have.
+	Use: All
+	Example:		
+		
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);	

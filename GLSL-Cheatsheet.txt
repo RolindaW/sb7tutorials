@@ -28,7 +28,7 @@
 	
 		uniform vec4 material_color;
 		
-- interface blocks
+- interface block
 
 	Description: Group together a number of input/output variables. Block name (uppercase; match between stages - shaders) vs. instance name (lowercase; reference in shader). Only between stages; not input/output to/from OpenGL graphics pipeline.
 	Use: All
@@ -41,19 +41,66 @@
 		} vs_out;
 		vs_out.color = vec4(0.0, 0.8, 1.0, 1.0);
 		
-- uniform blocks
+- uniform block
 
-	Description: Use case of interface blocks. It is possibly specifying a layout qualifier (packed, shared - default, std140, etc.) for the memory layout.
+	Description: Use case of interface blocks ("uniform" keyword). It is possible specifying a packing layout qualifier (packed, shared - default, std140) for the memory layout.
 	Use: All
-	Type: Custom constant input variable
+	Type: Custom read-only input variable
 	Example:
 	
+		uniform SharedLayoutMaterialUniformBlock
+		{
+			vec3 color;
+			float alpha;
+		} material;
+		
+		- other -
+		
 		layout (std140) uniform StdLayoutMaterialUniformBlock
 		{
 			vec3 color;
 		} material;
 		vec3 mixed_color = mix(color, material.color, 0.4);
+
+- shader storage block
+
+	Description: Use case of interface blocks ("buffer" keyword). It is possible specifying a packing layout qualifier (packed, shared - default, std140, std430) for the memory layout.
+	Use: All
+	Type: Custom read/write input variable
+	Example:
+	
+		layout (binding = 0, std430) buffer StdLayoutShaderStorage
+		{
+			vec4 foo;
+		};
 		
+- atomic operations on shader storage block
+
+	Description: Operate on members of a shader storage block: atomicAdd, atomicAnd, atomicOr, ... Only for signed "int" and unsigned "uint" integer data type.
+	Use: All
+	Type: Function
+		
+- atomic counter
+
+	Description: Use case of interface blocks ("uniform atomic_uint" keywords).
+	Use: All
+	Type: Custom read/write input variable
+	Example:
+	
+		layout (binding = 3, offset = 8) uniform atomic_uint my_variable;
+
+- atomic operations on atomic counter
+
+	Description: Operate on an atomic counter: atomicCounterIncrement, atomicCounterDecrement, atomicCounter. Only for unsigned integer "uint" data type.
+	Use: All
+	Type: Function
+
+- memoryBarrier
+
+	Description: Any memory reads or writes that you might have performed will complete before the function returns. Also specialized versions (e.g. memoryBarrierBuffers; orders transactions on reads and writes to buffers, but to nothing else).
+	Use: All
+	Type: Function
+
 - layout
 
 	Description: A layout qualifier (keyword) to affect where the storage for a variable comes from.

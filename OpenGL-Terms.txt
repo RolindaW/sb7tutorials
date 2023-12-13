@@ -84,7 +84,7 @@
 
 - Shader storage block
 
-	Buffered storage that can be both read and write (therefore more versatile than uniforms but slower access) by a shader. 
+	Buffered storage that can be both read and write (therefore more versatile than uniforms but slower access) by a shader.
 	Declared in a named block (using GLSL interface blocks).
 	Supports the more efficient "std430" packing layout qualifier.
 	Unlimited (only by hardware resources) size.
@@ -92,6 +92,15 @@
 - Atomic counter
 
 	Buffered counter that can be both read and write by a shader.
+
+- Texture
+
+	Structured form of storage that can be both read and write by a shader.
+	Most often used to store image data.
+	Require (similarly to buffers) creation (texture object and related name), memory allocation and target binding (to one of the multiple texture units - 0, by default, if not specified - of a target to be precise), always specifying the corresponding target (or texture type).
+	Layouts: 1D, 2D (most common), 3D, rectangle (legacy 2D texture use case), cube map (related 6 square - 2D - images), buffer (buffered 1D texture use case), and multisample, together with corresponding array forms.
+	
+	KTX (Khronos TeXture format): image format that can store all of the formats supported by OpenGL and represent advanced features like mipmaps, cube maps, and so on.
 
 - Memory access safety mechanisms
 

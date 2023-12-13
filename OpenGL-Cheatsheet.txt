@@ -148,6 +148,91 @@
 		glCreateBuffers(2, &buffers[0]);
 
 *
+* TEXTURE *
+*
+
+- glCreateTextures
+
+	Description: Create texture objects for specified effective texture target (GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, etc.).
+	Use: Startup
+	Example:
+	
+		GLuint texture = glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+
+- glTexStorage2D / glTextureStorage2D
+
+	Description: Specify storage for all levels of a two-dimensional (or one-dimensional array) texture.
+	Use: Startup
+	Example:
+	
+		glTextureStorage2D(texture,	// Texture object
+						   1,	// 1 mipmap level
+						   GL_RGBA32F,	// 32-bit floating-point RGBA data
+						   256, 256);	// 256 x 256 texels
+
+- glTexImage2D
+
+	Description: Specify a two-dimensional texture image.
+	Use: Startup
+	Example:
+	
+		???
+
+- glTexSubImage2D / glTextureSubImage2D
+
+	Description: Specify a two-dimensional texture subimage.
+	Use: Startup
+	Example:
+	
+		glTextureSubImage2D(texture, // Texture object
+							0, // Level 0
+							0, 0, // Offset 0, 0
+							256, 256, // 256 x 256 texels, replace entire image
+							GL_RGBA, // Four-channel data
+							GL_FLOAT, // Floating-point data
+							data); // Pointer to data
+
+- glClearTexImage
+
+	Description: Fill all a texture image (any texture type) with a constant value.
+	Use: Startup / Rendering
+	Example:
+	
+		???
+
+- glClearTexSubImage
+
+	Description: Fill all or part of a texture image with a constant value.
+	Use: Startup / Rendering
+	Example:
+	
+		???
+
+- glBindTexture
+
+	Description: Bind a named texture object to a texturing target.
+	Use: Startup
+	Example:
+	
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+- glBindTextureUnit
+
+	Description: Bind a named texture object to the specified texture unit.
+	Use: Startup
+	Example:
+	
+		glBindTextureUnit(0, texture);
+
+- glDeleteTextures
+
+	Description: Delete named textures.
+	Use: Shutdown
+	Example:
+	
+		glDeleteTextures(1, &texture);
+
+*
 * SHADER *
 *
 

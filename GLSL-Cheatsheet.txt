@@ -101,6 +101,33 @@
 	Use: All
 	Type: Function
 
+- sampler*
+
+	Description: A variable type to represent a texture of a particular type (sampler1D - GL_TEXTURE_1D; sampler2D - GL_TEXTURE_2D; etc.). Default samplers represent floating point data, but it is possible to refer signed or unsigned integer data textures using a prefix (e.g. isampler2D or usampler2D).
+	Use: All
+	Type: Custom input variable (based on uniform)
+	Example:
+	
+		uniform sampler2D s;
+
+- texelFetch
+
+	Description: Access a texture by specified coordinates. Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. sampler1D - vec4; isampler2D - ivec4; usampler3D - uvec4). Default values for unused channels: 0 for color (RGB); 1 for alpha.
+	Use: All
+	Type: Function
+	Example:
+	
+		vec4 color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);
+
+- textureSize
+
+	Description: Retrieve the dimensions of a level of a texture. Output size depends on texture type (data type is always integer).
+	Use: All
+	Type: Function
+	Example:
+	
+		ivec2 size = textureSize(s, 0);
+
 - layout
 
 	Description: A layout qualifier (keyword) to affect where the storage for a variable comes from.

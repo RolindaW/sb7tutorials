@@ -47,6 +47,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app07atomiccounter", "c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app07atomiccounter2", "ch05app07atomiccounter2\ch05app07atomiccounter2.vcxproj", "{AFE1597D-AC05-43B7-9DD3-72D6F48B7753}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app08texturedtriangle", "ch05app08texturedtriangle\ch05app08texturedtriangle.vcxproj", "{DA1D65FA-0630-488F-9B0D-790CFC92A8D6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -141,6 +143,10 @@ Global
 		{AFE1597D-AC05-43B7-9DD3-72D6F48B7753}.Debug|x64.Build.0 = Debug|x64
 		{AFE1597D-AC05-43B7-9DD3-72D6F48B7753}.Release|x64.ActiveCfg = Release|x64
 		{AFE1597D-AC05-43B7-9DD3-72D6F48B7753}.Release|x64.Build.0 = Release|x64
+		{DA1D65FA-0630-488F-9B0D-790CFC92A8D6}.Debug|x64.ActiveCfg = Debug|x64
+		{DA1D65FA-0630-488F-9B0D-790CFC92A8D6}.Debug|x64.Build.0 = Debug|x64
+		{DA1D65FA-0630-488F-9B0D-790CFC92A8D6}.Release|x64.ActiveCfg = Release|x64
+		{DA1D65FA-0630-488F-9B0D-790CFC92A8D6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

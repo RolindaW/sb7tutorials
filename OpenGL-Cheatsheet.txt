@@ -157,7 +157,8 @@
 	Use: Startup
 	Example:
 	
-		GLuint texture = glCreateTextures(GL_TEXTURE_2D, 1, &texture);
+		GLuint texture;
+		glCreateTextures(GL_TEXTURE_2D, 1, &texture);
 
 - glTexStorage2D / glTextureStorage2D
 
@@ -208,6 +209,46 @@
 	
 		???
 
+- glTextureParameter*
+
+	Description: Set the parameters of a texture embedded sampler object.	
+	
+		GL_TEXTURE_MAG_FILTER: Magnification filtering mode
+		GL_TEXTURE_MIN_FILTER: Minification filtering mode
+		
+		GL_NEAREST: Nearest neighbor filtering using only base mip level
+		GL_LINEAR: Linear interpolation filtering using only base mip level
+		
+		GL_NEAREST_MIPMAP_NEAREST: Select nearest mip level and perform nearest neighbor filtering withing in
+		GL_NEAREST_MIPMAP_LINEAR: Perform linear interpolation between mip levels and perform nearest neighbor filtering withing in
+		GL_LINEAR_MIPMAP_NEAREST: Select nearest mip level and perform linear interpolation filtering withing in
+		GL_LINEAR_MIPMAP_LINEAR: Perform linear interpolation between mip levels and perform linear interpolation filtering withing in
+		
+		GL_TEXTURE_BASE_LEVEL: Base mipmap level to use
+		GL_TEXTURE_MAX_LEVEL: Maximum mipmap level to use
+		
+		GL_TEXTURE_WRAP_S: Width component wrapping mode
+		GL_TEXTURE_WRAP_T: Height component wrapping mode
+		GL_TEXTURE_WRAP_R: Depth component wrapping mode
+		
+		GL_REPEAT
+		GL_MIRRORED_REPEAT
+		GL_CLAMP_TO_EDGE
+		GL_CLAMP_TO_BORDER
+	
+	Use: Startup
+	Example:
+	
+		glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+- glGenerateTextureMipmap
+
+	Description: Generate all the mip levels for a texture (require level 0 to be loaded).
+	Use: Startup
+	Example:
+	
+		???
+
 - glBindTexture
 
 	Description: Bind a named texture object to a texturing target.
@@ -231,6 +272,43 @@
 	Example:
 	
 		glDeleteTextures(1, &texture);
+
+*
+* SAMPLER *
+*
+
+- glCreateSamplers
+
+	Description: Create sampler objects.
+	Use: Startup
+	Example:
+	
+		GLuint sampler;
+		glCreateSamplers(1, &sampler);
+
+- glSamplerParameter*
+
+	Description: Set the parameters of a sampler object.
+	Use: Startup
+	Example:
+	
+		glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+- glBindSampler
+
+	Description: Bind a sampler object to one of the texture units.
+	Use: Startup
+	Example:
+	
+		glBindSampler(0, sampler);
+
+- glDeleteSamplers
+
+	Description: Delete named samplers.
+	Use: Shutdown
+	Example:
+	
+		glDeleteSamplers(1, &sampler);
 
 *
 * SHADER *

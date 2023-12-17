@@ -87,7 +87,7 @@ private:
 
 	void InitializeTexture()
 	{
-		bool ktx = false;
+		bool ktx = true;
 		if (ktx) InitializeTextureKtx();
 		else InitializeTextureScratch();
 	}
@@ -114,18 +114,13 @@ private:
 							GL_RGBA32F,
 							256, 256);
 
-		// TODO: Fix 2D texture definition.
 		// Update texture data
-		static float data[256][256][4];
-		for (int i = 0; i < 256; i++) {
-			for (int j = 0; j < 256; j++)
-			{
-				data[i][j][0] = 1.0f;
-				data[i][j][1] = 0.0f;
-				data[i][j][2] = 0.0f;
-				data[i][j][3] = 1.0f;
-			}
-		}
+
+		// Define some data to upload into the texture
+		float* data = new float[256 * 256 * 4];
+
+		// Fill memory with image data
+		Generate2DRGBATexture(data, 256, 256);
 
 		glTextureSubImage2D(texture,
 							0,
@@ -135,8 +130,24 @@ private:
 							GL_FLOAT,
 							data);
 
+		// Free the memory we allocated before - OpenGL now has our data
+		delete[] data;
+
 		// Bind it to the context using the GL_TEXTURE_2D binding point
 		glBindTexture(GL_TEXTURE_2D, texture);
+	}
+
+	void Generate2DRGBATexture(float* data, int width, int height)
+	{
+		int size = width * height;
+		for (int i = 0; i < size; i++)
+		{
+			int indexBase = i * 4;  // Times number of channels
+			data[indexBase] = 1.0f;		// R
+			data[indexBase + 1] = 0.5f;	// G
+			data[indexBase + 2] = 0.5f;	// B
+			data[indexBase + 3] = 1.0f;	// A
+		}
 	}
 
 	void DestroyProgram()

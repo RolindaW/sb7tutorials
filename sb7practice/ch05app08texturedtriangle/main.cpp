@@ -10,7 +10,7 @@ public:
 	{
 		InitializeProgram();
 		InitializeVao();
-		InitializeTexture(0);
+		InitializeTexture(2);
 	}
 
 	void render(double currentTime)
@@ -152,6 +152,13 @@ private:
 			0x00, 0x40, 0x80, 0xB0, 0xFF
 		};
 
+		static GLubyte data2[5][1][1];
+		data2[0][0][0] = 0x00;
+		data2[1][0][0] = 0x40;
+		data2[2][0][0] = 0x80;
+		data2[3][0][0] = 0xB0;
+		data2[4][0][0] = 0xFF;
+
 		// Fill memory with image data
 		glTextureSubImage2D(texture,
 			0,
@@ -200,15 +207,51 @@ private:
 			1, 5);
 
 		// Define some data to upload into the texture
-		// Note: Data is laid out (this setup can be changed in OpenGL with a parameter) left to right, top to bottom.
 		static const GLubyte data[] =
 		{
-			0x00,
-			0x40,
-			0x80,
-			0xB0,
-			0xFF
+			0x00, 0x40, 0x80, 0xB0, 0xFF
 		};
+
+		// Note: Be careful with pixel store...
+		/*
+		static const GLubyte data[] =
+		{
+			0xFF,  // 0 - Bottom
+			0x00,
+			0x00,
+			0x00,
+
+			0xB0,  // 1
+			0x00,
+			0x00,
+			0x00,
+
+			0x80,  // 2
+			0x00,
+			0x00,
+			0x00,
+
+			0x40,  // 3
+			0x00,
+			0x00,
+			0x00,
+
+			0x00,  // 4 - Top
+			0x00,
+			0x00,
+			0x00
+		};
+		*/
+
+		static GLubyte data2[1][5][1];
+		data2[0][0][0] = 0x00;
+		data2[0][1][0] = 0x40;
+		data2[0][2][0] = 0x80;
+		data2[0][3][0] = 0xB0;
+		data2[0][4][0] = 0xFF;
+
+		// Pixel store (next available byte is used; not memory waste)
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		// Fill memory with image data
 		glTextureSubImage2D(texture,
@@ -231,7 +274,7 @@ private:
 		glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // GL_NEAREST - GL_LINEAR
 		glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-		// Swizzle (i.e. source) G and B channels from channel R (it is possible to perform it in shader code - e.g. "color = texture(s, uv).rrra;" - but constrains shader reuse).
+		// Swizzle
 		glTextureParameteri(texture, GL_TEXTURE_SWIZZLE_G, GL_RED);
 		glTextureParameteri(texture, GL_TEXTURE_SWIZZLE_B, GL_RED);
 
@@ -258,6 +301,15 @@ private:
 			0x00, 0xFF
 		};
 
+		static GLubyte data2[2][2][1];
+		data2[0][0][0] = 0xFF;
+		data2[0][1][0] = 0x00;
+		data2[1][0][0] = 0x00;
+		data2[1][1][0] = 0xFF;
+
+		// Pixel store
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 		// Fill memory with image data
 		glTextureSubImage2D(texture,
 			0,
@@ -279,7 +331,7 @@ private:
 		glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // GL_NEAREST - GL_LINEAR
 		glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-		// Swizzle (i.e. source) G and B channels from channel R (it is possible to perform it in shader code - e.g. "color = texture(s, uv).rrra;" - but constrains shader reuse).
+		// Swizzle
 		glTextureParameteri(texture, GL_TEXTURE_SWIZZLE_G, GL_RED);
 		glTextureParameteri(texture, GL_TEXTURE_SWIZZLE_B, GL_RED);
 

@@ -112,7 +112,7 @@
 
 - texelFetch
 
-	Description: Access a texture (specific mip level) by specified (signed integer) coordinates. Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. sampler1D - vec4; isampler2D - ivec4; usampler3D - uvec4). Default values for unused channels: 0 for color (RGB); 1 for alpha.
+	Description: Fetch an existing texel by specified (signed integer) unnormalized coordinates and mip level. Bypass sampling (not apply neither wrapping nor filtering). Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. sampler1D - vec4; isampler2D - ivec4; usampler3D - uvec4). Default values for unused channels: 0 for color (RGB); 1 for alpha.
 	Use: All
 	Type: Function
 	Example:
@@ -121,7 +121,7 @@
 
 - texture
 
-	Description: Access a texture by specified (floating point) coordinates. Output is always a vec4 variable (data type of vector elements will depend on target sampler). Default values for unused channels: 0 for color (RGB); 1 for alpha.
+	Description: Get a texel (existing or not - calculated) by specified (floating point) normalized (size-independent) coordinates. Output is always a vec4 variable (data type of vector elements will depend on target sampler). Default values for unused channels: 0 for color (RGB); 1 for alpha.
 	Use: All
 	Type: Function
 	Example:

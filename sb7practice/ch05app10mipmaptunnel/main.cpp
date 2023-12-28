@@ -54,7 +54,9 @@ public:
 	{
 		sb7::application::onKey(key, action);
 
-		// Check keyboard arrows to move camera foward/backward
+		// Check keyboard arrows to...
+		// - move camera foward/backward
+		// - switch (left) texture sampling mode
 		switch (key)
 		{
 		case GLFW_KEY_UP:
@@ -69,6 +71,24 @@ public:
 			{
 				// Backward
 				MoveCamera(0.5f);
+			}
+			break;
+		case GLFW_KEY_A:
+			if (action)
+			{
+				SwapTextureWrappingMode(textureLeft);
+			}
+			break;
+		case GLFW_KEY_S:
+			if (action)
+			{
+				SwapTextureMagnificationFilteringMode(textureLeft);
+			}
+			break;
+		case GLFW_KEY_D:
+			if (action)
+			{
+				SwapTextureMinificationFilteringMode(textureLeft);
 			}
 			break;
 		default:
@@ -276,16 +296,124 @@ private:
 		cameraProjectionMatrix = vmath::perspective(fov, aspect, n, f);
 	}
 
-	void SetupTexture(GLuint texture, GLenum wrapping, GLenum filteringMagnification, GLenum filteringMinification)
+	void SetupTexture(GLuint texture, GLint wrapping = GL_ZERO, GLint magnificationFiltering = GL_ZERO, GLint minificationfiltering = GL_ZERO)
 	{
 		// Wrapping
-		glTextureParameteri(texture, GL_TEXTURE_WRAP_R, wrapping);
-		glTextureParameteri(texture, GL_TEXTURE_WRAP_S, wrapping);
+		if (wrapping)
+		{
+			glTextureParameteri(texture, GL_TEXTURE_WRAP_R, wrapping);
+			glTextureParameteri(texture, GL_TEXTURE_WRAP_S, wrapping);
+
+			// Border color
+			const float color[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+			glTextureParameterfv(texture, GL_TEXTURE_BORDER_COLOR, color);
+		}
 
 		// Filtering
-		glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, filteringMagnification);
-		glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, filteringMinification);
+		if (magnificationFiltering)
+		{
+			glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, magnificationFiltering);
+		}
+		
+		if (minificationfiltering)
+		{
+			glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, minificationfiltering);
+		}
 	}
+
+	void SwapTextureWrappingMode(GLuint texture)
+	{
+		GLint nextWrappingMode = GetNextWrappingMode(texture);
+		SetupTexture(texture, nextWrappingMode);
+	}
+
+	GLint GetNextWrappingMode(GLuint texture)
+	{
+		GLint currentWrappingMode;
+		glGetTextureParameteriv(texture, GL_TEXTURE_WRAP_R, &currentWrappingMode);
+
+		switch (currentWrappingMode)
+		{
+		case GL_REPEAT:
+			return GL_MIRRORED_REPEAT;
+			break;
+		case GL_MIRRORED_REPEAT:
+			return GL_CLAMP_TO_EDGE;
+			break;
+		case GL_CLAMP_TO_EDGE:
+			return GL_CLAMP_TO_BORDER;
+			break;
+		case GL_CLAMP_TO_BORDER:
+			return GL_REPEAT;
+			break;
+		default:
+			return GL_REPEAT;
+			break;
+		}
+	}
+
+	void SwapTextureMagnificationFilteringMode(GLuint texture)
+	{
+		GLenum nextMagnificationFilteringMode = GetNextMagnificationFilteringMode(texture);
+		SetupTexture(texture, GL_ZERO, nextMagnificationFilteringMode);
+	}
+
+	GLint GetNextMagnificationFilteringMode(GLuint texture)
+	{
+		GLint currentMagnificationFilteringMode;
+		glGetTextureParameteriv(texture, GL_TEXTURE_MAG_FILTER, &currentMagnificationFilteringMode);
+
+		switch (currentMagnificationFilteringMode)
+		{
+		case GL_NEAREST:
+			return GL_LINEAR;
+			break;
+		case GL_LINEAR:
+			return GL_NEAREST;
+			break;
+		default:
+			return GL_NEAREST;
+			break;
+		}
+	}
+
+	void SwapTextureMinificationFilteringMode(GLuint texture)
+	{
+		GLenum nextMinificationFilteringMode = GetNextMinificationFilteringMode(texture);
+		SetupTexture(texture, GL_ZERO, GL_ZERO, nextMinificationFilteringMode);
+	}
+
+	GLint GetNextMinificationFilteringMode(GLuint texture)
+	{
+		GLint currentMinificationFilteringMode;
+		glGetTextureParameteriv(texture, GL_TEXTURE_MIN_FILTER, &currentMinificationFilteringMode);
+
+		switch (currentMinificationFilteringMode)
+		{
+		case GL_NEAREST:
+			return GL_LINEAR;
+			break;
+		case GL_LINEAR:
+			return GL_NEAREST_MIPMAP_NEAREST;
+			break;
+		case GL_NEAREST_MIPMAP_NEAREST:
+			return GL_NEAREST_MIPMAP_LINEAR;
+			break;
+		case GL_NEAREST_MIPMAP_LINEAR:
+			return GL_LINEAR_MIPMAP_NEAREST;
+			break;
+		case GL_LINEAR_MIPMAP_NEAREST:
+			return GL_LINEAR_MIPMAP_LINEAR;
+			break;
+		case GL_LINEAR_MIPMAP_LINEAR:
+			return GL_NEAREST;
+			break;
+		default:
+			return GL_NEAREST;
+			break;
+		}
+	}
+
 private:
 	GLuint program;
 

@@ -132,3 +132,7 @@ Note: Base new project on previously created project template.
 ### 4.2 Add required stuff
 
 ### 4.3 Compile, run and enjoy!
+
+## List of TODO
+
+- Chapter 05 Application 08 Textured triangle: Fix hard-coded 2D RGBA texture code.

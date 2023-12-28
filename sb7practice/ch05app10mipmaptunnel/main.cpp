@@ -301,8 +301,8 @@ private:
 		// Wrapping
 		if (wrapping)
 		{
-			glTextureParameteri(texture, GL_TEXTURE_WRAP_R, wrapping);
 			glTextureParameteri(texture, GL_TEXTURE_WRAP_S, wrapping);
+			glTextureParameteri(texture, GL_TEXTURE_WRAP_T, wrapping);
 
 			// Border color
 			const float color[] = { 1.0f, 1.0f, 0.0f, 1.0f };
@@ -330,7 +330,7 @@ private:
 	GLint GetNextWrappingMode(GLuint texture)
 	{
 		GLint currentWrappingMode;
-		glGetTextureParameteriv(texture, GL_TEXTURE_WRAP_R, &currentWrappingMode);
+		glGetTextureParameteriv(texture, GL_TEXTURE_WRAP_S, &currentWrappingMode);
 
 		switch (currentWrappingMode)
 		{

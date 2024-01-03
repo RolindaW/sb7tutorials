@@ -55,6 +55,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app09wrappedobject", "c
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app10mipmaptunnel", "ch05app10mipmaptunnel\ch05app10mipmaptunnel.vcxproj", "{A339E5D4-DB6F-49ED-AB26-F072F7C9E06B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app11alienrain", "ch05app11alienrain\ch05app11alienrain.vcxproj", "{F673D082-C061-4942-8611-6D1C211DC43C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -165,6 +167,10 @@ Global
 		{A339E5D4-DB6F-49ED-AB26-F072F7C9E06B}.Debug|x64.Build.0 = Debug|x64
 		{A339E5D4-DB6F-49ED-AB26-F072F7C9E06B}.Release|x64.ActiveCfg = Release|x64
 		{A339E5D4-DB6F-49ED-AB26-F072F7C9E06B}.Release|x64.Build.0 = Release|x64
+		{F673D082-C061-4942-8611-6D1C211DC43C}.Debug|x64.ActiveCfg = Debug|x64
+		{F673D082-C061-4942-8611-6D1C211DC43C}.Debug|x64.Build.0 = Debug|x64
+		{F673D082-C061-4942-8611-6D1C211DC43C}.Release|x64.ActiveCfg = Release|x64
+		{F673D082-C061-4942-8611-6D1C211DC43C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -98,7 +98,8 @@
 	Structured form of storage that can be both read and write by a shader.
 	Most often used to store image data.
 	Require (similarly to buffers) creation (texture object and related name), memory allocation and target binding (to one of the multiple texture units - 0, by default, if not specified - of a target to be precise), always specifying the corresponding target (or texture type).
-	Layouts: 1D, 2D (most common), 3D, rectangle (legacy 2D texture use case), cube map (related 6 square - 2D - images), buffer (buffered 1D texture use case), and multisample, together with corresponding array forms.
+	Layouts: 1D, 2D (most common), 3D, rectangle (legacy 2D texture use case), cube map (related 6 square - 2D - images), buffer (buffered 1D texture use case), and multisample (multiple colors per texel), together with corresponding array forms (1D, 2D, cube map, and multisample array).
+	Store multiple textures: higher order texture type vs. corresponding array texture type (e.g. 3D vs. 2D array to store multiple 2D texture type)? Array texture type not apply filtering between layers (or array elements); require also using higher order texture type functions (e.g. memory allocation and data update).
 	
 	KTX (Khronos TeXture format): image format that can store all of the formats supported by OpenGL and represent advanced features like mipmaps, cube maps, and so on.
 	

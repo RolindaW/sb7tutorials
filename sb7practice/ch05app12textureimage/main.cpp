@@ -26,6 +26,8 @@ public:
 		glBindImageTexture(0, outputTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);;
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		
 		// Use rendering program to draw processed texture
 		glUseProgram(renderingProgram);

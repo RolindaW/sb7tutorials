@@ -95,7 +95,7 @@
 	Use: All
 	Type: Function
 
-- memoryBarrier
+- memoryBarrier / memoryBarrier*
 
 	Description: Any memory reads or writes that you might have performed will complete before the function returns. Also specialized versions (e.g. memoryBarrierBuffers; orders transactions on reads and writes to buffers, but to nothing else).
 	Use: All
@@ -136,6 +136,43 @@
 	Example:
 	
 		ivec2 size = textureSize(s, 0);
+
+- image*
+
+	Description: A variable type to represent an image of a particular type (image1D - GL_TEXTURE_1D; image2D - GL_TEXTURE_2D; etc.). Default images represent floating point data, but it is possible to refer signed or unsigned integer data textures using a prefix (e.g. iimage2D or uimage2D). A format qualifier must be used for compatibility reasons because of loads (read from image).
+	Use: All
+	Type: Custom input variable (based on uniform)
+	Example:
+	
+		layout (binding = 0, rgba32ui) readonly uniform uimage2D image_in;
+		
+		- other -
+		
+		layout (binding = 1) writeonly uniform uimage2D image_out;
+
+- imageLoad
+
+	Description: Read from an image variable (no filtering is performed). Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. image1D - vec4; iimage2D - ivec4; uimage3D - uvec4).
+	Use: All
+	Type: Function
+	Example:
+	
+		???
+
+- imageStore
+
+	Description: Write to an image variable (no filtering is performed).
+	Use: All
+	Type: Function
+	Example:
+	
+		???
+
+- atomic operations on image
+
+	Description: Operate on members of an image: imageAtomicAdd, imageAtomicAnd, imageAtomicOr, ... Only for signed "int" and unsigned "uint" integer data type.
+	Use: All
+	Type: Function
 
 - layout
 
@@ -227,7 +264,7 @@
 	Type: Built-in input variable
 	Example:
 	
-		gl_Position = vec4(0.0, 0.0, 0.5, 1.0);
+		color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);
 
 - mix
 

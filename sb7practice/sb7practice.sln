@@ -57,6 +57,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app10mipmaptunnel", "ch
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app11alienrain", "ch05app11alienrain\ch05app11alienrain.vcxproj", "{F673D082-C061-4942-8611-6D1C211DC43C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app12textureimage", "ch05app12textureimage\ch05app12textureimage.vcxproj", "{D7BEA755-017E-4D92-BE50-1901532F2498}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -171,6 +173,10 @@ Global
 		{F673D082-C061-4942-8611-6D1C211DC43C}.Debug|x64.Build.0 = Debug|x64
 		{F673D082-C061-4942-8611-6D1C211DC43C}.Release|x64.ActiveCfg = Release|x64
 		{F673D082-C061-4942-8611-6D1C211DC43C}.Release|x64.Build.0 = Release|x64
+		{D7BEA755-017E-4D92-BE50-1901532F2498}.Debug|x64.ActiveCfg = Debug|x64
+		{D7BEA755-017E-4D92-BE50-1901532F2498}.Debug|x64.Build.0 = Debug|x64
+		{D7BEA755-017E-4D92-BE50-1901532F2498}.Release|x64.ActiveCfg = Release|x64
+		{D7BEA755-017E-4D92-BE50-1901532F2498}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

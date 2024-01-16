@@ -264,6 +264,14 @@
 	Example:
 	
 		glBindTextureUnit(0, texture);
+		
+- glBindImageTexture
+
+	Description: Bind a named texture object to the specified image unit (specified format must match the class - number of channels and data type size - of texture internal format; specified access must fit shader code requirements).
+	Use: Startup
+	Example:
+	
+		???
 
 - glDeleteTextures
 

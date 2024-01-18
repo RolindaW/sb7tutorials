@@ -23,7 +23,7 @@ public:
 		glUseProgram(texturingProgram);
 
 		glBindTexture(GL_TEXTURE_2D, inputTexture);
-		glBindImageTexture(0, outputTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);;
+		glBindImageTexture(0, outputTexture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 

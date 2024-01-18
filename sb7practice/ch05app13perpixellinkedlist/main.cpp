@@ -14,6 +14,7 @@ public:
 		InitializeObject();
 		InitializeAtomicCounter();
 		InitializeFramebuffer();
+		InitializeLinkedList();
 	}
 
 	void render(double currentTime)
@@ -34,7 +35,7 @@ public:
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 		glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32UI);
 
-		// TODO: Reset linked list (shader storage block)
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
 		glUniformMatrix4fv(0, 1, GL_FALSE, viewMatrix * modelWorldMatrix);
 		glUniformMatrix4fv(1, 1, GL_FALSE, projectionMatrix);
@@ -42,17 +43,23 @@ public:
 		object.render();
 
 		// Read the value of the atomic counter and save the highest value (just because curious) - in this case it depends on object orientation
-		GLuint atomicCounter = CheckAtomicCounter();
-		atomicCounterMaxValue = atomicCounter > atomicCounterMaxValue ? atomicCounter : atomicCounterMaxValue;
+		//GLuint atomicCounter = CheckAtomicCounter();
+		//atomicCounterMaxValue = atomicCounter > atomicCounterMaxValue ? atomicCounter : atomicCounterMaxValue;
 
-		// TODO: Barriers: atomic counter, texture image and shader storage block
+		// Read the value of an item from the linked list (just because curious)
+		//CheckLinkedList();
+
+		// Barriers: atomic counter, texture image and shader storage block
 		glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-		// TODO: *** Traverse linked list
+		// *** Traverse linked list
 		glUseProgram(traversingProgram);
 
 		glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32UI);
+
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
 		glUniformMatrix4fv(0, 1, GL_FALSE, viewMatrix * modelWorldMatrix);
 		glUniformMatrix4fv(1, 1, GL_FALSE, projectionMatrix);
@@ -66,6 +73,7 @@ public:
 		DestroyObject();
 		DestroyAtomicCounter();
 		DestroyFramebuffer();
+		DestroyLinkedList();
 	}
 
 public:
@@ -127,7 +135,18 @@ private:
 			"// 2D image to store head pointers									\n"
 			"layout (binding = 0, r32ui) uniform uimage2D head_pointer;			\n"
 			"																	\n"
-			"//out vec4 color;													\n"
+			"struct list_item													\n"
+			"{																	\n"
+			"	float depth;													\n"
+			"	int facing;														\n"
+			"	uint prev;														\n"
+			"};																	\n"
+			"																	\n"
+			"// Linked list														\n"
+			"layout (binding = 0, std430) buffer list_item_block				\n"
+			"{																	\n"
+			"	list_item items[];												\n"
+			"};																	\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
@@ -139,7 +158,10 @@ private:
 			"	uint old_head = imageAtomicExchange(head_pointer, P, index);	\n"
 			"	memoryBarrierImage();											\n"
 			"																	\n"
-			"	//color = vec4(0.0, 1.0, 0.0, 1.0);								\n"
+			"	items[index].depth = gl_FragCoord.z;							\n"
+			"	items[index].facing = gl_FrontFacing ? 1 : 0;					\n"
+			"	items[index].prev = old_head;									\n"
+			"	memoryBarrierBuffer();											\n"
 			"}																	\n"
 		};
 
@@ -159,22 +181,51 @@ private:
 			"// 2D image storing head pointers									\n"
 			"layout (binding = 0, r32ui) readonly uniform uimage2D head_pointer;\n"
 			"																	\n"
+			"struct list_item													\n"
+			"{																	\n"
+			"	float depth;													\n"
+			"	int facing;														\n"
+			"	uint prev;														\n"
+			"};																	\n"
+			"																	\n"
+			"// Linked list														\n"
+			"layout (binding = 0, std430) readonly buffer list_item_block		\n"
+			"{																	\n"
+			"	list_item items[];												\n"
+			"};																	\n"
+			"																	\n"
 			"out vec4 color;													\n"
+			"																	\n"
+			"const uint max_fragments = 10;										\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
+			"	uint frag_count = 0;											\n"
+			"	float depth_accum = 0.0;										\n"
 			"	ivec2 P = ivec2(gl_FragCoord.xy);								\n"
 			"																	\n"
 			"	uint index = imageLoad(head_pointer, P).x;						\n"
 			"																	\n"
-			"	if (index == 0xFFFFFFFF)										\n"
+			"	while (index != 0xFFFFFFFF && frag_count < max_fragments)		\n"
 			"	{																\n"
-			"		color = vec4(0.0, 0.0, 0.0, 1.0);							\n"
+			"		list_item this_item = items[index];							\n"
+			"																	\n"
+			"		if (this_item.facing == 1)									\n"
+			"		{															\n"
+			"			depth_accum -= this_item.depth;							\n"
+			"		}															\n"
+			"		else														\n"
+			"		{															\n"
+			"			depth_accum += this_item.depth;							\n"
+			"		}															\n"
+			"																	\n"
+			"		index = this_item.prev;										\n"
+			"		frag_count++;												\n"
 			"	}																\n"
-			"	else															\n"
-			"	{																\n"
-			"		color = vec4(1.0, 1.0, 1.0, 1.0);							\n"
-			"	}																\n"
+			"																	\n"
+			"	depth_accum *= 1000.0;											\n"
+			"																	\n"
+			"	color = vec4(depth_accum, depth_accum, depth_accum, 1.0);		\n"
 			"}																	\n"
 		};
 
@@ -290,6 +341,76 @@ private:
 		glDeleteTextures(1, &texture);
 	}
 
+	void InitializeLinkedList()
+	{
+		// For current application setttings ...
+		// - window size
+		// - camera pose (position and orientation)
+		// - object pose (position, orientation and scale)
+		// ... the highest number of generated fragments on a specific object orientation on Y axis is 258894.
+		// So, initializing a buffered shader storage block with space enough for 260000 items (linked list) would be enough
+
+		const unsigned int itemCount = 260000;
+
+		linkedList = new LinkedListItem[itemCount];
+
+		glCreateBuffers(1, &ssbo);
+		glNamedBufferStorage(ssbo, sizeof(LinkedListItem) * itemCount, &(linkedList[0]), /*GL_MAP_WRITE_BIT |*/ GL_MAP_READ_BIT);  // GL_MAP_WRITE_BIT access flag only if buffer reset required
+	}
+
+	/// <summary>
+	/// An example of how to map a shader storage block buffer for writing
+	/// Corresponding access flag (GL_MAP_WRITE_BIT) is required on buffer memory allocation
+	/// </summary>
+	void ResetLinkedList()
+	{
+		LinkedListItem* ssboData = (LinkedListItem*)glMapNamedBufferRange(ssbo,
+																			0, sizeof(LinkedListItem) * 2,
+																			GL_MAP_WRITE_BIT);
+
+		ssboData[0].prev = 87;
+		ssboData[1].prev = 88;
+
+		glUnmapNamedBuffer(ssbo);
+	}
+
+	/// <summary>
+	/// An example of how to map a shader storage block buffer for reading
+	/// Find the first item linking occurrence, i.e. the first time a fragment instance occurs for a position that already happended
+	/// Notice this may change between drawing commands as the order of shader instaces execution is unknown (parallel execution)
+	/// </summary>
+	void CheckLinkedList()
+	{
+		LinkedListItem* ssboData = (LinkedListItem*)glMapNamedBufferRange(ssbo,
+																			0, sizeof(LinkedListItem) * 10000,
+																			GL_MAP_READ_BIT);
+		int firstItemLinkOccurrence;
+		for (int i = 0; i < 10000; i++)
+		{
+			if (ssboData[i].prev != 0xFFFFFFFF)
+			{
+				firstItemLinkOccurrence = i;
+				break;
+			}
+		}
+
+		glUnmapNamedBuffer(ssbo);
+	}
+
+	void DestroyLinkedList()
+	{
+		glDeleteBuffers(1, &ssbo);
+		delete[] linkedList;
+	}
+
+private:
+		struct LinkedListItem
+		{
+			GLfloat depth;
+			GLint facing;
+			GLuint prev;
+		};
+
 private:
 	GLuint fillingProgram;
 	GLuint traversingProgram;
@@ -305,9 +426,10 @@ private:
 	GLuint atomicCounterMaxValue = 0;
 
 	GLuint texture;
-};
 
-// TODO: Implement shader storage block list in ither GL code and shader code
+	GLuint ssbo;
+	LinkedListItem* linkedList;
+};
 
 // Our one and only instance of DECLARE_MAIN
 DECLARE_MAIN(my_application);

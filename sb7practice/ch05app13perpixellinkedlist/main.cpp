@@ -433,3 +433,39 @@ private:
 
 // Our one and only instance of DECLARE_MAIN
 DECLARE_MAIN(my_application);
+
+/*
+
+Notes
+
+Atomic counter is used to generate per-fragment indices
+Texture image is used to store the indices - by position (fragment coordinate) - of lastly processed fragment
+Shader storage block is used to store a linked list
+
+Atomic counter and texture image require to be reset before each filling fragment shader execution
+Shader storage block is not required to be reset as exactly same all items being processed during traversing fragment shader execution would be updated previously during filling fragment shader execution; there is no risk to have incorrectly linked active items in the list
+
+It is possible to avoid using a texture image (or a shader storage block if preferred) if the fragment coordinate is stored as an item member in the linked list
+If so, we should only maintain this list, but performance during traversing fragment shadding execution would be higher
+
+This is by far not the most efficient way to access the corresponding elements (by index) of the texture image variable
+Surely (I do not know, but I have seen something on the Internet), it would be possible to force a more specific iteration (for the texture image variable) with a Compute Shader
+In this case, we are processing all the fragments, when it would not really be necessary
+For the same position, there may be more than one fragment that has an entry in the list, but for this calculation, we are only interested in the highest one
+Hence, regardless of the fragment instance that is executed, the one whose index is in the texture image variable is always searched in the list
+So, for all fragment instances in the same position, the same index will always be taken (the one in the texture image variable) and the same number of linked elements in the list will always be iterated in the same order
+As they will all produce the same output (the alpha is the same, because the purpose of this shader is that OpenGL does not have to do depth test or geometry discarding - culling - in the vertex post-processing stage), it is a loss of efficiency to process the n fragments of the same position; only one would be enough
+
+The initialization value of the framebuffer could be, as in the example, the maximum value of a uint type variable (32 bits for values): 0xFFFFFFFFFFFFFFFF
+Here, we would run the risk that if the atomic counter (also uint) reached its maximum value (0xFFFFFFFFFFFF), we would not be able to distinguish between a framebuffer initialization value and the index itself
+We would have problems in the processing of the texture image variable because when trying to search in the list from that index read, we would not know if we should discard it or, if it will effectively refer to the index of the last processable fragment
+It should be noted that, given the case, it would be more than likely that there would be more fragments than this one to process, but it would not be possible because we could not generate more indexes, so the result of this shaing would be incomplete
+
+Another approach would be to use a framebuffer of type int (1 bit sign; 31 bits for values)
+We would use the value -1 to initialize the framebuffer and thus we would not have the problem of the previous case
+The drawback with this approach would be that we would lose half of the values available for storing fragment indices
+With 32 bits (0xFFFFFFFFFFFF) we have 4,294,967,295 values, while with 31 bits (0x7FFFFFFFFFFF) we only have 2,147,483,647 (half the number of values available for storing fragment indices)
+We are talking, by no means, of more than 2 billion values that we no longer have at our disposal because of this security
+In my opinion, I think that, in terms of efficiency, it would not be convenient
+
+*/

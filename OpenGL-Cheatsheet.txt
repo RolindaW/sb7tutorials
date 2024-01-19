@@ -43,7 +43,7 @@
 
 - glBindBuffer
 
-	Description: Bind a buffer object to a target (GL_ARRAY_BUFFER, GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, etc.) in the current OpenGL context.
+	Description: Bind a buffer object to a buffer target (GL_ARRAY_BUFFER, GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, etc.); buffer value zero is reserved (unbinds any buffer object previously bound for specified buffer target).
 	Use: Rendering
 	Example:
 
@@ -51,7 +51,7 @@
 		
 - glBindBufferBase
 
-	Description: Bind a buffer object to an indexed buffer target (GL_UNIFORM_BUFFER, GL_ATOMIC_COUNTER_BUFFER, etc.).
+	Description: Bind a buffer object to an indexed buffer target (GL_UNIFORM_BUFFER, GL_SHADER_STORAGE_BUFFER, GL_ATOMIC_COUNTER_BUFFER, or GL_TRANSFORM_FEEDBACK_BUFFER) i.e. to both specified indexed buffer target index and its generic binding point (like "glBindBuffer" does).
 	Use: Rendering
 	Example:
 
@@ -247,7 +247,7 @@
 	Use: Startup
 	Example:
 	
-		???
+		glGenerateTextureMipmap(texture);
 
 - glBindTexture
 
@@ -271,7 +271,7 @@
 	Use: Startup
 	Example:
 	
-		???
+		glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
 - glDeleteTextures
 

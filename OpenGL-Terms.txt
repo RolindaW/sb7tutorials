@@ -110,6 +110,20 @@
 		Normally, single per-vertex set is enough to access every texture of the material bound to a game object.
 		Can be generated offline procedurally or assigned by hand by an artist using a modeling program and stored in a game object file.
 		Usually, normalized: range between 0.0 and 1.0 (it is possible specifying texture coordinates out of range).
+	
+	Compression
+	
+		Benefits: reduce the amount of storage space required for image data; require less memory bandwidth (because the graphics processor needs to read less data when fetching from a compressed texture).
+		Supported format types: generic (implementation specific), RGTC (one- and two-channel signed and unsigned textures), BPTC (8-bit per-channel normalized data and 32-bit per-channel floating-point data), ETC2 / EAC (extremely low bit-per-pixel applications), and others implementation specific (e.g. S3TC - earlier version of DXT format - and ETC1).
+		Ask OpenGL to compress a texture in some formats when load (not recommended) vs. load compressed texture (stored in a file - imaging tools used for creating textures and other images allow to save data directly in a compressed format).
+		No real difference from using uncompressed textures (GPU handles the conversion when it samples from the texture).
+	
+	Views
+	
+		Reuse texture data in one texture object with another (because existing textures might not match what shaders expect).
+		Use cases: pretend that a texture of one type is actually a texture of a different type (e.g. 2D texture and single layer 2D array view); pretend that the data in the texture object is actually a different format (must be compatible i.e. same class) than what is really stored in memory (e.g. GL_RGBA32F texture and GL_RGBA32UI view).
+		Most texture targets (all except buffer textures) can have at least a view of a texture with the same target.
+		Once a view of a texture is created, it can be used like any other texture of the new type (i.e. on either OpenGL and shader code).
 
 - Texture sampling
 

@@ -157,7 +157,7 @@
 	Type: Function
 	Example:
 	
-		???
+		color = imageLoad(image_in, ivec2(gl_FragCoord.xy));
 
 - imageStore
 
@@ -166,7 +166,7 @@
 	Type: Function
 	Example:
 	
-		???
+		imageStore(image_out, ivec2(gl_FragCoord.xy), data.abgr);
 
 - atomic operations on image
 

@@ -1,4 +1,17 @@
 
+*
+* QUALIFIER *
+*
+
+- layout
+
+	Description: A layout qualifier (keyword) to affect where the storage for a variable comes from.
+	Use: All
+	Type: Custom input/output variable
+	Example:
+	
+		layout (location = 0) in vec4 offset;
+
 - in
 
 	Description: A storage qualifier (keyword) to define input variables.
@@ -8,7 +21,7 @@
 	
 		layout (location = 0) in vec4 offset;
 		gl_Position = vertices[gl_VertexID] + offset;
-		
+
 - out
 
 	Description: A storage qualifier to define output variables.
@@ -18,16 +31,11 @@
 	
 		out vec4 color;
 		color = vec4(0.0, 0.8, 1.0, 1.0);
-		
-- uniform
 
-	Description: A storage qualifier to define input variables. It is possible to initialize them to a default value in a shader.
-	Use: All
-	Type: Custom constant input variable
-	Example:
-	
-		uniform vec4 material_color;
-		
+*
+* DATA *
+*
+
 - interface block
 
 	Description: Group together a number of input/output variables. Block name (uppercase; match between stages - shaders) vs. instance name (lowercase; reference in shader). Only between stages; not input/output to/from OpenGL graphics pipeline.
@@ -40,7 +48,16 @@
 			vec4 color;
 		} vs_out;
 		vs_out.color = vec4(0.0, 0.8, 1.0, 1.0);
-		
+
+- uniform (default block)
+
+	Description: A storage qualifier to define input variables. It is possible to initialize them to a default value in a shader.
+	Use: All
+	Type: Custom constant input variable
+	Example:
+	
+		uniform vec4 material_color;
+
 - uniform block
 
 	Description: Use case of interface blocks ("uniform" keyword). It is possible specifying a packing layout qualifier (packed, shared - default, std140) for the memory layout.
@@ -73,13 +90,7 @@
 		{
 			vec4 foo;
 		};
-		
-- atomic operations on shader storage block
 
-	Description: Operate on members of a shader storage block: atomicAdd, atomicAnd, atomicOr, ... Only for signed "int" and unsigned "uint" integer data type.
-	Use: All
-	Type: Function
-		
 - atomic counter
 
 	Description: Use case of interface blocks ("uniform atomic_uint" keywords).
@@ -89,18 +100,6 @@
 	
 		layout (binding = 3, offset = 8) uniform atomic_uint my_variable;
 
-- atomic operations on atomic counter
-
-	Description: Operate on an atomic counter: atomicCounterIncrement, atomicCounterDecrement, atomicCounter. Only for unsigned integer "uint" data type.
-	Use: All
-	Type: Function
-
-- memoryBarrier / memoryBarrier*
-
-	Description: Any memory reads or writes that you might have performed will complete before the function returns. Also specialized versions (e.g. memoryBarrierBuffers; orders transactions on reads and writes to buffers, but to nothing else).
-	Use: All
-	Type: Function
-
 - sampler*
 
 	Description: A variable type to represent a texture of a particular type (sampler1D - GL_TEXTURE_1D; sampler2D - GL_TEXTURE_2D; etc.) and corresponding sampling parameters. Default samplers represent floating point data, but it is possible to refer signed or unsigned integer data textures using a prefix (e.g. isampler2D or usampler2D).
@@ -109,33 +108,6 @@
 	Example:
 	
 		uniform sampler2D s;
-
-- texelFetch
-
-	Description: Fetch an existing texel by specified (signed integer) unnormalized coordinates and mip level. Bypass sampling (not apply neither wrapping nor filtering). Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. sampler1D - vec4; isampler2D - ivec4; usampler3D - uvec4). Default values for unused channels: 0 for color (RGB); 1 for alpha.
-	Use: All
-	Type: Function
-	Example:
-	
-		vec4 color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);
-
-- texture
-
-	Description: Get a texel (existing or not - calculated) by specified (floating point) normalized (size-independent) coordinates. Output is always a vec4 variable (data type of vector elements will depend on target sampler). Default values for unused channels: 0 for color (RGB); 1 for alpha.
-	Use: All
-	Type: Function
-	Example:
-	
-		vec4 color = texture(s, gl_FragCoord.xy);
-
-- textureSize
-
-	Description: Retrieve the dimensions of a level of a texture. Output size depends on texture type (data type is always integer).
-	Use: All
-	Type: Function
-	Example:
-	
-		ivec2 size = textureSize(s, 0);
 
 - image*
 
@@ -150,38 +122,9 @@
 		
 		layout (binding = 1) writeonly uniform uimage2D image_out;
 
-- imageLoad
-
-	Description: Read from an image variable (no filtering is performed). Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. image1D - vec4; iimage2D - ivec4; uimage3D - uvec4).
-	Use: All
-	Type: Function
-	Example:
-	
-		color = imageLoad(image_in, ivec2(gl_FragCoord.xy));
-
-- imageStore
-
-	Description: Write to an image variable (no filtering is performed).
-	Use: All
-	Type: Function
-	Example:
-	
-		imageStore(image_out, ivec2(gl_FragCoord.xy), data.abgr);
-
-- atomic operations on image
-
-	Description: Operate on members of an image: imageAtomicAdd, imageAtomicAnd, imageAtomicOr, ... Only for signed "int" and unsigned "uint" integer data type.
-	Use: All
-	Type: Function
-
-- layout
-
-	Description: A layout qualifier (keyword) to affect where the storage for a variable comes from.
-	Use: All
-	Type: Custom input/output variable
-	Example:
-	
-		layout (location = 0) in vec4 offset;
+*
+* BUILT-IN VARIABLE *
+*
 
 - gl_Position
 
@@ -247,16 +190,7 @@
 		gl_Position = (gl_TessCoord.x * gl_in[0].gl_Position +
 					   gl_TessCoord.y * gl_in[1].gl_Position +
 					   gl_TessCoord.z * gl_in[2].gl_Position);
-- EmitVertex
 
-	Description: Produce a vertex at the output of the geometry shader.
-	Use: Geometry shader
-	Type: Function
-	Example:
-	
-		gl_Position = gl_in[i].gl_Position;
-		EmitVertex();
-		
 - gl_FragCoord
 
 	Description: Position of the fragment within the window.
@@ -266,6 +200,71 @@
 	
 		color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);
 
+*
+* BUILT-IN FUNCTION *
+*
+
+- Summary
+
+	Operators: +, -, *, /.
+	Vector common: length() / distance() / normalize(), dot() / cross(), reflect() / refract(), faceForward(), outerProduct().
+	Comparison: lessThan() / lessThanEqual(), greaterThan() / greaterThanEqual(), equal() / notEqual(), any() / all() / not().		
+	Matrix common: transpose(), inverse(), determinant(), matrixCompMult().
+	Arithmetic: abs(), sign(), ceil(), floor(), trunc(), round(), roundEven(), fract(), mod(), modf(), min(), max().
+	Special: mix(), step(), smoothstep(), fma().
+	Large (un)signed integer: uaddCarry() / usubBorrow(), imulExtended() / umulExtended().
+	Trigonometry: sin(), cos(), tan(), inverses - asin(), acos(), atan() - and hyperbolic - sinh(), cosh(), tanh(), asinh(), acosh(), atanh().
+	Exponential: pow(), exp(), log(), exp2(), log2(), sqrt(), inversesqrt().
+	Angles: radians() / degrees().
+	Data manipulation: frexp() / ldexp(), intBitsToFloat() / floatBitsToInt(), uintBitsToFloat() / floatBitsToUint(), isnan(), isinf().
+	Data packing: packUnorm4x8() / unpackUnorm4x8(), packSnorm4x8() / unpackSnorm4x8(), packUnorm2x16() / unpackUnorm2x16(), packSnorm2x16() / unpackSnorm2x16(), packDouble2x32() / unpackDouble2x32().
+	Bitfield: bitFieldExtract() / bitfieldInsert() / bitfieldReverse(), bitCount(), findLSB() / findMSB().
+
+- texelFetch
+
+	Description: Fetch an existing texel by specified (signed integer) unnormalized coordinates and mip level. Bypass sampling (not apply neither wrapping nor filtering). Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. sampler1D - vec4; isampler2D - ivec4; usampler3D - uvec4). Default values for unused channels: 0 for color (RGB); 1 for alpha.
+	Use: All
+	Type: Function
+	Example:
+	
+		vec4 color = texelFetch(s, ivec2(gl_FragCoord.xy), 0);
+
+- texture
+
+	Description: Get a texel (existing or not - calculated) by specified (floating point) normalized (size-independent) coordinates. Output is always a vec4 variable (data type of vector elements will depend on target sampler). Default values for unused channels: 0 for color (RGB); 1 for alpha.
+	Use: All
+	Type: Function
+	Example:
+	
+		vec4 color = texture(s, gl_FragCoord.xy);
+
+- textureSize
+
+	Description: Retrieve the dimensions of a level of a texture. Output size depends on texture type (data type is always integer).
+	Use: All
+	Type: Function
+	Example:
+	
+		ivec2 size = textureSize(s, 0);
+
+- imageLoad
+
+	Description: Read from an image variable (no filtering is performed). Output is always a vec4 variable (data type of vector elements will depend on target sampler, e.g. image1D - vec4; iimage2D - ivec4; uimage3D - uvec4).
+	Use: All
+	Type: Function
+	Example:
+	
+		color = imageLoad(image_in, ivec2(gl_FragCoord.xy));
+
+- imageStore
+
+	Description: Write to an image variable (no filtering is performed).
+	Use: All
+	Type: Function
+	Example:
+	
+		imageStore(image_out, ivec2(gl_FragCoord.xy), data.abgr);
+
 - mix
 
 	Description: Linear interpolation (taking different dimensionalities of vectors or scalars as the A and B inputs and taking scalars or matching vectors for t).
@@ -274,3 +273,37 @@
 	Example:
 
 		mix(A, B, t);
+
+- EmitVertex
+
+	Description: Produce a vertex at the output of the geometry shader.
+	Use: Geometry shader
+	Type: Function
+	Example:
+	
+		gl_Position = gl_in[i].gl_Position;
+		EmitVertex();
+
+- atomic operations on shader storage block
+
+	Description: Operate on members of a shader storage block: atomicAdd, atomicAnd, atomicOr, ... Only for signed "int" and unsigned "uint" integer data type.
+	Use: All
+	Type: Function
+
+- atomic operations on atomic counter
+
+	Description: Operate on an atomic counter: atomicCounterIncrement, atomicCounterDecrement, atomicCounter. Only for unsigned integer "uint" data type.
+	Use: All
+	Type: Function
+
+- atomic operations on image
+
+	Description: Operate on members of an image: imageAtomicAdd, imageAtomicAnd, imageAtomicOr, ... Only for signed "int" and unsigned "uint" integer data type.
+	Use: All
+	Type: Function
+
+- memoryBarrier / memoryBarrier*
+
+	Description: Any memory reads or writes that you might have performed will complete before the function returns. Also specialized versions (e.g. memoryBarrierBuffers; orders transactions on reads and writes to buffers, but to nothing else).
+	Use: All
+	Type: Function

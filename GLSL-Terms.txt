@@ -53,32 +53,3 @@
 		Access by index.
 		
 	Other opaque data types: represent other data structures (e.g. sampler / image for textures).
-
-- Built-in functions
-
-	Operators: +, -, *, /.
-	Vector common: length() / distance() / normalize(), dot() / cross(), reflect() / refract(), faceForward(), outerProduct().
-	Comparison: lessThan() / lessThanEqual(), greaterThan() / greaterThanEqual(), equal() / notEqual(), any() / all() / not().		
-	Matrix common: transpose(), inverse(), determinant(), matrixCompMult().
-	Arithmetic: abs(), sign(), ceil(), floor(), trunc(), round(), roundEven(), fract(), mod(), modf(), min(), max().
-	Special: mix(), step(), smoothstep(), fma().
-	Large (un)signed integer: uaddCarry() / usubBorrow(), imulExtended() / umulExtended().
-	Trigonometry: sin(), cos(), tan(), inverses - asin(), acos(), atan() - and hyperbolic - sinh(), cosh(), tanh(), asinh(), acosh(), atanh().
-	Exponential: pow(), exp(), log(), exp2(), log2(), sqrt(), inversesqrt().
-	Angles: radians() / degrees().
-	Data manipulation: frexp() / ldexp(), intBitsToFloat() / floatBitsToInt(), uintBitsToFloat() / floatBitsToUint(), isnan(), isinf().
-	Data packing: packUnorm4x8() / unpackUnorm4x8(), packSnorm4x8() / unpackSnorm4x8(), packUnorm2x16() / unpackUnorm2x16(), packSnorm2x16() / unpackSnorm2x16(), packDouble2x32() / unpackDouble2x32().
-	Bitfield: bitFieldExtract() / bitfieldInsert() / bitfieldReverse(), bitCount(), findLSB() / findMSB().
-
-- Shader / Compiler
-
-	???
-
-- Programs / Linker
-
-	???
-
-- Program pipeline
-
-	???
-	

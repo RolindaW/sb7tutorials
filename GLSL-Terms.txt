@@ -1,0 +1,84 @@
+
+- C-like language
+
+	Similar syntax and model.
+	Suited for graphics (vector and matrix types are built into the language) and parallel execution (designed to run on massively parallel implementations - shader invocations).
+	Exception not support.
+	Function overloading support.
+
+- Data types
+
+	Scalar
+	
+		bool: true / false
+		float: single-precision floating point number (32 bit).
+		double: double-precision floating point number (64 bit).
+		int: signed integer (32 bit - 1 bit for sign; [- 2 147 483 648, 2 147 483 647]). Wrap if overflow.
+		uint: unsigned integer (32 bit; [0, 4 294 967 295]). Wrap if overflow.
+	
+	Vector
+	
+		As an array.
+		By size: vec2, vec3, and vec4.
+		Support all scalar types; require name decorator - prefix - if not float (bool - b; double - d; int - i; uint - u) e.g. bvec2, dvec2, ivec2, or uvec2.
+		Access: by index (array-like) vs. by component (xyzw; rgba; stpq) - allow swizzling.
+		Operations
+		
+			Vector-Scalar: multiplication (*), and division (/).
+			Vector-Vector: addition (+), substraction (-), multiplication (component-wise), and division (component-wise).
+	
+	Matrix
+	
+		As an array of vectors (columns) or two-dimensional array.
+		By size: (square) mat2, mat3, and mat4; (non-square) mat2x3, mat2x4, mat3x2, mat3x4, mat4x2, and mat4x3.
+		Support only floating point scalar types e.g. dmat2, dmat3x4, or dmat4x2.
+		Access: first component only by index; second component like a vector.
+		Operations
+		
+			Matrix-Scalar: multiplication, and division.
+			Matrix-Vector: multiplication.
+			Vector-Vector: addition, substraction, multiplication, and division (component-wise).
+	
+	Structure
+	
+		Syntax: "struct structure_name { ... };"
+		Support (as field) all scalar types, all vector and matrix types, other structures, and arrays (of any type).
+		Access by component (field).
+	
+	Array
+	
+		Syntax: "element_type var_name[var_size];" vs. "element_type[var_size] var_name;" (allow implicit type - usable as return value in a function - and its constructor definition)
+		Special method (member function): ".length
+		Support (as element type) all scalar types, all vector and matrix types, other structures, and arrays (not official support for multidimensional array).
+		Access by index.
+		
+	Other opaque data types: represent other data structures (e.g. sampler / image for textures).
+
+- Built-in functions
+
+	Operators: +, -, *, /.
+	Vector common: length() / distance() / normalize(), dot() / cross(), reflect() / refract(), faceForward(), outerProduct().
+	Comparison: lessThan() / lessThanEqual(), greaterThan() / greaterThanEqual(), equal() / notEqual(), any() / all() / not().		
+	Matrix common: transpose(), inverse(), determinant(), matrixCompMult().
+	Arithmetic: abs(), sign(), ceil(), floor(), trunc(), round(), roundEven(), fract(), mod(), modf(), min(), max().
+	Special: mix(), step(), smoothstep(), fma().
+	Large (un)signed integer: uaddCarry() / usubBorrow(), imulExtended() / umulExtended().
+	Trigonometry: sin(), cos(), tan(), inverses - asin(), acos(), atan() - and hyperbolic - sinh(), cosh(), tanh(), asinh(), acosh(), atanh().
+	Exponential: pow(), exp(), log(), exp2(), log2(), sqrt(), inversesqrt().
+	Angles: radians() / degrees().
+	Data manipulation: frexp() / ldexp(), intBitsToFloat() / floatBitsToInt(), uintBitsToFloat() / floatBitsToUint(), isnan(), isinf().
+	Data packing: packUnorm4x8() / unpackUnorm4x8(), packSnorm4x8() / unpackSnorm4x8(), packUnorm2x16() / unpackUnorm2x16(), packSnorm2x16() / unpackSnorm2x16(), packDouble2x32() / unpackDouble2x32().
+	Bitfield: bitFieldExtract() / bitfieldInsert() / bitfieldReverse(), bitCount(), findLSB() / findMSB().
+
+- Shader / Compiler
+
+	???
+
+- Programs / Linker
+
+	???
+
+- Program pipeline
+
+	???
+	

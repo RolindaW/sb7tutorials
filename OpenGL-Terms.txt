@@ -256,13 +256,10 @@
 
 	An element that may ultimately contribute to the final color of a pixel.
 
-- Shader / Compiler
+- Shader - Compiler / Program - Linker
 
-	???
-
-- Program / Linker
-
-	???
+	Every OpenGL implementation includes built-in compiler (generate binary file - internal form - from shader code) and linker (merge shader binaries into a program).
+	It is possible retrieving information about both compiling and linking processes e.g. process status (is compiled/linked) or information log.
 
 - Program pipeline
 

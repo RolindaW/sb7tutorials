@@ -61,6 +61,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app12textureimage", "ch
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch05app13perpixellinkedlist", "ch05app13perpixellinkedlist\ch05app13perpixellinkedlist.vcxproj", "{1569AED9-2576-4B34-8F9A-8F10BEEBA357}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch06app01shadercompilerinfo", "ch06app01shadercompilerinfo\ch06app01shadercompilerinfo.vcxproj", "{9F227C4A-485F-45CB-A3D1-FC6F0A468FF6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -183,6 +185,10 @@ Global
 		{1569AED9-2576-4B34-8F9A-8F10BEEBA357}.Debug|x64.Build.0 = Debug|x64
 		{1569AED9-2576-4B34-8F9A-8F10BEEBA357}.Release|x64.ActiveCfg = Release|x64
 		{1569AED9-2576-4B34-8F9A-8F10BEEBA357}.Release|x64.Build.0 = Release|x64
+		{9F227C4A-485F-45CB-A3D1-FC6F0A468FF6}.Debug|x64.ActiveCfg = Debug|x64
+		{9F227C4A-485F-45CB-A3D1-FC6F0A468FF6}.Debug|x64.Build.0 = Debug|x64
+		{9F227C4A-485F-45CB-A3D1-FC6F0A468FF6}.Release|x64.ActiveCfg = Release|x64
+		{9F227C4A-485F-45CB-A3D1-FC6F0A468FF6}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

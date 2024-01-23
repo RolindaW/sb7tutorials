@@ -148,7 +148,7 @@
 		glCreateBuffers(2, &buffers[0]);
 
 *
-* TEXTURE *
+* TEXTURE / IMAGE *
 *
 
 - glCreateTextures
@@ -363,6 +363,22 @@
 	Example:
 	
 		glDeleteShader(vertex_shader);
+
+- glGetShaderiv
+
+	Description: Get information parameter (GL_SHADER_TYPE, GL_DELETE_STATUS, GL_COMPILE_STATUS, GL_INFO_LOG_LENGTH, GL_SHADER_SOURCE_LENGTH) from a shader object.
+	Use: Startup
+	Example:
+	
+		glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &log_length);
+
+- glGetShaderInfoLog
+
+	Description: Get information log from a shader object.
+	Use: Startup
+	Example:
+	
+		glGetShaderInfoLog(fs, log_length, NULL, str.c_str());
 
 *
 * PROGRAM *

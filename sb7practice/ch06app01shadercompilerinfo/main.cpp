@@ -149,14 +149,21 @@ private:
 
 	std::string GetInfoLog(GLuint shader)
 	{
-		GLint infoLogLength;
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+		unsigned int infoLogLength = GetInfoLogLength(shader);
 
 		std::string infoLog;
 		infoLog.resize(infoLogLength);
 		glGetShaderInfoLog(shader, infoLogLength, NULL, &infoLog[0]);
 
 		return infoLog;
+	}
+
+	unsigned int GetInfoLogLength(GLuint shader)
+	{
+		GLint infoLogLength;
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+		return (unsigned int)infoLogLength;
 	}
 
 private:

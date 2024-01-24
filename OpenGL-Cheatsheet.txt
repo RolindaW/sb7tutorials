@@ -370,7 +370,7 @@
 	Use: Startup
 	Example:
 	
-		glGetShaderiv(fs, GL_INFO_LOG_LENGTH, &log_length);
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
 - glGetShaderInfoLog
 
@@ -378,7 +378,7 @@
 	Use: Startup
 	Example:
 	
-		glGetShaderInfoLog(fs, log_length, NULL, str.c_str());
+		glGetShaderInfoLog(shader, infoLogLength, NULL, &infoLog[0]);
 
 *
 * PROGRAM *
@@ -424,6 +424,22 @@
 	Example:
 	
 		glDeleteProgram(program);
+
+- glGetProgramiv
+
+	Description: Get information parameter (GL_ATTACHED_SHADERS, GL_DELETE_STATUS, GL_LINK_STATUS, GL_INFO_LOG_LENGTH, GL_ACTIVE_ATTRIBUTES, etc.) from a program object.
+	Use: Startup
+	Example:
+	
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+- glGetProgramInfoLog
+
+	Description: Get information log from a program object.
+	Use: Startup
+	Example:
+	
+		glGetProgramInfoLog(program, infoLogLength, NULL, &infoLog[0]);
 
 *
 * UNIFORM *

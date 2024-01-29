@@ -441,6 +441,64 @@
 	
 		glGetProgramInfoLog(program, infoLogLength, NULL, &infoLog[0]);
 
+- glProgramParameteri
+
+	Description:
+	
+		Set parameter (GL_PROGRAM_SEPARABLE, etc.) to a program object.
+		Use case: GL_PROGRAM_SEPARABLE - set a program object in separable mode (tell OpenGL not to eliminate any unused shader output; arrange any internal data layout so last shader in the program object can communicate with first shader in another program object with same input layout).
+		
+	Use: Startup
+	Example:
+	
+		glProgramParameteri(program, GL_PROGRAM_SEPARABLE, GL_TRUE);
+
+- glCreateShaderProgram / glCreateShaderProgramv
+
+	Description: Create a program object in separable mode containing compiled and linked shaders for a single stage.
+	Use: Startup
+	Example:
+	
+		glCreateShaderProgram(GL_FRAGMENT_SHADER, NULL, fragment_shader_source);
+
+*
+* PROGRAM PIPELINE *
+*
+
+- glCreateProgramPipelines
+
+	Description: Create a program pipeline object to which you can attach program objects.
+	Use: Startup
+	Example:
+	
+		GLuint program_pipeline;
+		glCreateProgramPipelines(1, &program_pipeline);
+
+- glUseProgramStages
+
+	Description: Bind stages of a program object (GL_VERTEX_SHADER_BIT, GL_TESS_CONTROL_SHADER_BIT, GL_TESS_EVALUATION_SHADER_BIT, GL_GEOMETRY_SHADER_BIT, GL_FRAGMENT_SHADER_BIT, and GL_COMPUTE_SHADER_BIT) to a program pipeline object.
+	Use: Startup / Rendering
+	Example:
+	
+		glUseProgramStages(program_pipeline, GL_VERTEX_SHADER_BIT, vs_program);
+		glUseProgramStages(program_pipeline, GL_FRAGMENT_SHADER_BIT, fs_program);
+
+- glBindProgramPipeline
+
+	Description: Bind a program pipeline to the current context.
+	Use: Startup / Rendering
+	Example:
+	
+		glBindProgramPipeline(program_pipeline);
+
+- glDeleteProgramPipelines
+
+	Description: Delete a program pipeline object.
+	Use: Shutdown
+	Example:
+	
+		glDeleteProgramPipelines(1, &program_pipeline);
+
 *
 * UNIFORM *
 *

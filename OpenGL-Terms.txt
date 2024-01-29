@@ -1,4 +1,11 @@
 
+- OpenGL vs. GLSL
+
+	OpenGl is not a programming language, but a (graphics) API (or library); GLSL is a (shadding) programming language.
+	OpenGL solution (e.g. game, simulator, or animation): application + rendering (or computing) programs.
+	Application: orchestrate what to render (geometry) and supply (or consume) resources (other vertex attributes, uniforms, shader storage blocks, atomic counters, and textures) required (or generated) by rendering programs.
+	Rendering programs: define how rendering is performed (based on supplied resources) e.g. coordinate space transformations, lighting models, visual effects (fog or shadows), etc.
+
 - Core profile vs. Compatibility profile
 
 	OpenGL specification is "forked" into to profiles.
@@ -263,4 +270,21 @@
 
 - Program pipeline
 
-	???
+	Different architecture strategies (or configurations): monolithic vs. separated.
+	Monolithic program: contain a shader (or more than one) for each active stage.
+	
+		Allow compiler to perform inter-stage optimizations during linking e.g. discard unused output from a vertex shader.
+		Potential cost of flexibility (because of program specialization; high number of possible shader combinations) and/or performance (because of program switching).
+		Interface matching occurs during program linking.
+	
+	Separated programs: multiple program objects each containing shaders for only a single stage in the pipeline (or just a few of the stages) i.e. each representing a section of the pipeline.
+	
+		Program objects are linked in separable mode (specified before linking) and attached (by stage; not full program required) to a program pipeline object.
+		Attached program objects still benefict from inter-stage optimizations individually (own attached shaders), but not between each other; can be switched around at will with relatively little cost in performance.
+		Interface matching occurs during program switching (every part of the interface is considered to be active and used during program linking).
+		It is necessary to redeclare "gl_PerVertex" block (e.g. field "gl_Position") in the vertex shader stage.
+
+	Interface matching: safety (specific set of rules) and optimization process executed during program linking.
+	
+		Output variables of one shader stage end up connected to the inputs of the subsequent stage if they match exactly in name and type (plus others, depending on data type); it is possible to avoid matching by name if assign a location (with layout quialifier) to corresponding inputs and outputs.
+		It is possible to query input and output interfaces of a program.

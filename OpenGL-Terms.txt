@@ -284,7 +284,7 @@
 		Interface matching occurs during program switching (every part of the interface is considered to be active and used during program linking).
 		It is necessary to redeclare "gl_PerVertex" block (e.g. field "gl_Position") in the vertex shader stage.
 
-	Interface matching: safety (specific set of rules) and optimization process executed during program linking.
+	Interface matching: specific set of rules and optimization applied during program linking.
 	
-		Output variables of one shader stage end up connected to the inputs of the subsequent stage if they match exactly in name and type (plus others, depending on data type); it is possible to avoid matching by name if assign a location (with layout quialifier) to corresponding inputs and outputs.
-		It is possible to query input and output interfaces of a program.
+		Output variables of one shader stage end up connected to the inputs of the subsequent stage if they match exactly in name, type and qualification (plus others, depending on data type); it is possible to avoid matching by name if assign a location (with layout quialifier) to corresponding inputs and outputs.
+		It is possible to query input and output interfaces (and corresponding resources) of a program.

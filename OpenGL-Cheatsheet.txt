@@ -453,13 +453,41 @@
 	
 		glProgramParameteri(program, GL_PROGRAM_SEPARABLE, GL_TRUE);
 
-- glCreateShaderProgram / glCreateShaderProgramv
+- glGetProgramInterfaceiv
+
+	Description: Query a property (GL_ACTIVE_RESOURCES, GL_MAX_NAME_LENGTH, GL_MAX_NUM_ACTIVE_VARIABLES, and GL_MAX_NUM_COMPATIBLE_SUBROUTINES) of an interface (GL_PROGRAM_INPUT, GL_PROGRAM_OUTPUT, GL_UNIFORM, GL_UNIFORM_BLOCK, GL_SHADER_STORAGE_BLOCK, GL_ATOMIC_COUNTER_BUFFER, etc.) in a program object.
+	Use: Startup
+	Example:
+	
+		GLint outputs;
+		glGetProgramInterfaceiv(program, GL_PROGRAM_OUTPUT, GL_ACTIVE_RESOURCES, &outputs);
+
+- glGetProgramResourceiv
+
+	Description: Query multiple properties (GL_TYPE, GL_ARRAY_SIZE, GL_LOCATION, GL_LOCATION_INDEX, etc.) of a single active resource within an interface in a program object.
+	Use: Startup
+	Example:
+	
+		const GLenum properties[] = { GL_TYPE, GL_LOCATION };
+		GLint parameters[2];
+		glGetProgramResourceiv(program, GL_PROGRAM_OUTPUT, 0, 2, properties, sizeof(parameters), NULL, parameters);
+
+- glGetProgramResourceName
+
+	Description: Query the name of an indexed resource within an interface in a program object.
+	Use: Startup
+	Example:
+	
+		GLchar name[64];
+		glGetProgramResourceName(program, GL_PROGRAM_OUTPUT, 0, sizeof(name), NULL, name);
+
+- glCreateShaderProgramv
 
 	Description: Create a program object in separable mode containing compiled and linked shaders for a single stage.
 	Use: Startup
 	Example:
 	
-		glCreateShaderProgram(GL_FRAGMENT_SHADER, NULL, fragment_shader_source);
+		glCreateShaderProgramv(GL_FRAGMENT_SHADER, NULL, fragment_shader_source);
 
 *
 * PROGRAM PIPELINE *

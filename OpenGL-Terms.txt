@@ -1,19 +1,27 @@
 
+- OpenGL vs. GLSL
+
+	OpenGl is not a programming language, but a (graphics) API (or library); GLSL is a (shadding) programming language.
+	OpenGL solution (e.g. game, simulator, or animation): application + rendering (or computing) programs.
+	Application: orchestrate what to render (geometry) and supply (or consume) resources (other vertex attributes, uniforms, shader storage blocks, atomic counters, and textures) required (or generated) by rendering programs.
+	Rendering programs: define how rendering is performed (based on supplied resources) e.g. coordinate space transformations, lighting models, visual effects (fog or shadows), etc.
+
 - Core profile vs. Compatibility profile
 
 	OpenGL specification is "forked" into to profiles.
 	Core profile: Modern; Removes a number of legacy features, leaving only those that are truly accelerated by current graphics hardware.
 	Compatibility profile: Maintains backward compatibility with all revisions of OpenGL back to version 1.0.
 
-- Degenerate primitive
+- OpenGL extensions
 
-	A line with zero length or a triangle with zero area (have to or more vertices in the exact same place). OpenGL discards (degenerate) this type of primitive.
-	
+	Enhance OpenGL core functionality.
+	3 major classifications of extensions: vendor, EXT (written together by two or more vendors), and ARB (official part of OpenGL).
+
 - Fixed-function stage (block) vs. Programmable shader stage
 
 	Fixed-function stage: Non-programmable stage of the rendering pipeline. Can be (slightly) customized setting up built-in variables of the pipeline.
 	Programmable shader stage: Programmable stage of the rendering pipeline. Fully customizable.
-	
+
 - Rendering pipeline stages
 
 	Front-end vs. Back-end
@@ -40,6 +48,23 @@
 	
 	Compute shader: Can be thought of as a separate pipeline that runs indepdendently of the other graphics-oriented stages. Work item and local workgroups.
 
+- Degenerate primitive
+
+	A line with zero length or a triangle with zero area (have to or more vertices in the exact same place). OpenGL discards (degenerate) this type of primitive.
+
+- Barycentric Coordinates Interpolation
+
+	Interpolate vertex data across the triangle's surface.
+
+- Homogeneous coordinte system
+
+	Used in projective geometry (four-component variables); Here, math is simpler than in regular Cartesian space (three-component variables).
+
+- Perspective division
+
+	Transformation (divide all four components of the position by the last, w component) from homogeneous coordinates (or homogeneous space) to Cartesian coordinates (or Cartesian space).
+	Results in normalized device coordinates (or normalized device space).
+
 - Vertex array object
 
 	Represent the vertex fetch stage of the OpenGL pipeline.
@@ -60,7 +85,24 @@
 	
 		Separate attributes: Located either in different buffers or at least at different locations (offsets) in the same buffer. Structure-of-arrays (SoA) data (a set of tightly packed, independent arrays of data).
 		Interleaved attributes: Located in the same buffer. Array-of-structures (AoS) form of data.
-		
+
+- Buffer
+
+	Linear blocks (memory allocations) of untyped (generic; can be used for a number of purposes - even at same time) data.
+	Buffer object: represent a buffer in OpenGL. Require naming (so it can be identified), memory allocation (so data can be put in and read from) and to be bound to a target (or buffer binding point - so it can be used by OpenGL).
+	
+		Name: identifier for a buffer object. It is possible to generate a buffer name without an associated buffer object, but never the other way around.
+		Data store: (manually) allocated memory (server side; in the memory of the graphics card) for a buffer object. Depending on used allocation command, can become immutable (neither can be resized nor redefined - flags). It can be accessed (write and read) by a) using OpenGL commands (copy existing data) or b) mapping - using also OpenGL commands - the buffer oject (direct access - e.g. load from file).
+	
+	Target: type of use a buffer is intended for. May have multiple binding points (indexed).
+	Binding point: access point a buffer is intended to be bound. Only one buffer can be bound at a time. A buffer can be bound to multiple binding points at same time.
+	Use cases:
+	
+		Vertex buffer object (VBO): common buffer object (same as any other buffer object) intended to store vertex data (so its name - target GL_ARRAY_BUFFER) for a vertex array object.
+		Uniform buffer object (UBO): common buffer object intended to store uniform data (target GL_UNIFORM_BUFFER) for a program object.
+		Shader storage buffer object (SSBO): common buffer object intended to store shader data (target GL_SHADER_STORAGE_BUFFER) for a program object.
+		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (target GL_ATOMIC_COUNTER_BUFFER) for a program object.
+
 - Uniform
 
 	Data that stays tha same for an entire primitive batch (e.g. transformation matrix of the geometry attached to a single game object) or longer (e.g. light sources of an entire scene).
@@ -88,7 +130,7 @@
 	Declared in a named block (using GLSL interface blocks).
 	Supports the more efficient "std430" packing layout qualifier.
 	Unlimited (only by hardware resources) size.
-	
+
 - Atomic counter
 
 	Buffered counter that can be both read and write by a shader.
@@ -196,10 +238,6 @@
 		Read and write (image).
 		Support atomic operation and memory barriers (image).
 
-- Texel
-
-	Represent a color from a texture that is applied to a pixel fragment in the framebuffer.
-
 - Memory access safety mechanisms
 
 	OpenGL is expected to be running in deeply pipelined and highly parallel systems: multithreading (multiple shader instances running simultaneously).
@@ -217,55 +255,48 @@
 		Synchronize (await) access to memory (by subsystem).
 		On both application and shader code.
 
-- Barycentric Coordinates Interpolation
+- Texel
 
-	Interpolate vertex data across the triangle's surface.
+	Represent a color from a texture that is applied to a pixel fragment in the framebuffer.
 
-- Homogeneous coordinte system
-
-	Used in projective geometry (four-component variables); Here, math is simpler than in regular Cartesian space (three-component variables).
-
-- Perspective division
-
-	Transformation (divide all four components of the position by the last, w component) from homogeneous coordinates (or homogeneous space) to Cartesian coordinates (or Cartesian space).
-	Results in normalized device coordinates (or normalized device space).
-	
 - Fragment
 
 	An element that may ultimately contribute to the final color of a pixel.
+
+- Shader - Compiler / Program - Linker
+
+	Every OpenGL implementation includes built-in compiler (generate binary file - internal form - from shader code) and linker (merge shader binaries into a program).
+	It is possible retrieving information about both compiling and linking processes e.g. process status (is compiled/linked) or information log.
+
+- Program pipeline
+
+	Different architecture strategies (or configurations): monolithic vs. separated.
+	Monolithic program: contain a shader (or more than one) for each active stage.
 	
-- OpenGL Extensions
-
-	Enhance OpenGL core functionality.
-	3 major classifications of extensions: vendor, EXT (written together by two or more vendors), and ARB (official part of OpenGL).
-
-- Buffer
-
-	Linear blocks (memory allocations) of untyped (generic; can be used for a number of purposes - even at same time) data.
-	Buffer object: represent a buffer in OpenGL. Require naming (so it can be identified), memory allocation (so data can be put in and read from) and to be bound to a target (or buffer binding point - so it can be used by OpenGL).
+		Allow compiler to perform inter-stage optimizations during linking e.g. discard unused output from a vertex shader.
+		Potential cost of flexibility (because of program specialization; high number of possible shader combinations) and/or performance (because of program switching).
+		Interface matching occurs during program linking.
 	
-		Name: identifier for a buffer object. It is possible to generate a buffer name without an associated buffer object, but never the other way around.
-		Data store: (manually) allocated memory (server side; in the memory of the graphics card) for a buffer object. Depending on used allocation command, can become immutable (neither can be resized nor redefined - flags). It can be accessed (write and read) by a) using OpenGL commands (copy existing data) or b) mapping - using also OpenGL commands - the buffer oject (direct access - e.g. load from file).
+	Separated programs: multiple program objects each containing shaders for only a single stage in the pipeline (or just a few of the stages) i.e. each representing a section of the pipeline.
 	
-	Target: type of use a buffer is intended for. May have multiple binding points.
-	Binding point: access point a buffer is intended to be bound. Only one buffer can be bound at a time. A buffer can be bound to multiple binding points at same time.
+		Program objects are linked in separable mode (specified before linking) and attached (by stage; not full program required) to a program pipeline object.
+		Attached program objects still benefict from inter-stage optimizations individually (own attached shaders), but not between each other; can be switched around at will with relatively little cost in performance.
+		Interface matching occurs during program switching (every part of the interface is considered to be active and used during program linking).
+		It is necessary to redeclare "gl_PerVertex" block (e.g. field "gl_Position") in the vertex shader stage.
 
-- Vertex buffer object (VBO)
-
-	Common buffer object (same as any other buffer object) intended to store vertex data (so its name) for a vertex array object.
-	Target: GL_ARRAY_BUFFER
-
-- Uniform buffer object (UBO)
-
-	Common buffer object intended to store uniform data (read-only) for a program object.
-	Target: GL_UNIFORM_BUFFER
+	Interface matching: specific set of rules and optimization applied during program linking.
 	
-- Shader storage buffer object (SSBO)
-
-	Common buffer object intended to store shader data for a program object.
-	Target: GL_SHADER_STORAGE_BUFFER
-
-- Atomic counter buffer object (ACBO)
-
-	Common buffer object intended to store atomic counter data for a program object.
-	Target: GL_ATOMIC_COUNTER_BUFFER
+		Output variables of one shader stage end up connected to the inputs of the subsequent stage if they match exactly in name, type and qualification (plus others, depending on data type); it is possible to avoid matching by name if assign a location (with layout quialifier) to corresponding inputs and outputs.
+		It is possible to query input and output interfaces (and corresponding resources) of a program.
+		
+	Shader subroutine: abstract function declaration (subroutine uniform) with multiple implementations (subroutine function or subroutine); C-like function pointer.	
+	
+		The value of a subroutine uniform (active subroutine index) must be always set (because default value is not defined); values are lost every time a new program is used (thus, reset requied).
+		Setting the value of a single subroutine uniform take less time than switching a program object (even linked in saperable mode).
+		If you don’t specify indices - "index" layout qualifier - for subroutines in shader code, OpenGL will assign indices for you (it is possible to get these indices later - by subroutine name); it is not possible to specify indices for subroutine uniforms.
+	
+	Program binary: binary object that represents the internal version (OpenGl implementation - graphics card vendor - specific; not portable between machines) of a program object.
+	
+		Program objects are linked in retrievable mode (specified before linking).
+		Hand the binary back bypassing both compiler and linker (time saving).
+		Wait until used the shaders a few times for real rendering before retrieving binaries (recommended); give the OpenGL implementation a chance to recompile any shaders that need it, and store a number of versions of each program in a single binary.

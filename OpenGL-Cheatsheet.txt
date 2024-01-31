@@ -148,7 +148,7 @@
 		glCreateBuffers(2, &buffers[0]);
 
 *
-* TEXTURE *
+* TEXTURE / IMAGE *
 *
 
 - glCreateTextures
@@ -199,7 +199,7 @@
 	Use: Startup / Rendering
 	Example:
 	
-		???
+		glClearTexImage(texture, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, data);
 
 - glClearTexSubImage
 
@@ -364,6 +364,22 @@
 	
 		glDeleteShader(vertex_shader);
 
+- glGetShaderiv
+
+	Description: Get information parameter (GL_SHADER_TYPE, GL_DELETE_STATUS, GL_COMPILE_STATUS, GL_INFO_LOG_LENGTH, GL_SHADER_SOURCE_LENGTH) from a shader object.
+	Use: Startup
+	Example:
+	
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+- glGetShaderInfoLog
+
+	Description: Get information log from a shader object.
+	Use: Startup
+	Example:
+	
+		glGetShaderInfoLog(shader, infoLogLength, NULL, &infoLog[0]);
+
 *
 * PROGRAM *
 *
@@ -408,6 +424,192 @@
 	Example:
 	
 		glDeleteProgram(program);
+
+- glGetProgramiv
+
+	Description: Get information parameter (GL_ATTACHED_SHADERS, GL_DELETE_STATUS, GL_LINK_STATUS, GL_INFO_LOG_LENGTH, GL_ACTIVE_ATTRIBUTES, etc.) from a program object.
+	Use: Startup
+	Example:
+	
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+- glGetProgramInfoLog
+
+	Description: Get information log from a program object.
+	Use: Startup
+	Example:
+	
+		glGetProgramInfoLog(program, infoLogLength, NULL, &infoLog[0]);
+
+- glProgramParameteri
+
+	Description: Set a parameter (GL_PROGRAM_SEPARABLE, and GL_PROGRAM_BINARY_RETRIEVABLE_HINT) of a program object.
+	
+		- GL_PROGRAM_SEPARABLE - set a program object in separable mode (tell OpenGL not to eliminate any unused shader output; arrange any internal data layout so last shader in the program object can communicate with first shader in another program object with same input layout).
+		- GL_PROGRAM_BINARY_RETRIEVABLE_HINT - set a program object in retrievable mode (tell OpenGL you plan to get the binary data back from a program object so it should hang on to that binary and have it ready to pass).
+		
+	Use: Startup
+	Example:
+	
+		glProgramParameteri(program, GL_PROGRAM_SEPARABLE, GL_TRUE);
+
+- glGetProgramInterfaceiv
+
+	Description: Query a property (GL_ACTIVE_RESOURCES, GL_MAX_NAME_LENGTH, GL_MAX_NUM_ACTIVE_VARIABLES, and GL_MAX_NUM_COMPATIBLE_SUBROUTINES) of an interface (GL_PROGRAM_INPUT, GL_PROGRAM_OUTPUT, GL_UNIFORM, GL_UNIFORM_BLOCK, GL_SHADER_STORAGE_BLOCK, GL_ATOMIC_COUNTER_BUFFER, etc.) in a program object.
+	Use: Startup
+	Example:
+	
+		GLint outputs;
+		glGetProgramInterfaceiv(program, GL_PROGRAM_OUTPUT, GL_ACTIVE_RESOURCES, &outputs);
+
+- glGetProgramResourceiv
+
+	Description: Query multiple properties (GL_TYPE, GL_ARRAY_SIZE, GL_LOCATION, GL_LOCATION_INDEX, etc.) of a single active resource within an interface in a program object.
+	Use: Startup
+	Example:
+	
+		const GLenum properties[] = { GL_TYPE, GL_LOCATION };
+		GLint parameters[2];
+		glGetProgramResourceiv(program, GL_PROGRAM_OUTPUT, 0, 2, properties, sizeof(parameters), NULL, parameters);
+
+- glGetProgramResourceIndex
+
+	Description: Query the index of a resource (by name) within an interface in a program object.
+	Use: Startup
+	Example:
+	
+		GLint index = glGetProgramResourceIndex(program, GL_FRAGMENT_SUBROUTINE, "myFunction1");
+
+- glGetProgramResourceName
+
+	Description: Query the name of a resource (by index) within an interface in a program object.
+	Use: Startup
+	Example:
+	
+		GLchar name[64];
+		glGetProgramResourceName(program, GL_PROGRAM_OUTPUT, 0, sizeof(name), NULL, name);
+
+- glGetProgramStageiv
+
+	Description: Query a property (GL_ACTIVE_SUBROUTINE_UNIFORMS, GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS, GL_ACTIVE_SUBROUTINES, GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH, and GL_ACTIVE_SUBROUTINE_MAX_LENGTH) of a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint longestSubroutineUniformNameLength;
+		glGetProgramStageiv(program, GL_FRAGMENT_SHADER, GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH, &longestSubroutineUniformNameLength);
+
+- glCreateShaderProgramv
+
+	Description: Create a program object in separable mode containing compiled and linked shaders for a single stage.
+	Use: Startup
+	Example:
+	
+		glCreateShaderProgramv(GL_FRAGMENT_SHADER, NULL, fragment_shader_source);
+
+- glGetProgramBinary
+
+	Description: Return a binary representation of a program object compiled and linked executable source.
+	Use: Shutdown
+	Example:
+	
+		GLint binarySize = 0;
+		glGetProgramiv(program, GL_PROGRAM_BINARY_SIZE, &binarySize);
+		unsigned char * binary = new unsigned char [binarySize];
+		GLenum binaryFormat = GL_NONE;
+		glGetProgramBinary(program, binarySize, NULL, &binaryFormat, binary);
+
+- glProgramBinary
+
+	Description: Load a program object with a program binary.
+	Use: Shutdown
+	Example:
+	
+		glProgramBinary(program, binaryFormat, binary, binarySize);
+
+*
+* SUBROUTINE (UNIFORM) *
+*
+
+- glGetSubroutineIndex
+
+	Description: Query the index of a subroutine (by name) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint subroutineIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "myFunction1");
+
+- glGetActiveSubroutineName
+
+	Description: Query the name of an active subroutine (by index) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLchar activeSubroutineName[64];
+		glGetActiveSubroutineName(program, GL_FRAGMENT_SHADER, 0, sizeof(activeSubroutineName), NULL, activeSubroutineName);
+
+- glGetSubroutineUniformLocation
+
+	Description: Query the location of a subroutine uniform (by name) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint subroutineUniformLocation = glGetSubroutineUniformLocation(program, GL_FRAGMENT_SHADER, "mySubroutineUniform");
+
+- glGetActiveSubroutineUniformiv
+
+	Description: Query a property (GL_NUM_COMPATIBLE_SUBROUTINES, GL_COMPATIBLE_SUBROUTINES, GL_UNIFORM_SIZE, and GL_UNIFORM_NAME_LENGTH) of a subroutine uniform (by index) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint activeSubroutineUniformCompatibleSubroutinesNumber;
+		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, 0, GL_NUM_COMPATIBLE_SUBROUTINES, &activeSubroutineUniformCompatibleSubroutinesNumber);
+
+- glGetActiveSubroutineUniformName
+
+	Description: Query the name of an active subroutine uniform (by index) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLchar activeSubroutineUniformName[64];
+		glGetActiveSubroutineUniformName(program, GL_FRAGMENT_SHADER, 0, sizeof(activeSubroutineUniformName), NULL, activeSubroutineUniformName);
+
+*
+* PROGRAM PIPELINE *
+*
+
+- glCreateProgramPipelines
+
+	Description: Create a program pipeline object to which you can attach program objects.
+	Use: Startup
+	Example:
+	
+		GLuint program_pipeline;
+		glCreateProgramPipelines(1, &program_pipeline);
+
+- glUseProgramStages
+
+	Description: Bind stages of a program object (GL_VERTEX_SHADER_BIT, GL_TESS_CONTROL_SHADER_BIT, GL_TESS_EVALUATION_SHADER_BIT, GL_GEOMETRY_SHADER_BIT, GL_FRAGMENT_SHADER_BIT, and GL_COMPUTE_SHADER_BIT) to a program pipeline object.
+	Use: Startup / Rendering
+	Example:
+	
+		glUseProgramStages(program_pipeline, GL_VERTEX_SHADER_BIT, vs_program);
+		glUseProgramStages(program_pipeline, GL_FRAGMENT_SHADER_BIT, fs_program);
+
+- glBindProgramPipeline
+
+	Description: Bind a program pipeline to the current context.
+	Use: Startup / Rendering
+	Example:
+	
+		glBindProgramPipeline(program_pipeline);
+
+- glDeleteProgramPipelines
+
+	Description: Delete a program pipeline object.
+	Use: Shutdown
+	Example:
+	
+		glDeleteProgramPipelines(1, &program_pipeline);
 
 *
 * UNIFORM *

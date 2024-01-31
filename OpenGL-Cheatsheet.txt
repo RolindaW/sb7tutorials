@@ -443,9 +443,8 @@
 
 - glProgramParameteri
 
-	Description:
+	Description: Set a parameter (GL_PROGRAM_SEPARABLE, and GL_PROGRAM_BINARY_RETRIEVABLE_HINT) of a program object.
 	
-		Set parameter (GL_PROGRAM_SEPARABLE, etc.) to a program object.
 		Use case: GL_PROGRAM_SEPARABLE - set a program object in separable mode (tell OpenGL not to eliminate any unused shader output; arrange any internal data layout so last shader in the program object can communicate with first shader in another program object with same input layout).
 		
 	Use: Startup
@@ -474,7 +473,7 @@
 
 - glGetProgramResourceIndex
 
-	Description: Query the index of a named resource within an interface in a program object.
+	Description: Query the index of a resource (by name) within an interface in a program object.
 	Use: Startup
 	Example:
 	
@@ -482,7 +481,7 @@
 
 - glGetProgramResourceName
 
-	Description: Query the name of an indexed resource within an interface in a program object.
+	Description: Query the name of a resource (by index) within an interface in a program object.
 	Use: Startup
 	Example:
 	
@@ -491,7 +490,12 @@
 
 - glGetProgramStageiv
 
-	???
+	Description: Query a property (GL_ACTIVE_SUBROUTINE_UNIFORMS, GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS, GL_ACTIVE_SUBROUTINES, GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH, and GL_ACTIVE_SUBROUTINE_MAX_LENGTH) of a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint longestSubroutineUniformNameLength;
+		glGetProgramStageiv(program, GL_FRAGMENT_SHADER, GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH, &longestSubroutineUniformNameLength);
 
 - glCreateShaderProgramv
 
@@ -502,28 +506,51 @@
 		glCreateShaderProgramv(GL_FRAGMENT_SHADER, NULL, fragment_shader_source);
 
 *
-* SUBROUTINE *
+* SUBROUTINE (UNIFORM) *
 *
 
 - glGetSubroutineIndex
 
-	???
+	Description: Query the index of a subroutine (by name) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint subroutineIndex = glGetSubroutineIndex(program, GL_FRAGMENT_SHADER, "myFunction1");
 
 - glGetActiveSubroutineName
 
-	???
+	Description: Query the name of an active subroutine (by index) within a shader stage in a program object.
+	Use: Startup
+	Example:
 	
+		GLchar activeSubroutineName[64];
+		glGetActiveSubroutineName(program, GL_FRAGMENT_SHADER, 0, sizeof(activeSubroutineName), NULL, activeSubroutineName);
+
 - glGetSubroutineUniformLocation
 
-	???
+	Description: Query the location of a subroutine uniform (by name) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint subroutineUniformLocation = glGetSubroutineUniformLocation(program, GL_FRAGMENT_SHADER, "mySubroutineUniform");
 
 - glGetActiveSubroutineUniformiv
 
-	???
+	Description: Query a property (GL_NUM_COMPATIBLE_SUBROUTINES, GL_COMPATIBLE_SUBROUTINES, GL_UNIFORM_SIZE, and GL_UNIFORM_NAME_LENGTH) of a subroutine uniform (by index) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLint activeSubroutineUniformCompatibleSubroutinesNumber;
+		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, 0, GL_NUM_COMPATIBLE_SUBROUTINES, &activeSubroutineUniformCompatibleSubroutinesNumber);
 
 - glGetActiveSubroutineUniformName
 
-	???
+	Description: Query the name of an active subroutine uniform (by index) within a shader stage in a program object.
+	Use: Startup
+	Example:
+	
+		GLchar activeSubroutineUniformName[64];
+		glGetActiveSubroutineUniformName(program, GL_FRAGMENT_SHADER, 0, sizeof(activeSubroutineUniformName), NULL, activeSubroutineUniformName);
 
 *
 * PROGRAM PIPELINE *

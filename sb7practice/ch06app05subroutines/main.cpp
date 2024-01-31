@@ -22,7 +22,7 @@ public:
 
 		glUseProgram(program);
 		
-		GLuint subroutineIndex = i & 3;
+		GLuint subroutineIndex = i & 1;
 		glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &subroutines[subroutineIndex]);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -173,10 +173,17 @@ private:
 		// glGetProgramResourceiv
 		// Query multiple properties of a subroutine ubiform (by index) in GL_FRAGMENT_SUBROUTINE_UNIFORM interface
 		const GLuint kSubroutineUniformIndex = 0;
-		const GLenum properties[] = { GL_NUM_COMPATIBLE_SUBROUTINES, GL_COMPATIBLE_SUBROUTINES };
-		const GLuint propertyCount = 2;
-		GLint parameters[4];  // Warning! 1 - GL_NUM_COMPATIBLE_SUBROUTINES; 3 - GL_COMPATIBLE_SUBROUTINES
-		glGetProgramResourceiv(program, GL_FRAGMENT_SUBROUTINE_UNIFORM, kSubroutineUniformIndex, propertyCount, properties, sizeof(parameters), NULL, parameters);
+		const GLenum properties[] = { GL_NUM_COMPATIBLE_SUBROUTINES, GL_ARRAY_SIZE, GL_LOCATION };
+		GLint parameters[3];
+		glGetProgramResourceiv(program, GL_FRAGMENT_SUBROUTINE_UNIFORM, kSubroutineUniformIndex, 3, properties, sizeof(parameters), NULL, parameters);
+
+		// Warning! Property GL_COMPATIBLE_SUBROUTINES returns an array, so be carefull with "parameters" output variable size.
+		GLuint compatibleSubroutinesNumber = (GLuint)parameters[0];
+		GLint* compatibleSubroutines = new GLint[compatibleSubroutinesNumber];
+		const GLenum properties2[] = { GL_COMPATIBLE_SUBROUTINES };
+		glGetProgramResourceiv(program, GL_FRAGMENT_SUBROUTINE_UNIFORM, kSubroutineUniformIndex, 1, properties2, sizeof(GLint) * compatibleSubroutinesNumber, NULL, compatibleSubroutines);
+		//*subroutines = (GLuint*)compatibleSubroutines;
+		delete[] compatibleSubroutines;
 
 		// glGetProgramResourceIndex
 		// Query the index of a subroutine uniform (by name)
@@ -204,18 +211,19 @@ private:
 
 		// glGetActiveSubroutineUniformiv
 		// Query a property of a subroutine uniform (by index)
-		GLint compatibleSubroutinesNumber;
-		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_NUM_COMPATIBLE_SUBROUTINES, &compatibleSubroutinesNumber);
+		GLint activeSubroutineUniformCompatibleSubroutinesNumber;
+		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_NUM_COMPATIBLE_SUBROUTINES, &activeSubroutineUniformCompatibleSubroutinesNumber);
 
-		GLint* activeCompatibleSubroutinesIndices = new GLint[compatibleSubroutinesNumber];
-		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_COMPATIBLE_SUBROUTINES, activeCompatibleSubroutinesIndices);
-		*subroutines = (GLuint*) activeCompatibleSubroutinesIndices;
+		GLint* activeSubroutineUniformCompatibleSubroutines = new GLint[activeSubroutineUniformCompatibleSubroutinesNumber];
+		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_COMPATIBLE_SUBROUTINES, activeSubroutineUniformCompatibleSubroutines);
+		*subroutines = (GLuint*) activeSubroutineUniformCompatibleSubroutines;
+		//delete[] activeSubroutineUniformCompatibleSubroutines;
 
-		GLint subroutineUniformArraySize;
-		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_UNIFORM_SIZE, &subroutineUniformArraySize);
+		GLint activeSubroutineUniformArraySize;
+		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_UNIFORM_SIZE, &activeSubroutineUniformArraySize);
 
-		GLint subroutineUniformNameLength;  // Including the terminating null character
-		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_UNIFORM_NAME_LENGTH, &subroutineUniformNameLength);
+		GLint activeSubroutineUniformNameLength;  // Including the terminating null character
+		glGetActiveSubroutineUniformiv(program, GL_FRAGMENT_SHADER, kSubroutineUniformIndex, GL_UNIFORM_NAME_LENGTH, &activeSubroutineUniformNameLength);
 
 		// glGetActiveSubroutineUniformName
 		// Query the name of an subroutine uniform (by index)

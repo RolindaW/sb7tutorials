@@ -289,7 +289,7 @@
 		Output variables of one shader stage end up connected to the inputs of the subsequent stage if they match exactly in name, type and qualification (plus others, depending on data type); it is possible to avoid matching by name if assign a location (with layout quialifier) to corresponding inputs and outputs.
 		It is possible to query input and output interfaces (and corresponding resources) of a program.
 		
-	Shader subroutine: abstract function declaration (subroutine uniform) with multiple implementations (subroutine function or just subroutine); C-like function pointer.	
+	Shader subroutine: abstract function declaration (subroutine uniform) with multiple implementations (subroutine function or subroutine); C-like function pointer.	
 	
 		The value of a subroutine uniform (active subroutine index) must be always set (because default value is not defined); values are lost every time a new program is used (thus, reset requied).
 		Setting the value of a single subroutine uniform take less time than switching a program object (even linked in saperable mode).

@@ -472,6 +472,14 @@
 		GLint parameters[2];
 		glGetProgramResourceiv(program, GL_PROGRAM_OUTPUT, 0, 2, properties, sizeof(parameters), NULL, parameters);
 
+- glGetProgramResourceIndex
+
+	Description: Query the index of a named resource within an interface in a program object.
+	Use: Startup
+	Example:
+	
+		GLint index = glGetProgramResourceIndex(program, GL_FRAGMENT_SUBROUTINE, "myFunction1");
+
 - glGetProgramResourceName
 
 	Description: Query the name of an indexed resource within an interface in a program object.
@@ -481,6 +489,10 @@
 		GLchar name[64];
 		glGetProgramResourceName(program, GL_PROGRAM_OUTPUT, 0, sizeof(name), NULL, name);
 
+- glGetProgramStageiv
+
+	???
+
 - glCreateShaderProgramv
 
 	Description: Create a program object in separable mode containing compiled and linked shaders for a single stage.
@@ -488,6 +500,30 @@
 	Example:
 	
 		glCreateShaderProgramv(GL_FRAGMENT_SHADER, NULL, fragment_shader_source);
+
+*
+* SUBROUTINE *
+*
+
+- glGetSubroutineIndex
+
+	???
+
+- glGetActiveSubroutineName
+
+	???
+	
+- glGetSubroutineUniformLocation
+
+	???
+
+- glGetActiveSubroutineUniformiv
+
+	???
+
+- glGetActiveSubroutineUniformName
+
+	???
 
 *
 * PROGRAM PIPELINE *

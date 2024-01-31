@@ -294,3 +294,9 @@
 		The value of a subroutine uniform (active subroutine index) must be always set (because default value is not defined); values are lost every time a new program is used (thus, reset requied).
 		Setting the value of a single subroutine uniform take less time than switching a program object (even linked in saperable mode).
 		If you don’t specify indices - "index" layout qualifier - for subroutines in shader code, OpenGL will assign indices for you (it is possible to get these indices later - by subroutine name); it is not possible to specify indices for subroutine uniforms.
+	
+	Program binary: binary object that represents the internal version (OpenGl implementation - graphics card vendor - specific; not portable between machines) of a program object.
+	
+		Program objects are linked in retrievable mode (specified before linking).
+		Hand the binary back bypassing both compiler and linker (time saving).
+		Wait until used the shaders a few times for real rendering before retrieving binaries (recommended); give the OpenGL implementation a chance to recompile any shaders that need it, and store a number of versions of each program in a single binary.

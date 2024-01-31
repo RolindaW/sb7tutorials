@@ -445,7 +445,8 @@
 
 	Description: Set a parameter (GL_PROGRAM_SEPARABLE, and GL_PROGRAM_BINARY_RETRIEVABLE_HINT) of a program object.
 	
-		Use case: GL_PROGRAM_SEPARABLE - set a program object in separable mode (tell OpenGL not to eliminate any unused shader output; arrange any internal data layout so last shader in the program object can communicate with first shader in another program object with same input layout).
+		- GL_PROGRAM_SEPARABLE - set a program object in separable mode (tell OpenGL not to eliminate any unused shader output; arrange any internal data layout so last shader in the program object can communicate with first shader in another program object with same input layout).
+		- GL_PROGRAM_BINARY_RETRIEVABLE_HINT - set a program object in retrievable mode (tell OpenGL you plan to get the binary data back from a program object so it should hang on to that binary and have it ready to pass).
 		
 	Use: Startup
 	Example:
@@ -504,6 +505,26 @@
 	Example:
 	
 		glCreateShaderProgramv(GL_FRAGMENT_SHADER, NULL, fragment_shader_source);
+
+- glGetProgramBinary
+
+	Description: Return a binary representation of a program object compiled and linked executable source.
+	Use: Shutdown
+	Example:
+	
+		GLint binarySize = 0;
+		glGetProgramiv(program, GL_PROGRAM_BINARY_SIZE, &binarySize);
+		unsigned char * binary = new unsigned char [binarySize];
+		GLenum binaryFormat = GL_NONE;
+		glGetProgramBinary(program, binarySize, NULL, &binaryFormat, binary);
+
+- glProgramBinary
+
+	Description: Load a program object with a program binary.
+	Use: Shutdown
+	Example:
+	
+		glProgramBinary(program, binaryFormat, binary, binarySize);
 
 *
 * SUBROUTINE (UNIFORM) *

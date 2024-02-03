@@ -126,15 +126,39 @@
 * BUILT-IN VARIABLE *
 *
 
+- gl_PerVertex
+
+	Description: Predefined output of the vertex shader.
+	Use: Vertex shader (and later stages)
+	Type: Built-in output interface block variable
+	Example:
+	
+		out gl_Per_vertex
+		{
+			vec4 gl_Position;
+			float gl_PointSize;
+			float gl_ClipDistance[];
+			float gl_CullDistance[];
+		}
+
 - gl_Position
 
-	Description: Output position of the vertex ("clip space" coordinates).
-	Use: Vertex shader
+	Description: Output position of the vertex in clip-space coordinates.
+	Use: Vertex shader (and later stages)
 	Type: Built-in output variable (mandatory)
 	Example:
 	
 		gl_Position = vec4(0.0, 0.0, 0.5, 1.0);
-		
+
+- gl_PointSize (+ glEnable(GL_PROGRAM_POINT_SIZE))
+
+	Description: Diameter (in pixels) of the point being rasterized; only makes sense when rendering point primitives.
+	Use: Vertex shader (and later stages)
+	Type: Built-in output variable
+	Example:
+	
+		gl_PointSize = clamp(sqrt(1/(a + b*d + c*pow(d,2))));
+
 - gl_VertexID
 
 	Description: The index of the vertex that is being processed at the time. Starts counting from the value given by the first parameter of glDrawArrays() and counts upward one vertex at a time for count vertices (the third parameter of glDrawArrays()).

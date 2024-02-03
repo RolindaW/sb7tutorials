@@ -67,9 +67,9 @@
 
 - Vertex array object
 
-	Represent the vertex fetch stage of the OpenGL pipeline.
-	Maintains all of the state related to the input to the OpenGL pipeline: vertex attributes static values, (vertex) buffer bindings, etc.
-	Only one active (bound to the OpenGL context) at a time (in practice, usually the one related to the game object being drawn).
+	Represent vertex fetching stage of the OpenGL pipeline.
+	Store all of the state related to the input to the OpenGL pipeline i.e. vertex attributes configuration (e.g. static values or settings - external data format and type, mapping between vertex attribute indices and buffer binding points, and data source - for dynamic values feeding).
+	Only one active (bound to the OpenGL context) at a time; required (mandatory) to execute drawing commands; setup is optional if configuration does not require any vertex attributes.
 
 - Vertex attribute
 

@@ -733,7 +733,7 @@
 	Description:
 	
 		Map (by index) a vertex attribute to a buffer binding point; vertex attribute index matches the location modifier used in the shader.
-		It is recommended to group multiple vertex attributes into a single buffer binding point when possible (e.g. values for multiple vertex attributes are stored in a single buffer object).
+		It is recommended to group multiple vertex attributes into a single buffer binding point (values for multiple vertex attributes are stored in a single buffer object) when possible, so switching the source (buffer object) vertex attribute data will be feed from is simplified (i.e. just binding a different buffer object).
 		Functions named with "...VertexArray..." save settings into specified vertex array object; others, into active vertex array object.
 	
 	Use: Startup

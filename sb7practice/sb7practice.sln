@@ -73,6 +73,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch06app05subroutines", "ch0
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app01variablepointsize", "ch07app01variablepointsize\ch07app01variablepointsize.vcxproj", "{E4E1BAAA-8791-4B6D-8359-45FF1E95AE27}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app02indexedcube", "ch07app02indexedcube\ch07app02indexedcube.vcxproj", "{4E86123E-458C-4262-B9AF-B6FE525936F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -219,6 +221,10 @@ Global
 		{E4E1BAAA-8791-4B6D-8359-45FF1E95AE27}.Debug|x64.Build.0 = Debug|x64
 		{E4E1BAAA-8791-4B6D-8359-45FF1E95AE27}.Release|x64.ActiveCfg = Release|x64
 		{E4E1BAAA-8791-4B6D-8359-45FF1E95AE27}.Release|x64.Build.0 = Release|x64
+		{4E86123E-458C-4262-B9AF-B6FE525936F0}.Debug|x64.ActiveCfg = Debug|x64
+		{4E86123E-458C-4262-B9AF-B6FE525936F0}.Debug|x64.Build.0 = Debug|x64
+		{4E86123E-458C-4262-B9AF-B6FE525936F0}.Release|x64.ActiveCfg = Release|x64
+		{4E86123E-458C-4262-B9AF-B6FE525936F0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

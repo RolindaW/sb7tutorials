@@ -792,11 +792,27 @@
 
 - glDrawArrays
 
-	Description: Drawing command (of specified primitive type: GL_POINTS; GL_LINES; GL_TRIANGLES; GL_PATCHES) that send vertices to the OpenGL pipeline.
+	Description: Draw specified primitive (GL_POINTS, GL_LINES, GL_TRIANGLES, GL_PATCHES, etc.) from an array of vertices sequentially accessed. Non-Indexed - Non-Instaced - Direct.
 	Use: Rendering
 	Example:
 	
 		glDrawArrays(GL_POINTS, 0, 1);
+
+- glDrawElements
+
+	Description: Draw specified primitive from an array of vertices accessed by index. Indexed - Non-Instaced - Direct.
+	Use: Rendering
+	Example:
+	
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
+
+- glDrawElementsBaseVertex
+
+	Description: Draw specified primitive from an array of vertices accessed by index (plus offset). Indexed (offset) - Non-Instaced - Direct.
+	Use: Rendering
+	Example:
+	
+		glDrawElementsBaseVertex(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0, 0);
 
 - glPointSize
 

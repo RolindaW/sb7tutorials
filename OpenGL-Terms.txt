@@ -300,3 +300,36 @@
 		Program objects are linked in retrievable mode (specified before linking).
 		Hand the binary back bypassing both compiler and linker (time saving).
 		Wait until used the shaders a few times for real rendering before retrieving binaries (recommended); give the OpenGL implementation a chance to recompile any shaders that need it, and store a number of versions of each program in a single binary.
+
+- Drawing commands
+
+	Categorized as: Indexed / Non-Indexed - Instanced / Non-Instanced - Direct / Indirect
+	Some can be considered supersets of others.
+	
+	Non-Indexed ("...Array...")
+	
+		Per-vertex data (values of vertex attributes) is issued to the vertex shader sequentially - in the order it appears in the buffers.
+		Require much more memory storage (because vertices shared by multiple surfaces across a geometry require define - even just repeat - per-vertex data multiple times).
+		
+	Indexed ("...Element...")
+	
+		Include an indirection step to read (from a buffer - GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
+		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long; it is possible to offset queried index values before they are used.
+		Require less memory storage (shared vertices define per-vertex data only once).
+		Managing a vertex attribute can be problematic in specific scenarios e.g. surface normal at vertices shared between surfaces forming right angles - like a cube.
+	
+	Non-Instanced
+	
+		xxx
+	
+	Instanced ("...Instanced")
+	
+		geometry data to be drawn multiple times is sent to the server only one time or not
+	
+	Direct:
+	
+		xxx
+	
+	Indirect ("...Indirect...")
+	
+		xxx

@@ -846,6 +846,14 @@
 		
 		glCullFace(GL_BACK);
 
+- glPrimitiveRestartIndex (+ glEnable(GL_PRIMITIVE_RESTART))
+
+	Description: Specify the primitive (GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_LINE_STRIP, and GL_LINE_LOOP) restart index.
+	Use: Rendering
+	Example:		
+	
+		glPrimitiveRestartIndex(index);
+
 *
 * SYSTEM
 *

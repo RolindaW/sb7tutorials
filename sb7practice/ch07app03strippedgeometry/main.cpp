@@ -15,7 +15,7 @@ public:
 		glEnable(GL_PRIMITIVE_RESTART);
 		glPrimitiveRestartIndex(0xFF);
 
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
 	void render(double currentTime)
@@ -32,7 +32,7 @@ public:
 
 		// Draw indexed cube
 		// TODO: Simulate dynamic object drawing ranging number of drawn elements between 0 and total required indices number (135)
-		glDrawElements(GL_TRIANGLE_STRIP, 135, GL_UNSIGNED_BYTE, 0);
+		glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_BYTE, 0);
 	}
 
 	void shutdown()
@@ -40,6 +40,7 @@ public:
 		glDeleteProgram(program);
 		glDeleteVertexArrays(1, &vao);
 		glDeleteBuffers(1, &vbo);
+		glDeleteBuffers(1, &vbo2);
 		glDeleteBuffers(1, &vebo);
 	}
 
@@ -68,11 +69,14 @@ private:
 			"layout (location = 0) uniform mat4 mvp_matrix;						\n"
 			"																	\n"
 			"layout (location = 0) in vec3 position;							\n"
+			"layout (location = 1) in vec3 color;								\n"
+			"																	\n"
+			"out vec3 fs_color;													\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	// Output vertex position in clip space							\n"
 			"	gl_Position = mvp_matrix * vec4(position, 1.0);					\n"
+			"	fs_color = color;												\n"
 			"}																	\n"
 		};
 
@@ -85,11 +89,13 @@ private:
 		{
 			"#version 450 core													\n"
 			"																	\n"
+			"in vec3 fs_color;													\n"
+			"																	\n"
 			"out vec4 color;													\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	color = vec4(0.0, 0.8, 1.0, 1.0);								\n"
+			"	color = vec4(fs_color, 1.0);									\n"
 			"}																	\n"
 		};
 
@@ -145,13 +151,8 @@ private:
 		glCreateVertexArrays(1, &vao);
 		glBindVertexArray(vao);
 
-		// TODO: Use different colors to distinguish between stripes
-		// - Deep Sky Blue: (0, 191, 255)
-		// - Green: (46, 184, 46)
-		// - Purple: (153, 102, 255)
-		// - Yellow: (230, 230, 0)
+		// Vertex buffer object - positions
 		// Note: Vertices position were obtained from a tool where +Y axis was top-bottom, so geometry is mirrored in X axis.
-		// Vertex buffer object
 		const unsigned int positions[] = {
 			81, 267,  // horizontal (index 0)
 			75, 284,
@@ -278,16 +279,149 @@ private:
 			469, 944
 		};
 
-		// Create buffer object to store values of position vertex attribute, allocate required memory and bind to array buffer target
+		// Create buffer object to store values of position vertex attribute and allocate required memory
 		glCreateBuffers(1, &vbo);
 		glNamedBufferStorage(vbo, sizeof(positions), positions, NULL);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 		// Define position vertex attribute data format, index mapping, buffer object binding and enable it
 		glVertexArrayAttribFormat(vao, 0, 2, GL_UNSIGNED_INT, GL_FALSE, 0);
 		glVertexArrayAttribBinding(vao, 0, 0);
-		glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(GL_UNSIGNED_INT) * 2);
+		glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(GLuint) * 2);
 		glEnableVertexArrayAttrib(vao, 0);
+
+		// Vertex buffer object - colors
+		// Use different colors to distinguish between stripes: Deep Sky Blue: (0, 191, 255) - Green: (46, 184, 46) - Purple: (153, 102, 255) - Yellow: (230, 230, 0)
+		const GLubyte colors[] = {
+			0, 191, 255,  // horizontal (index 0)
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			230, 230, 0,  // joint horizontal - vertical
+			230, 230, 0,
+			230, 230, 0,
+			230, 230, 0,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+			0, 191, 255,
+
+			46, 184, 46,   // vertical (index 19)
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			230, 230, 0,  // joint vertical - circular top
+			230, 230, 0,
+			230, 230, 0,
+			230, 230, 0,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			230, 230, 0,  // joint vertical - circular bottom
+			230, 230, 0,
+			230, 230, 0,
+			230, 230, 0,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+			46, 184, 46,
+
+			153, 102, 255,  // circular (index 49)
+			153, 102, 255,
+			153, 102, 255,
+			230, 230, 0,  // joint circular - circular
+			230, 230, 0,
+			230, 230, 0,
+			230, 230, 0,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255,
+			153, 102, 255
+		};
+
+		// Create buffer object to store values of color vertex attribute and allocate required memory
+		glCreateBuffers(1, &vbo2);
+		glNamedBufferStorage(vbo2, sizeof(colors), colors, NULL);
+
+		// Define color vertex attribute data format, index mapping, buffer object binding and enable it
+		glVertexArrayAttribFormat(vao, 1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0);  // Normalization enabled
+		glVertexArrayAttribBinding(vao, 1, 1);
+		glVertexArrayVertexBuffer(vao, 1, vbo2, 0, sizeof(GLubyte) * 3);
+		glEnableVertexArrayAttrib(vao, 1);
 
 		// Vertex element (indices) buffer object
 		const unsigned char indices[] = {
@@ -318,7 +452,7 @@ private:
 			88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116
 		};
 
-		unsigned int numberOfIndices = sizeof(indices) / sizeof(unsigned char);
+		numberOfIndices = sizeof(indices) / sizeof(unsigned char);
 
 		// Create buffer object to store values of indices, allocate required memory and bind to array element buffer target
 		glCreateBuffers(1, &vebo);
@@ -340,7 +474,9 @@ private:
 
 	GLuint vao;  // Store vertex fetch stage settings
 	GLuint vbo;  // Store per-vertex data
+	GLuint vbo2;
 	GLuint vebo;  // Store vertex indices
+	unsigned int numberOfIndices;
 	vmath::mat4 modelWorldMatrix;
 
 	vmath::mat4 cameraViewMatrix;

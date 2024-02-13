@@ -30,17 +30,17 @@ public:
 		// Note: It is possible using MVP matrix as there are not required addtional world - or view - space calculations
 		glUniformMatrix4fv(0, 1, GL_FALSE, cameraProjectionMatrix * cameraViewMatrix * modelWorldMatrix);
 
-		// Draw indexed cube
-		// TODO: Simulate dynamic object drawing ranging number of drawn elements between 0 and total required indices number (135)
-		glDrawElements(GL_TRIANGLE_STRIP, numberOfIndices, GL_UNSIGNED_BYTE, 0);
+		// Draw indexed object
+		unsigned int indexUpperBound = SimulateIndexUpperBound(currentTime);
+		glDrawElements(GL_TRIANGLE_STRIP, indexUpperBound, GL_UNSIGNED_BYTE, 0);
 	}
 
 	void shutdown()
 	{
 		glDeleteProgram(program);
 		glDeleteVertexArrays(1, &vao);
-		glDeleteBuffers(1, &vbo);
-		glDeleteBuffers(1, &vbo2);
+		glDeleteBuffers(1, &vboPositions);
+		glDeleteBuffers(1, &vboColors);
 		glDeleteBuffers(1, &vebo);
 	}
 
@@ -280,13 +280,13 @@ private:
 		};
 
 		// Create buffer object to store values of position vertex attribute and allocate required memory
-		glCreateBuffers(1, &vbo);
-		glNamedBufferStorage(vbo, sizeof(positions), positions, NULL);
+		glCreateBuffers(1, &vboPositions);
+		glNamedBufferStorage(vboPositions, sizeof(positions), positions, NULL);
 
 		// Define position vertex attribute data format, index mapping, buffer object binding and enable it
 		glVertexArrayAttribFormat(vao, 0, 2, GL_UNSIGNED_INT, GL_FALSE, 0);
 		glVertexArrayAttribBinding(vao, 0, 0);
-		glVertexArrayVertexBuffer(vao, 0, vbo, 0, sizeof(GLuint) * 2);
+		glVertexArrayVertexBuffer(vao, 0, vboPositions, 0, sizeof(GLuint) * 2);
 		glEnableVertexArrayAttrib(vao, 0);
 
 		// Vertex buffer object - colors
@@ -414,13 +414,13 @@ private:
 		};
 
 		// Create buffer object to store values of color vertex attribute and allocate required memory
-		glCreateBuffers(1, &vbo2);
-		glNamedBufferStorage(vbo2, sizeof(colors), colors, NULL);
+		glCreateBuffers(1, &vboColors);
+		glNamedBufferStorage(vboColors, sizeof(colors), colors, NULL);
 
 		// Define color vertex attribute data format, index mapping, buffer object binding and enable it
 		glVertexArrayAttribFormat(vao, 1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 0);  // Normalization enabled
 		glVertexArrayAttribBinding(vao, 1, 1);
-		glVertexArrayVertexBuffer(vao, 1, vbo2, 0, sizeof(GLubyte) * 3);
+		glVertexArrayVertexBuffer(vao, 1, vboColors, 0, sizeof(GLubyte) * 3);
 		glEnableVertexArrayAttrib(vao, 1);
 
 		// Vertex element (indices) buffer object
@@ -467,14 +467,25 @@ private:
 		modelWorldMatrix = vmath::translate(-4.0f, 5.0f, 0.0f) * vmath::scale(scaleValue, -scaleValue, scaleValue);  // Scale model - very large design
 	}
 
+	// Note: Simulate dynamic object drawing ranging number of drawn elements between 0 and total required indices number (135)
+	unsigned int SimulateIndexUpperBound(double currentTime)
+	{
+		float drawRateSec = 3.5f;
+		float mod = fmodf(currentTime, drawRateSec);  // (endless) iterator in range (0, drawRateSec) 
+		float drawRatePercentage = mod / drawRateSec;
+		float upperBound = drawRatePercentage * numberOfIndices;
+
+		return (unsigned int)upperBound;
+	}
+
 #pragma endregion
 
 private:
 	GLuint program;
 
 	GLuint vao;  // Store vertex fetch stage settings
-	GLuint vbo;  // Store per-vertex data
-	GLuint vbo2;
+	GLuint vboPositions;  // Store per-vertex data
+	GLuint vboColors;
 	GLuint vebo;  // Store vertex indices
 	unsigned int numberOfIndices;
 	vmath::mat4 modelWorldMatrix;

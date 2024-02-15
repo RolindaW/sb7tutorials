@@ -161,7 +161,11 @@
 
 - gl_VertexID
 
-	Description: The index of the vertex that is being processed at the time. Starts counting from the value given by the first parameter of glDrawArrays() and counts upward one vertex at a time for count vertices (the third parameter of glDrawArrays()).
+	Description:
+	
+		The index of the vertex that is being processed at the time.
+		Value depends on drawing command category. Non-indexed: starts counting from the value given as parameter and counts upward one vertex at a time for vertex count. Indexed: corresponding index of the vertex.
+	
 	Use: Vertex shader
 	Type: Built-in input variable
 	Example:
@@ -170,7 +174,20 @@
 										 vec4(-0.25, -0.25, 0.5, 1.0),
 										 vec4( 0.25,  0.25, 0.5, 1.0));
 		gl_Position = vertices[gl_VertexID];
-		
+
+- gl_InstanceID
+
+	Description:
+	
+		The index of the geometry instance that is being processed at the time.
+		Value depends on drawing command category. Non-instanced: 0 (always). Instanced: starts counting from the value given as parameter and counts upward one instance at a time for instance count.
+	
+	Use: Vertex shader
+	Type: Built-in input variable
+	Example:
+	
+		???
+
 - gl_in / gl_out
 
 	Description: Built in variable.

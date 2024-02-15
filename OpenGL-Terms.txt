@@ -78,10 +78,10 @@
 	If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later).
 	Can be indepdendently set up (i.e. each can be feed - value assignment - different way).
 	
-		Static value: same value for all vertices on drawing command invoke (e.g. color of the material bound to a game object). Set by command.
-		Dynamic value: own value for each vertex on drawing command invoke (e.g. space coordinates - position, surface normal or texture coordinates of a vertex relative to the geometry of a game object). Feed from buffer (require specifying data location and format).
+		Static value: same value for all vertices on drawing command invoke (e.g. color of the material bound to a game object). Set by command. Enabled by default.
+		Dynamic value: own value for each vertex on drawing command invoke (e.g. space coordinates - position, surface normal or texture coordinates of a vertex relative to the geometry of a game object). Feed from buffer (require specifying data format and its location). Require enabling.
 	
-	Depending on how data for dynamic values is stored:
+	Depending on how data is laid out in memory (for dynamic values):
 	
 		Separate attributes: Located either in different buffers or at least at different locations (offsets) in the same buffer. Structure-of-arrays (SoA) data (a set of tightly packed, independent arrays of data).
 		Interleaved attributes: Located in the same buffer. Array-of-structures (AoS) form of data.
@@ -314,17 +314,19 @@
 	Indexed ("...Element...")
 	
 		Include an indirection step to read (from a buffer - GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
-		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long; it is possible to offset queried index values before they are used.
+		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long; it is possible to offset (base vertex) queried index values before they are used.
 		Require less memory storage (shared vertices define per-vertex data only once).
-		Managing certain vertex attributes can be problematic in specific scenarios due to their nature e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube.
+		Managing certain vertex attributes can be problematic in specific scenarios due to their nature (e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube).
 	
 	Non-Instanced
 	
-		xxx
+		Draw a single copy of a geometry.
 	
 	Instanced ("...Instanced")
 	
-		geometry data to be drawn multiple times is sent to the server only one time or not
+		Draw many copies (thousands or millions) of the same geometry with a single function call (vertex data is sent to the server only once).
+		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into data (e.g. textures or instanced arrays - an array whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
+		It is possible to offset (base instance) instance values before they are used.
 	
 	Direct:
 	

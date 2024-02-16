@@ -348,3 +348,12 @@
 	Description: Any memory reads or writes that you might have performed will complete before the function returns. Also specialized versions (e.g. memoryBarrierBuffers; orders transactions on reads and writes to buffers, but to nothing else).
 	Use: All
 	Type: Function
+
+- bitFieldExtract
+
+	Description: Extract a range ([offset, offset + bits - 1]) of bits from an integer (signed and unsigned); return it in the least significant bits of the result.
+	Use: All
+	Type: Function
+	Example:
+	
+		int seed_lsb = bitfieldExtract(seed, 0, 10);

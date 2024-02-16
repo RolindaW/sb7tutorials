@@ -21,17 +21,25 @@ public:
 		static const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		glClearBufferfv(GL_COLOR, 0, color);
 
-		// Draw - Ground
-		glUseProgram(groundProgram);
-		glBindVertexArray(groundVao);
-		glUniformMatrix4fv(0, 1, GL_FALSE, cameraProjectionMatrix * cameraViewMatrix * groundModelWorldMatrix);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		if (kSimulateCameraMotion)
+		{
+			SimulateCameraMotion(currentTime);
+		}
+
+		if (kDrawGround)
+		{
+			// Draw - Ground
+			glUseProgram(groundProgram);
+			glBindVertexArray(groundVao);
+			glUniformMatrix4fv(0, 1, GL_FALSE, cameraProjectionMatrix * cameraViewMatrix * groundModelWorldMatrix);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
 
 		// Draw - Grass
 		glUseProgram(grassProgram);
 		glBindVertexArray(grassVao);
-		glUniformMatrix4fv(0, 1, GL_FALSE, cameraProjectionMatrix * cameraViewMatrix * grassModelWorldMatrix);
-		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 7, 1);
+		glUniformMatrix4fv(0, 1, GL_FALSE, cameraProjectionMatrix * cameraViewMatrix);
+		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 6, pow(2, 20));  // 1024 x 1024 grassland; it would be usefull to send this value into the vertex shader stage for use in randomization functions
 	}
 
 	void shutdown()
@@ -40,22 +48,47 @@ public:
 		RemoveGrass();
 	}
 
+public:
+	void onResize(int w, int h)
+	{
+		sb7::application::onResize(w, h);
+
+		// Update viewport
+		glViewport(0, 0, info.windowWidth, info.windowHeight);
+
+		// Update projection matrix: it is required viewport and projection to be consistent
+		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
+	}
+
 private:
 
 #pragma region Camera
 
 	void InitializeCamera()
 	{
-		cameraPosition = vmath::vec3(0.0f, 10.0f, 25.0f);
-		cameraTarget = vmath::vec3(0.0f, 0.0f, 0.0f);
-		cameraUp = vmath::vec3(0.0f, 1.0f, 0.0f);
+		SimulateCameraMotion(0.0);
+		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
+	}
 
-		// Camera view matrix
-		cameraViewMatrix = vmath::lookat(cameraPosition, cameraTarget, cameraUp);
+	void SimulateCameraMotion(double currentTime)
+	{
+		float scaledElapsedTime = (float)currentTime * 0.02f;
+		float radius = kGroundSide;
+		vmath::vec3 newPosition(vmath::vec3(sinf(scaledElapsedTime) * radius, 25.0f, cosf(scaledElapsedTime) * radius));  // Circular motion
+		UpdateCameraViewMatrix(newPosition);
+	}
 
-		// Camera projetion matrix
+	void UpdateCameraViewMatrix(vmath::vec3 position)
+	{
+		const vmath::vec3 kTarget = vmath::vec3(0.0f, -50.0f, 0.0f);
+		const vmath::vec3 kUp = vmath::vec3(0.0f, 1.0f, 0.0f);  // Note: Can be constante value (+Y) as we are not adding transformations, but calculating always new one based on a dynamic seed (elapsed time)
+		cameraViewMatrix = vmath::lookat(position, kTarget, kUp);
+	}
+
+	void UpdateCameraProjectionMatrix(float width, float height)
+	{
 		float fov = 45.0f;
-		float aspect = (float)info.windowWidth / (float)info.windowHeight;
+		float aspect = width / height;
 		float n = 0.1f, f = 1000.0f;
 
 		cameraProjectionMatrix = vmath::perspective(fov, aspect, n, f);
@@ -63,7 +96,7 @@ private:
 
 #pragma endregion
 
-#pragma region Object - Ground
+#pragma region Object - Ground (earth)
 
 	void InitializeGroundProgram()
 	{
@@ -95,7 +128,7 @@ private:
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	color = vec4(0.73, 0.48, 0.34, 1.0);							\n"
+			"	color = vec4(0.31, 0.22, 0.15, 1.0);							\n"
 			"}																	\n"
 		};
 
@@ -123,10 +156,10 @@ private:
 
 		// Vertex attribute values - Position (triangle stripe)
 		const GLfloat positions[] = {
-			-20.f, 0.0f, 20.f,
-			20.f, 0.0f, 20.f,
-			-20.f, 0.0f, -20.f,
-			20.f, 0.0f, -20.f
+			-kGroundSide, 0.0f, kGroundSide,
+			kGroundSide, 0.0f, kGroundSide,
+			-kGroundSide, 0.0f, -kGroundSide,
+			kGroundSide, 0.0f, -kGroundSide
 		};
 
 		// Create buffer, allocate memory and store data
@@ -151,7 +184,7 @@ private:
 
 #pragma endregion
 
-#pragma region Object - Grass
+#pragma region Object - Grass (blade)
 
 	void InitializeGrassProgram()
 	{
@@ -160,13 +193,26 @@ private:
 		{
 			"#version 450 core													\n"
 			"																	\n"
-			"layout (location = 0) uniform mat4 mvp_matrix;						\n"
+			"layout (location = 0) uniform mat4 vp_matrix;						\n"
 			"																	\n"
 			"layout (location = 0) in vec3 position;							\n"
 			"																	\n"
+			"out vec4 fs_color;													\n"
+			"																	\n"
+			"vec3 calculatePositionOffset(int seed)								\n"
+			"{																	\n"
+			"	int seed_lsb = bitfieldExtract(seed, 0, 10);					\n"
+			"	int seed_msb = bitfieldExtract(seed, 10, 10);					\n"
+			"	float x_offset = float(seed_lsb);								\n"
+			"	float z_offet = float(seed_msb);								\n"
+			"	return vec3(x_offset, 0.0, z_offet);							\n"
+			"}																	\n"
+			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	gl_Position = mvp_matrix * vec4(position, 1.0);					\n"
+			"	vec3 p_offset = calculatePositionOffset(gl_InstanceID);			\n"
+			"	gl_Position = vp_matrix * vec4(position + p_offset, 1.0);		\n"
+			"	fs_color = vec4(0.1, 0.5, 0.1, 1.0);							\n"
 			"}																	\n"
 		};
 
@@ -179,11 +225,13 @@ private:
 		{
 			"#version 450 core													\n"
 			"																	\n"
+			"in vec4 fs_color;													\n"
+			"																	\n"
 			"out vec4 color;													\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	color = vec4(0.71, 0.9, 0.11, 1.0);								\n"
+			"	color = fs_color;												\n"
 			"}																	\n"
 		};
 
@@ -210,14 +258,14 @@ private:
 		// Vertex buffer object - VBO
 
 		// Vertex attribute values - Position (triangle stripe)
-		const GLfloat positions[] = {
-			-0.12f, 0.0f,
-			0.13f, 0.0f,
-			-0.06f, 0.33f,
-			0.19f, 0.33f,
-			0.0f, 0.66f,
-			0.20f, 0.66f,
-			0.10f, 1.0f
+		const GLfloat positions[] =
+		{
+			-0.3f, 0.0f,
+			 0.3f, 0.0f,
+			-0.20f, 1.0f,
+			 0.1f, 1.3f,
+			-0.05f, 2.3f,
+			 0.0f, 3.3f
 		};
 
 		// Create buffer, allocate memory and store data
@@ -229,8 +277,6 @@ private:
 		glVertexArrayAttribBinding(grassVao, 0, 0);
 		glVertexArrayVertexBuffer(grassVao, 0, grassVbo, 0, sizeof(GLfloat) * 2);
 		glEnableVertexArrayAttrib(grassVao, 0);
-
-		grassModelWorldMatrix = vmath::mat4::identity();
 	}
 
 	void RemoveGrass()
@@ -248,19 +294,18 @@ private:
 	GLuint groundVao;
 	GLuint groundVbo;
 	vmath::mat4 groundModelWorldMatrix;
+	const float kGroundSide = 512.0f;
+	const bool kDrawGround = false;
 
 	// Grass
 	GLuint grassProgram;
 	GLuint grassVao;
 	GLuint grassVbo;
-	vmath::mat4 grassModelWorldMatrix;
 
 	// Camera
-	vmath::vec3 cameraTarget;
-	vmath::vec3 cameraPosition;
-	vmath::vec3 cameraUp;
 	vmath::mat4 cameraViewMatrix;
 	vmath::mat4 cameraProjectionMatrix;
+	const bool kSimulateCameraMotion = false;
 };
 
 // Our one and only instance of DECLARE_MAIN

@@ -902,6 +902,14 @@
 	
 		glPrimitiveRestartIndex(index);
 
+- glViewport
+
+	Description: Set the viewport: lower left corner (x,y) - with respect to the window handling OpenGL context; dimensions (width, height) - defaults to the dimensions of the window to which the OpenGL context is initially attached.
+	Use: Rendering
+	Example:		
+	
+		glViewport(0, 0, info.windowWidth, info.windowHeight);
+
 *
 * SYSTEM
 *

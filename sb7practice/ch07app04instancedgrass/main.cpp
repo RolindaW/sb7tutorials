@@ -74,7 +74,8 @@ private:
 	{
 		float scaledElapsedTime = (float)currentTime * 0.02f;
 		float radius = kGroundSide;
-		vmath::vec3 newPosition(vmath::vec3(sinf(scaledElapsedTime) * radius, 25.0f, cosf(scaledElapsedTime) * radius));  // Circular motion
+		float height = 25.0f;
+		vmath::vec3 newPosition(vmath::vec3(sinf(scaledElapsedTime) * radius, height, cosf(scaledElapsedTime) * radius));  // Circular motion
 		UpdateCameraViewMatrix(newPosition);
 	}
 
@@ -189,7 +190,9 @@ private:
 	void InitializeGrassProgram()
 	{
 		// Vertex shader
-		const char* vertexShaderSource[] =
+
+		// Uniform grassland - integer seed output range (-512, 511)
+		const char* vertexShaderSource_01UniformGrassland[] =
 		{
 			"#version 450 core													\n"
 			"																	\n"
@@ -216,8 +219,83 @@ private:
 			"}																	\n"
 		};
 
+		// Uniform grassland - unsigned integer seed output range (0, 1023)
+		const char* vertexShaderSource_01BUniformGrassland[] =
+		{
+			"#version 450 core													\n"
+			"																	\n"
+			"layout (location = 0) uniform mat4 vp_matrix;						\n"
+			"																	\n"
+			"layout (location = 0) in vec3 position;							\n"
+			"																	\n"
+			"out vec4 fs_color;													\n"
+			"																	\n"
+			"vec3 calculatePositionOffset(uint seed)							\n"
+			"{																	\n"
+			"	uint seed_lsb = bitfieldExtract(seed, 0, 10);					\n"
+			"	uint seed_msb = bitfieldExtract(seed, 10, 10);					\n"
+			"	float x_offset = float(seed_lsb);								\n"
+			"	float z_offet = float(seed_msb);								\n"
+			"	return vec3(x_offset, 0.0, z_offet);							\n"
+			"}																	\n"
+			"																	\n"
+			"void main(void)													\n"
+			"{																	\n"
+			"	vec3 p_offset = calculatePositionOffset(gl_InstanceID);			\n"
+			"	gl_Position = vp_matrix * vec4(position + p_offset, 1.0);		\n"
+			"	fs_color = vec4(0.1, 0.5, 0.1, 1.0);							\n"
+			"}																	\n"
+		};
+
+		// Perturbed grassland
+		const char* vertexShaderSource_02PerturbedGrassland[] =
+		{
+			"#version 450 core													\n"
+			"																	\n"
+			"layout (location = 0) uniform mat4 vp_matrix;						\n"
+			"																	\n"
+			"layout (location = 0) in vec3 position;							\n"
+			"																	\n"
+			"out vec4 fs_color;													\n"
+			"																	\n"
+			"int random(int seed, uint iterations)								\n"
+			"{																	\n"
+			"	int value = seed;												\n"
+			"	int i;															\n"
+			"																	\n"
+			"	for (i = 0; i < iterations; i++)								\n"
+			"	{																\n"
+			"		//value = bitfieldExtract(value * 1048576, 0, 10);			\n"
+			"		value = ((value >> 7) ^ (value << 9)) * 15485863;			\n"
+			"	}																\n"
+			"																	\n"
+			"	return value;													\n"
+			"}																	\n"
+			"																	\n"
+			"vec3 calculatePositionOffset(int seed)								\n"
+			"{																	\n"
+			"	int number1 = random(seed, 3);									\n"
+			"	int number2 = random(number1, 2);								\n"
+			"																	\n"
+			"	float x_offset = float(seed >> 10) - 512.0;						\n"
+			"	x_offset += float(number1 & 0xFF) / 256.0;						\n"
+			"																	\n"
+			"	float z_offset = float(seed & 0x3FF) - 512.0;					\n"
+			"	z_offset += float(number2 & 0xFF) / 256.0;						\n"
+			"																	\n"
+			"	return vec3(x_offset, 0.0, z_offset);							\n"
+			"}																	\n"
+			"																	\n"
+			"void main(void)													\n"
+			"{																	\n"
+			"	vec3 p_offset = calculatePositionOffset(gl_InstanceID);			\n"
+			"	gl_Position = vp_matrix * vec4(position + p_offset, 1.0);		\n"
+			"	fs_color = vec4(0.1, 0.5, 0.1, 1.0);							\n"
+			"}																	\n"
+		};
+
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
+		glShaderSource(vertexShader, 1, vertexShaderSource_02PerturbedGrassland, NULL);
 		glCompileShader(vertexShader);
 
 		// Fragment shader

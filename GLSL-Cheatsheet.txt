@@ -32,6 +32,16 @@
 		out vec4 color;
 		color = vec4(0.0, 0.8, 1.0, 1.0);
 
+- lowp / mediump / highp
+
+	Description: Precision qualifier to define output variables. Only for shaders compatibility with OpenGL ES (no functional effects).
+	Use: All
+	Type: Custom input/output variable
+	Example:
+	
+		out lowp uvec4 color;
+		color = vec4(255, 145, 13, 255);
+
 *
 * DATA *
 *
@@ -349,11 +359,50 @@
 	Use: All
 	Type: Function
 
-- bitFieldExtract
+- bitfieldExtract
 
-	Description: Extract a range ([offset, offset + bits - 1]) of bits from an integer (signed and unsigned); return it in the least significant bits of the result.
+	Description:
+	
+		Extract a range ([offset, offset + bits - 1]) of bits from an integer (signed and unsigned).
+		Return it in the LSBs (Least Significant Bits) of the result.
+		Warning! Value of MSBs (Most Significant Bits) depends on data type: unsigned integer - 0 (always); signed integer - sign extended to the width of return type (i.e. the value of last bit in output range).
+	
 	Use: All
 	Type: Function
 	Example:
 	
 		int seed_lsb = bitfieldExtract(seed, 0, 10);
+
+*
+* OPERATOR *
+*
+
+- >> / <<
+
+	Description: Shift (left / right) specified number of bits. It can be interpreted as multiplying / dividing by a power of 2 (number of bits to shift as base).
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		int seed = gl_InstanceID;
+		float x_offset = float(seed >> 10) - 512.0;
+
+- & / |
+
+	Description: And / (Incluvise) Or.
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		int number1 = random(seed, 3);
+		x_offset += float(number1 & 0xFF) / 256.0;
+
+- ^
+
+	Description: (Exclusive) Or.
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		int value = seed;
+		value = ((value >> 7) ^ (value << 9)) * 15485863;

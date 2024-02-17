@@ -13,6 +13,8 @@ public:
 		InitializeGround();
 		InitializeGrassProgram();
 		InitializeGrass();
+		//TestXorshiftp();
+		//TestPairsXorshiftp();
 	}
 
 	void render(double currentTime)
@@ -191,7 +193,7 @@ private:
 	{
 		// Vertex shader
 
-		// Uniform grassland - integer seed output range (-512, 511)
+		// Uniform grassland: integer seed; output range (-512, 511)
 		const char* vertexShaderSource_01UniformGrassland[] =
 		{
 			"#version 450 core													\n"
@@ -202,24 +204,27 @@ private:
 			"																	\n"
 			"out vec4 fs_color;													\n"
 			"																	\n"
-			"vec3 calculatePositionOffset(int seed)								\n"
+			"// Generate (int) 2D coordinate based on square grid distribution	\n"
+			"vec2 gridCoord(int seed)											\n"
 			"{																	\n"
 			"	int seed_lsb = bitfieldExtract(seed, 0, 10);					\n"
 			"	int seed_msb = bitfieldExtract(seed, 10, 10);					\n"
-			"	float x_offset = float(seed_lsb);								\n"
-			"	float z_offet = float(seed_msb);								\n"
-			"	return vec3(x_offset, 0.0, z_offet);							\n"
+			"	return vec2(float(seed_lsb), float(seed_msb));					\n"
 			"}																	\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	vec3 p_offset = calculatePositionOffset(gl_InstanceID);			\n"
-			"	gl_Position = vp_matrix * vec4(position + p_offset, 1.0);		\n"
+			"	// Per-instance grid coordinate to offset vertex position		\n"
+			"	vec2 p_grid = gridCoord(gl_InstanceID);							\n"
+			"	// Offset vertex position along XZ plane						\n"
+			"	vec3 p_offset = position + vec3(p_grid.x, 0.0, p_grid.y);		\n"
+			"																	\n"
+			"	gl_Position = vp_matrix * vec4(p_offset, 1.0);					\n"
 			"	fs_color = vec4(0.1, 0.5, 0.1, 1.0);							\n"
 			"}																	\n"
 		};
 
-		// Uniform grassland - unsigned integer seed output range (0, 1023)
+		// Uniform grassland B: unsigned integer seed; output range (0, 1023)
 		const char* vertexShaderSource_01BUniformGrassland[] =
 		{
 			"#version 450 core													\n"
@@ -230,24 +235,60 @@ private:
 			"																	\n"
 			"out vec4 fs_color;													\n"
 			"																	\n"
-			"vec3 calculatePositionOffset(uint seed)							\n"
+			"// Generate (int) 2D coordinate based on square grid distribution	\n"
+			"vec2 gridCoord(uint seed)											\n"
 			"{																	\n"
 			"	uint seed_lsb = bitfieldExtract(seed, 0, 10);					\n"
 			"	uint seed_msb = bitfieldExtract(seed, 10, 10);					\n"
-			"	float x_offset = float(seed_lsb);								\n"
-			"	float z_offet = float(seed_msb);								\n"
-			"	return vec3(x_offset, 0.0, z_offet);							\n"
+			"	return vec2(float(seed_lsb), float(seed_msb));					\n"
 			"}																	\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	vec3 p_offset = calculatePositionOffset(gl_InstanceID);			\n"
-			"	gl_Position = vp_matrix * vec4(position + p_offset, 1.0);		\n"
+			"	// Per-instance grid coordinate to offset vertex position		\n"
+			"	vec2 p_grid = gridCoord(gl_InstanceID);							\n"
+			"	// Offset vertex position along XZ plane						\n"
+			"	vec3 p_offset = position + vec3(p_grid.x, 0.0, p_grid.y);		\n"
+			"																	\n"
+			"	gl_Position = vp_matrix * vec4(p_offset, 1.0);					\n"
 			"	fs_color = vec4(0.1, 0.5, 0.1, 1.0);							\n"
 			"}																	\n"
 		};
 
-		// Perturbed grassland
+		// Uniform grassland C: integer seed; output range (-512, 511); manual bit manipulation and offset
+		const char* vertexShaderSource_01CUniformGrassland[] =
+		{
+			"#version 450 core													\n"
+			"																	\n"
+			"layout (location = 0) uniform mat4 vp_matrix;						\n"
+			"																	\n"
+			"layout (location = 0) in vec3 position;							\n"
+			"																	\n"
+			"out vec4 fs_color;													\n"
+			"																	\n"
+			"// Generate (int) 2D coordinate based on square grid distribution	\n"
+			"vec2 gridCoord(int seed)											\n"
+			"{																	\n"
+			"	// Select 10 MSBs and offset by max value half					\n"
+			"	float x_pos = float(seed >> 10) - 512.0;						\n"
+			"	// Select 10 LSBs and offset by max value half					\n"
+			"	float y_pos = float(seed & 0x3FF) - 512.0;						\n"
+			"	return vec2(x_pos, y_pos);										\n"
+			"}																	\n"
+			"																	\n"
+			"void main(void)													\n"
+			"{																	\n"
+			"	// Per-instance grid coordinate to offset vertex position		\n"
+			"	vec2 p_grid = gridCoord(gl_InstanceID);							\n"
+			"	// Offset vertex position along XZ plane						\n"
+			"	vec3 p_offset = position + vec3(p_grid.x, 0.0, p_grid.y);		\n"
+			"																	\n"
+			"	gl_Position = vp_matrix * vec4(p_offset, 1.0);					\n"
+			"	fs_color = vec4(0.1, 0.5, 0.1, 1.0);							\n"
+			"}																	\n"
+		};
+
+		// Perturbed grassland: offset grid position with (normalized) random number; xorshift* RNG
 		const char* vertexShaderSource_02PerturbedGrassland[] =
 		{
 			"#version 450 core													\n"
@@ -258,38 +299,56 @@ private:
 			"																	\n"
 			"out vec4 fs_color;													\n"
 			"																	\n"
+			"// Generate (int) 2D coordinate based on square grid distribution	\n"
+			"vec2 gridCoord(int seed)											\n"
+			"{																	\n"
+			"	// Select 10 MSBs and offset by max value half					\n"
+			"	float x_pos = float(seed >> 10) - 512.0;						\n"
+			"	// Select 10 LSBs and offset by max value half					\n"
+			"	float y_pos = float(seed & 0x3FF) - 512.0;						\n"
+			"	return vec2(x_pos, y_pos);										\n"
+			"}																	\n"
+			"																	\n"
+			"// Non-linear xorshift RNG (Random Number Generator): xorshift*	\n"
 			"int random(int seed, uint iterations)								\n"
 			"{																	\n"
 			"	int value = seed;												\n"
 			"	int i;															\n"
 			"																	\n"
+			"	// Iterate over to increase randomness							\n"
 			"	for (i = 0; i < iterations; i++)								\n"
 			"	{																\n"
-			"		//value = bitfieldExtract(value * 1048576, 0, 10);			\n"
+			"		// Multiply by a great number to generate a random number	\n"
 			"		value = ((value >> 7) ^ (value << 9)) * 15485863;			\n"
 			"	}																\n"
 			"																	\n"
 			"	return value;													\n"
 			"}																	\n"
 			"																	\n"
-			"vec3 calculatePositionOffset(int seed)								\n"
+			"vec2 randGridCoord(int seed)										\n"
 			"{																	\n"
+			"	// Grid coordinate												\n"
+			"	vec2 p_grid = gridCoord(gl_InstanceID);							\n"
+			"																	\n"
+			"	// Random number to offset each coordinate						\n"
 			"	int number1 = random(seed, 3);									\n"
 			"	int number2 = random(number1, 2);								\n"
 			"																	\n"
-			"	float x_offset = float(seed >> 10) - 512.0;						\n"
-			"	x_offset += float(number1 & 0xFF) / 256.0;						\n"
+			"	// Select subset (8 LSBs) of random number and normalize		\n"
+			"	float x_offset = float(number1 & 0xFF) / 256.0;					\n"
+			"	float y_offset = float(number2 & 0xFF) / 256.0;					\n"
 			"																	\n"
-			"	float z_offset = float(seed & 0x3FF) - 512.0;					\n"
-			"	z_offset += float(number2 & 0xFF) / 256.0;						\n"
-			"																	\n"
-			"	return vec3(x_offset, 0.0, z_offset);							\n"
+			"	return p_grid + vec2(x_offset, y_offset);						\n"
 			"}																	\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	vec3 p_offset = calculatePositionOffset(gl_InstanceID);			\n"
-			"	gl_Position = vp_matrix * vec4(position + p_offset, 1.0);		\n"
+			"	// Per-instance rand grid coordinate to offset vertex position	\n"
+			"	vec2 p_rgrid = randGridCoord(gl_InstanceID);					\n"
+			"	// Offset vertex position along XZ plane						\n"
+			"	vec3 p_offset = position + vec3(p_rgrid.x, 0.0, p_rgrid.y);		\n"
+			"																	\n"
+			"	gl_Position = vp_matrix * vec4(p_offset, 1.0);					\n"
 			"	fs_color = vec4(0.1, 0.5, 0.1, 1.0);							\n"
 			"}																	\n"
 		};
@@ -362,6 +421,61 @@ private:
 		glDeleteProgram(grassProgram);
 		glDeleteVertexArrays(1, &grassVao);
 		glDeleteBuffers(1, &grassVbo);
+	}
+
+	void TestXorshiftp()
+	{
+		// Declare input and output buffers and allocate required memory
+		const unsigned int kInputNumber = 1024*1024;
+		int* input = new int[kInputNumber];
+		int* output = new int[kInputNumber];
+
+		// Initialize input buffer with some data
+		for (unsigned int i = 0; i < kInputNumber; i++)
+		{
+			input[i] = i;
+		}
+
+		// Call RNG xorshiftp algorithm with input buffer content and save return value in output buffer
+		const unsigned int kIterations = 1;
+		for (unsigned int i = 0; i < kInputNumber; i++)
+		{
+			output[i] = Xorshiftp(input[i], kIterations);
+		}
+
+		// Free input and output buffers memory allocation
+		delete[] input;
+		delete[] output;
+	}
+
+	void TestPairsXorshiftp()
+	{
+		// Declare 
+		int seeds[] = { 0, 58575, 999999, 1048575};
+		unsigned int seedNumber = sizeof(seeds) / sizeof(int);
+
+		// Simulate randomess
+		for (unsigned int i = 0; i < seedNumber; i++)
+		{
+			int seed = seeds[i];
+			int number1 = Xorshiftp(seed, 3);
+			int number2 = Xorshiftp(number1, 2);
+			number2 = number2;
+		}
+	}
+
+	int Xorshiftp(int seed, unsigned int iterations)
+	{
+		int value = seed;
+
+		for (unsigned int i = 0; i < iterations; i++)
+		{
+			// Generated number overflows 32 bit (e.g. seed=999999 and iterations=1 generate a 53 bit number)
+			// 32 LSBs represent a random number that seem not to follow any sequence between function calls (even when using very close value seeds)
+			value = ((value >> 7) ^ (value << 9)) * 15485863;
+		}
+
+		return value;
 	}
 
 #pragma endregion	

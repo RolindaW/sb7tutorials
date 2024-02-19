@@ -194,6 +194,18 @@ private:
 		// Vertex shader
 
 		// Uniform grassland: integer seed; output range (-512, 511)
+		/*
+			The algorithm generating 2D coordinates expects input values (i.e. seed; gl_InstanceID) to range in [0, 2**20).
+			It uses 10 LSBs for the X-coordinate and 10 MSBs for Z-coordinate, which makes resulting distribution to be square; any other bit split (e.g. 8 - 12 or 13 - 7) would make a rectangular distribution.
+			As instance index grows up, first 10 LSBs (X-coordinate) will produce 1024 values ranging in [0, 1024); 10 MSBs (Z-coordinate) will not change. So, for each Z-coordinate ("row") value there will exist 1024 X-coordinate ("column") values.
+			Every 10 MSBs combination - 1024 values ranging in [0, 1024) - generates a new "row" (Z-coordinate) containing 1024 "columns".
+			
+			Using different input value range, result in incomplete distribution value set.
+			- Under 2**20 instances: incomplete "row" (X-coordinate), and/or incomplete "column" (Z-coordinate) number.
+			- Over 2**20 instances: repeated output, as algorithm only process 20 LSBs of input value (i.e. a 21 bit number - or 40 or 56 - will produce same output as the same LSBs 20 bit number).
+
+			Using an algorithm which inputs desired number of rows and columns would make possible to generate any size (different to power of 2) rectangular distribution. Distribution size should fit input values range to generate complete value set.
+		*/
 		const char* vertexShaderSource_01UniformGrassland[] =
 		{
 			"#version 450 core													\n"
@@ -289,6 +301,12 @@ private:
 		};
 
 		// Perturbed grassland: offset grid position with (normalized) random number; xorshift* RNG
+		/*
+			This algorithm consist of adding some noise (randomness) to previous squared distribution.
+			Noise - for each coordinate - is obtained as a subset (8 bits) of a manually generated 32 bit signed integer random number. Then, the value of the subset is normalized using maximum value of 8 bits (2**8; 256).
+			Random number is generated with a "xorshift*" algorithm, which consist of repeteadly (iterations) multiply a subset of a number (seed) by a very large number.
+			Resulting number will be larger (e.g. 53 bit) than the maximum capacity of output variable type (32 bit), so it is just taking the 32 LBSs of the output value. Thus, random positive and negative 32 bit numbers seem to be generated.
+		*/
 		const char* vertexShaderSource_02PerturbedGrassland[] =
 		{
 			"#version 450 core													\n"

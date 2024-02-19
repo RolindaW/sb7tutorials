@@ -377,7 +377,7 @@
 * OPERATOR *
 *
 
-- >> / <<
+- << / >>
 
 	Description: Shift (left / right) specified number of bits. It can be interpreted as multiplying / dividing by a power of 2 (number of bits to shift as base).
 	Use: All
@@ -387,9 +387,9 @@
 		int seed = gl_InstanceID;
 		float x_offset = float(seed >> 10) - 512.0;
 
-- & / |
+- &
 
-	Description: And / (Incluvise) Or.
+	Description: Bitwise AND operator. When using in conjunction with a bitmask (specific bit distribution binary number) of 1(s) it extracts a subset of the target number; a bitmask of 0(s) discards a subset of the target number.
 	Use: All
 	Type: Operator (bitwise)
 	Example:
@@ -397,9 +397,18 @@
 		int number1 = random(seed, 3);
 		x_offset += float(number1 & 0xFF) / 256.0;
 
+- |
+
+	Description: Bitwise INCLUSIVE OR operator.
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		???
+
 - ^
 
-	Description: (Exclusive) Or.
+	Description: Bitwise EXCLUSIVE OR operator. Generate parity bits (i.e. if the bits are the same, the result is 0) for error checking and fault tolerance. When using in conjunction with a bitmask of 0(s) keeps a subset of the target number intact.
 	Use: All
 	Type: Operator (bitwise)
 	Example:

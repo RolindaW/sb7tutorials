@@ -13,6 +13,8 @@ public:
 		InitializeGround();
 		InitializeGrassProgram();
 		InitializeGrass();
+		InitializeGrassParameterTexture2D(0);
+		InitializeGrassColorTexture1D(0);
 		//TestXorshiftp();
 		//TestPairsXorshiftp();
 	}
@@ -41,6 +43,8 @@ public:
 		glUseProgram(grassProgram);
 		glBindVertexArray(grassVao);
 		glUniformMatrix4fv(0, 1, GL_FALSE, cameraProjectionMatrix * cameraViewMatrix);
+		glBindTextureUnit(0, grassParamTexture2D);
+		glBindTextureUnit(1, grassColorTexture1D);
 		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 6, pow(2, 20));  // 1024 x 1024 grassland; it would be usefull to send this value into the vertex shader stage for use in randomization functions
 	}
 
@@ -371,8 +375,91 @@ private:
 			"}																	\n"
 		};
 
+		// Colored perturbed grassland
+		/*
+			In one hand, there is a 8 bit single channel (R) 2D texture to store different parameters. Same value is copied to all channels via swizzing. Shader code is only using alpha channel (as the color pallete index).
+			Random values are generated with same algorithm as for position offset in the shader code: xorshift*
+			In order to have different values for each parameter (channel), higher channel order texture would be required (e.g. RGBA for all the channels).
+
+			In the other hand, there is a 8 bit 3 channel (RGB) 1D texture as a color palette.
+			Palette colors have been manually picked up.
+		*/
+		const char* vertexShaderSource_03ColoredPerturbedGrassland[] =
+		{
+			"#version 450 core													\n"
+			"																	\n"
+			"layout (location = 0) uniform mat4 vp_matrix;						\n"
+			"layout (binding = 0) uniform sampler2D grassparam_tex;				\n"
+			"layout (binding = 1) uniform sampler1D grasscolor_tex;				\n"
+			"																	\n"
+			"layout (location = 0) in vec3 position;							\n"
+			"																	\n"
+			"out vec4 fs_color;													\n"
+			"																	\n"
+			"// Generate (int) 2D coordinate based on square grid distribution	\n"
+			"vec2 gridCoord(int seed)											\n"
+			"{																	\n"
+			"	// Select 10 MSBs and offset by max value half					\n"
+			"	float x_pos = float((seed >> 10) & 0x3FF) - 512.0;				\n"
+			"	// Select 10 LSBs and offset by max value half					\n"
+			"	float y_pos = float(seed & 0x3FF) - 512.0;						\n"
+			"	return vec2(x_pos, y_pos);										\n"
+			"}																	\n"
+			"																	\n"
+			"// Non-linear xorshift RNG (Random Number Generator): xorshift*	\n"
+			"int random(int seed, uint iterations)								\n"
+			"{																	\n"
+			"	int value = seed;												\n"
+			"	int i;															\n"
+			"																	\n"
+			"	// Iterate over to increase randomness							\n"
+			"	for (i = 0; i < iterations; i++)								\n"
+			"	{																\n"
+			"		// Multiply by a great number to generate a random number	\n"
+			"		value = ((value >> 7) ^ (value << 9)) * 15485863;			\n"
+			"	}																\n"
+			"																	\n"
+			"	return value;													\n"
+			"}																	\n"
+			"																	\n"
+			"vec2 randGridCoord(int seed)										\n"
+			"{																	\n"
+			"	// Grid coordinate												\n"
+			"	vec2 p_grid = gridCoord(gl_InstanceID);							\n"
+			"																	\n"
+			"	// Random number to offset each coordinate						\n"
+			"	int number1 = random(seed, 3);									\n"
+			"	int number2 = random(number1, 2);								\n"
+			"																	\n"
+			"	// Select subset (8 LSBs) of random number and normalize		\n"
+			"	float x_offset = float(number1 & 0xFF) / 256.0;					\n"
+			"	float y_offset = float(number2 & 0xFF) / 256.0;					\n"
+			"																	\n"
+			"	return p_grid + vec2(x_offset, y_offset);						\n"
+			"}																	\n"
+			"																	\n"
+			"void main(void)													\n"
+			"{																	\n"
+			"	// Per-instance rand grid coordinate to offset vertex position	\n"
+			"	vec2 p_rgrid = randGridCoord(gl_InstanceID);					\n"
+			"	// Offset vertex position along XZ plane						\n"
+			"	vec3 p_offset = position + vec3(p_rgrid.x, 0.0, p_rgrid.y);		\n"
+			"																	\n"
+			"	// Output position												\n"
+			"	gl_Position = vp_matrix * vec4(p_offset, 1.0);					\n"
+			"																	\n"
+			"	// Query data from grass parameters texture						\n"
+			"	vec2 texcoord = (p_offset.xz / 1024.0) + vec2(0.5);				\n"
+			"	vec4 tex_params = texture(grassparam_tex, texcoord);			\n"
+			"																	\n"
+			"	// Output color - Alpha channel from parameters texture			\n"
+			"	vec4 tex_color = texture(grasscolor_tex, tex_params.a);			\n"
+			"	fs_color = tex_color;											\n"
+			"}																	\n"
+		};
+
 		GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vertexShader, 1, vertexShaderSource_02PerturbedGrassland, NULL);
+		glShaderSource(vertexShader, 1, vertexShaderSource_03ColoredPerturbedGrassland, NULL);
 		glCompileShader(vertexShader);
 
 		// Fragment shader
@@ -434,11 +521,256 @@ private:
 		glEnableVertexArrayAttrib(grassVao, 0);
 	}
 
+	void InitializeGrassParameterTexture2D(int mode)
+	{
+		switch (mode)
+		{
+		case 0:
+			InitializeGrassRandomParameterTexture2D();
+			break;
+		case 1:
+			InitializeGrassSymmetricParameterTexture2D();
+			break;
+		default:
+			break;
+		}
+	}
+
+	void InitializeGrassRandomParameterTexture2D()
+	{
+		// Create a new 2D texture object
+		glCreateTextures(GL_TEXTURE_2D, 1, &grassParamTexture2D);
+
+		// Specify the amount of storage we want to use for the texture
+		const unsigned int kWidth = 512, kHeight = 512;
+		glTextureStorage2D(grassParamTexture2D,
+			1,
+			GL_R8,
+			kWidth, kHeight);
+
+		// Define some data to upload into the texture
+		// Note: Data is laid out (this setup can be changed in OpenGL with a parameter) left to right, top to bottom.
+		const unsigned int kDataSize = kWidth * kHeight;
+		GLubyte* data = new GLubyte[kDataSize];
+
+		int value = kGrassParamSeed;
+		for (unsigned int i = 0; i < kDataSize; i++)
+		{
+			value = Xorshiftp(value, 3);
+			data[i] = value & 0xFF;
+		}
+
+		// Pixel store
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+		// Fill memory with image data
+		glTextureSubImage2D(grassParamTexture2D,
+			0,
+			0, 0,
+			kWidth, kHeight,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			data);
+
+		delete[] data;
+
+		// Wrapping
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+		// Swizzle (all channels - different parameter - same value)
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
+
+		// Filtering
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  // GL_NEAREST - GL_LINEAR
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
+
+	void InitializeGrassSymmetricParameterTexture2D()
+	{
+		// Create a new 2D texture object
+		glCreateTextures(GL_TEXTURE_2D, 1, &grassParamTexture2D);
+
+		// Specify the amount of storage we want to use for the texture
+		glTextureStorage2D(grassParamTexture2D,
+			1,
+			GL_R8,
+			2, 2);
+
+		// Define some data to upload into the texture
+		// Note: Data is laid out (this setup can be changed in OpenGL with a parameter) left to right, top to bottom.
+		const GLubyte data[] =
+		{
+			0x00, 0x40,
+			0x80, 0xB0
+		};
+
+		GLubyte data2[2][2][1];
+		data2[0][0][0] = 0xFF;
+		data2[0][1][0] = 0x00;
+		data2[1][0][0] = 0x00;
+		data2[1][1][0] = 0xFF;
+
+		// Pixel store
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		// Fill memory with image data
+		glTextureSubImage2D(grassParamTexture2D,
+			0,
+			0, 0,
+			2, 2,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			data);
+
+		// Wrapping
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		// Swizzle (all channels - different parameter - same value)
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
+
+		// Filtering
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // GL_NEAREST - GL_LINEAR
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
+	
+	void InitializeGrassColorTexture1D(int mode)
+	{
+		switch (mode)
+		{
+		case 0:
+			InitializeGrassGreenscaleColorTexture1D();
+			break;
+		case 1:
+			InitializeGrassGrayscaleColorTexture1D();
+			break;
+		default:
+			break;
+		}
+	}
+
+	void InitializeGrassGreenscaleColorTexture1D()
+	{
+		// Create a new 2D texture object
+		glCreateTextures(GL_TEXTURE_1D, 1, &grassColorTexture1D);
+
+		// Specify the amount of storage we want to use for the texture
+		glTextureStorage1D(grassColorTexture1D,
+			1,
+			GL_RGBA8,  // RGB 8 bit color
+			5);  // x5 color palette
+
+		// Define some data to upload into the texture
+		// Note: Data is laid out (this setup can be changed in OpenGL with a parameter) left to right, top to bottom.
+		const GLubyte data[] =
+		{
+			0xEE, 0xF6, 0x77, 0xFF,
+			0x7B, 0x96, 0x6B, 0xFF,
+			0x8B, 0xB3, 0x50, 0xFF,
+			0x24, 0x50, 0x17, 0xFF,
+			0x2E, 0x42, 0x1A, 0xFF
+		};
+
+		GLubyte data2[5][4];
+		data2[0][0] = 0xEE;
+		data2[0][1] = 0xF6;
+		data2[0][2] = 0x77;
+		data2[0][3] = 0xFF;
+
+		data2[1][0] = 0x7B;
+		data2[1][1] = 0x96;
+		data2[1][2] = 0x6B;
+		data2[1][3] = 0xFF;
+
+		data2[2][0] = 0x8B;
+		data2[2][1] = 0xB3;
+		data2[2][2] = 0x50;
+		data2[2][3] = 0xFF;
+
+		data2[3][0] = 0x24;
+		data2[3][1] = 0x50;
+		data2[3][2] = 0x17;
+		data2[3][3] = 0xFF;
+
+		data2[4][0] = 0x2E;
+		data2[4][1] = 0x42;
+		data2[4][2] = 0x1A;
+		data2[4][3] = 0xFF;
+
+		// Pixel store
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+		// Fill memory with image data
+		glTextureSubImage1D(grassColorTexture1D,
+			0,
+			0,
+			5,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			data);
+
+		// Wrapping
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
+
+		// Filtering
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // GL_NEAREST - GL_LINEAR
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
+
+	void InitializeGrassGrayscaleColorTexture1D()
+	{
+		// Create a new 2D texture object
+		glCreateTextures(GL_TEXTURE_1D, 1, &grassColorTexture1D);
+
+		// Specify the amount of storage we want to use for the texture
+		glTextureStorage1D(grassColorTexture1D,
+			1,
+			GL_R8,  // RGB 8 bit color
+			5);  // x5 color palette
+
+		// Define some data to upload into the texture
+		// Note: Data is laid out (this setup can be changed in OpenGL with a parameter) left to right, top to bottom.
+		const GLubyte data[] =
+		{
+			0x00, 0x40, 0x80, 0xB0, 0xFF
+		};
+
+		// Pixel store
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		// Fill memory with image data
+		glTextureSubImage1D(grassColorTexture1D,
+			0,
+			0,
+			5,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			data);
+
+		// Wrapping
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
+
+		// Swizzle
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_SWIZZLE_G, GL_RED);
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_SWIZZLE_B, GL_RED);
+
+		// Filtering
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // GL_NEAREST - GL_LINEAR
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
+
 	void RemoveGrass()
 	{
 		glDeleteProgram(grassProgram);
 		glDeleteVertexArrays(1, &grassVao);
 		glDeleteBuffers(1, &grassVbo);
+		glDeleteTextures(1, &grassParamTexture2D);
+		glDeleteTextures(1, &grassColorTexture1D);
 	}
 
 	void TestXorshiftp()
@@ -511,11 +843,14 @@ private:
 	GLuint grassProgram;
 	GLuint grassVao;
 	GLuint grassVbo;
+	const int kGrassParamSeed = 0x23103;  // See used to generate random grass parameters
+	GLuint grassParamTexture2D;
+	GLuint grassColorTexture1D;
 
 	// Camera
 	vmath::mat4 cameraViewMatrix;
 	vmath::mat4 cameraProjectionMatrix;
-	const bool kSimulateCameraMotion = false;
+	const bool kSimulateCameraMotion = true;
 };
 
 // Our one and only instance of DECLARE_MAIN

@@ -542,7 +542,7 @@ private:
 		glCreateTextures(GL_TEXTURE_2D, 1, &grassParamTexture2D);
 
 		// Specify the amount of storage we want to use for the texture
-		const unsigned int kWidth = 512, kHeight = 512;
+		const unsigned int kWidth = 64, kHeight = 64;
 		glTextureStorage2D(grassParamTexture2D,
 			1,
 			GL_R8,
@@ -575,15 +575,18 @@ private:
 		delete[] data;
 
 		// Wrapping
-		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
-		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+		// Note: Wrapping will not take effect (only for texture coordinate values between border and closest texels) unless generated texture coordinates to access it (sourced from grass blade - randomized - grid coordinate) are not normalized
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
+		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		// Swizzle (all channels - different parameter - same value)
+		// Swizzle
+		// Note: All channels - each representing an individual parameter - are given same values, just out for laziness (in fact, only one is used in the shader code: alpha channel to store 1D texture - color palette - coordinates)
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
 
 		// Filtering
+		// Note: Minification filtering will not take effect because texture (64x64; or any other combination smaller than the field size) is stretched to fit the field size (1024x1024)
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  // GL_NEAREST - GL_LINEAR
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
@@ -629,12 +632,13 @@ private:
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		// Swizzle (all channels - different parameter - same value)
+		// Swizzle
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_G, GL_RED);
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_B, GL_RED);
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_SWIZZLE_A, GL_RED);
 
 		// Filtering
+		// Note: Nearest neighboor algorithm is used for magnification filtering because sampled data is desired to be perfectly divided into square-shaped clusters of the same size.
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // GL_NEAREST - GL_LINEAR
 		glTextureParameteri(grassParamTexture2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
@@ -715,10 +719,12 @@ private:
 			data);
 
 		// Wrapping
+		// Note: Again, wrapping will not take effect (only for texture coordinate values between border and closest texels) unless generated texture coordinates to access it (sampled from grass parameters 2D texture alpha channel) are not normalized
 		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_WRAP_S, GL_REPEAT);  // GL_REPEAT - GL_MIRRORED_REPEAT - GL_CLAMP_TO_EDGE - GL_CLAMP_TO_BORDER
 
 		// Filtering
-		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  // GL_NEAREST - GL_LINEAR
+		// Note: Linear interpolation algorithm is used for magnification filtering because sampled data is desired to be smoothly swapped along the field
+		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  // GL_NEAREST - GL_LINEAR
 		glTextureParameteri(grassColorTexture1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
 
@@ -837,7 +843,7 @@ private:
 	GLuint groundVbo;
 	vmath::mat4 groundModelWorldMatrix;
 	const float kGroundSide = 512.0f;
-	const bool kDrawGround = false;
+	const bool kDrawGround = true;
 
 	// Grass
 	GLuint grassProgram;

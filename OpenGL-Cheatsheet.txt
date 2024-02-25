@@ -741,6 +741,14 @@
 	
 		glVertexArrayAttribBinding(vao, 0, 0);
 
+- glVertexAttribDivisor
+
+	Description: Modify the rate at which generic vertex attributes advance during instanced rendering.
+	Use: Rendering
+	Example:
+	
+		glVertexAttribDivisor(2, 1);
+
 - glBindVertexBuffer / glVertexArrayVertexBuffer
 
 	Description:

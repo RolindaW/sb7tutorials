@@ -86,6 +86,12 @@
 		Separate attributes: Located either in different buffers or at least at different locations (offsets) in the same buffer. Structure-of-arrays (SoA) data (a set of tightly packed, independent arrays of data).
 		Interleaved attributes: Located in the same buffer. Array-of-structures (AoS) form of data.
 
+- Instanced (vertex) attribute
+
+	Dynamic value (buffered; instanced - per-instance - arrays) vertex attribute whose value is updated (read from buffer) every certain number of instances (a.k.a. divisor; configurable).
+	Formula for calculating fetching index: (instance / divisor ) + baseInstance
+	Works with both instanced and non-instanced drawing commands.
+
 - Buffer
 
 	Linear blocks (memory allocations) of untyped (generic; can be used for a number of purposes - even at same time) data.
@@ -304,7 +310,7 @@
 - Drawing commands
 
 	Categorized as: Indexed / Non-Indexed - Instanced / Non-Instanced - Direct / Indirect
-	Some can be considered supersets of others.
+	Some can be considered supersets of others (e.g. a non-instanced drawing command is actually a call to a single-copy instanced command).
 	
 	Non-Indexed ("...Array...")
 	
@@ -325,7 +331,8 @@
 	Instanced ("...Instanced")
 	
 		Draw many copies (thousands or millions) of the same geometry with a single function call (vertex data is sent to the server only once).
-		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into data (e.g. textures or instanced arrays - an array whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
+		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into data (e.g. textures or (instanced) uniform arrays - whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
+		Allow the use of instanced attributes.
 		It is possible to offset (base instance) instance values before they are used.
 	
 	Direct:

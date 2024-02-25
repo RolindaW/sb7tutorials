@@ -79,6 +79,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app03strippedgeometry",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app04instancedgrass", "ch07app04instancedgrass\ch07app04instancedgrass.vcxproj", "{6B530663-F398-4A04-B06F-4758BD26A965}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app05instancedattributes", "ch07app05instancedattributes\ch07app05instancedattributes.vcxproj", "{26C6F2C8-354F-4AD9-B666-0BE3D6D09AC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -237,6 +239,10 @@ Global
 		{6B530663-F398-4A04-B06F-4758BD26A965}.Debug|x64.Build.0 = Debug|x64
 		{6B530663-F398-4A04-B06F-4758BD26A965}.Release|x64.ActiveCfg = Release|x64
 		{6B530663-F398-4A04-B06F-4758BD26A965}.Release|x64.Build.0 = Release|x64
+		{26C6F2C8-354F-4AD9-B666-0BE3D6D09AC5}.Debug|x64.ActiveCfg = Debug|x64
+		{26C6F2C8-354F-4AD9-B666-0BE3D6D09AC5}.Debug|x64.Build.0 = Debug|x64
+		{26C6F2C8-354F-4AD9-B666-0BE3D6D09AC5}.Release|x64.ActiveCfg = Release|x64
+		{26C6F2C8-354F-4AD9-B666-0BE3D6D09AC5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -715,6 +715,21 @@
 		// Update the value of vertex attribute 0
 		glVertexAttrib4fv(0, attrib);
 
+- glVertexAttribPointer / glVertexAttribIPointer / glVertexAttribLPointer
+
+	Description:
+	
+		Set up (virtually) format and source buffer information for a vertex attribute.
+		Warning! A non-zero named buffer object must be bound to the GL_ARRAY_BUFFER target.
+		It internally uses provided value as both the vertex attribute index and the buffer binding point (and maps them together). Why? Legacy (when buffer binding points did not exist).
+	
+	Use: Rendering
+	Example:
+	
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)sizeof(positions));
+		glVertexAttribPointer(2, 2, GL_UNSIGNED_SHORT, GL_TRUE, 0, (GLvoid*)(sizeof(positions) + sizeof(normals)));
+
 - glVertexAttribFormat / glVertexAttribIFormat / glVertexAttribLFormat / glVertexArrayAttribFormat / glVertexArrayAttribIFormat / glVertexArrayAttribLFormat
 
 	Description:
@@ -722,6 +737,7 @@
 		Describe vertex attribute layout (size and type).
 		Functions named with "...VertexArray..." save settings into specified vertex array object; others, into active vertex array object.
 		Functions named with "...I..." describe the layout for integer vertex attributes (normalization not supported); functions named with "...L..." describe the layout for 64-bit vertex attributes; others, describe layout for floating-point vertex attributes (it is possible normalizing integer - signed and unsigned - data).
+		Relative offset allows interleaving, where different vertex attributes need to offset themselves from the base offset of mapped buffer binding point.
 	
 	Use: Startup
 	Example:
@@ -733,7 +749,6 @@
 	Description:
 	
 		Map (by index) a vertex attribute to a buffer binding point; vertex attribute index matches the location modifier used in the shader.
-		It is recommended to group multiple vertex attributes into a single buffer binding point (values for multiple vertex attributes are stored in a single buffer object) when possible, so switching the source (buffer object) vertex attribute data will be feed from is simplified (i.e. just binding a different buffer object).
 		Functions named with "...VertexArray..." save settings into specified vertex array object; others, into active vertex array object.
 	
 	Use: Startup
@@ -752,6 +767,30 @@
 	Example:
 	
 		glVertexArrayVertexBuffer(vao, 0, buffer, 0, sizeof(float) * 4);
+
+- glVertexAttribDivisor
+
+	Description:
+	
+		Specify (by buffer binding point) the rate at which generic vertex attributes advance during instanced rendering.
+		Warning! In the OpenGL official documentation it is said the divisor to be specified by vertex attribute index, but it is a mistake.
+	
+	Use: Rendering
+	Example:
+	
+		glVertexAttribDivisor(1, 1);
+
+- glVertexBindingDivisor / glVertexArrayBindingDivisor
+
+	Description:
+	
+		Specify (by buffer binding point) the rate at which generic vertex attributes advance during instanced rendering.
+		Functions named with "...VertexArray..." save settings into specified vertex array object; others, into active vertex array object.
+	
+	Use: Rendering
+	Example:
+	
+		glVertexArrayBindingDivisor(vao, 1, 1);
 
 - glEnableVertexAttribArray / glDisableVertexAttribArray / glEnableVertexArrayAttrib / glDisableVertexArrayAttrib
 
@@ -790,13 +829,77 @@
 * DRAWING
 *
 
-- glDrawArrays
+- glDrawArrays (Non-Indexed - Non-Instaced - Direct)
 
-	Description: Drawing command (of specified primitive type: GL_POINTS; GL_LINES; GL_TRIANGLES; GL_PATCHES) that send vertices to the OpenGL pipeline.
+	Description: Draw sequentially accessed array of vertices with specified primitive type (GL_POINTS, GL_LINES, GL_TRIANGLES, GL_PATCHES, etc.).
 	Use: Rendering
 	Example:
 	
 		glDrawArrays(GL_POINTS, 0, 1);
+
+- glDrawArraysInstanced (Non-Indexed - Instaced - Direct)
+
+	Description: Draw multiple copies of sequentially accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
+
+- glDrawArraysInstancedBaseInstance (Non-Indexed - Instaced (offset) - Direct)
+
+	Description: Draw multiple copies (plus offset) of sequentially accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
+
+- glDrawElements (Indexed - Non-Instaced - Direct)
+
+	Description: Draw by-index accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
+
+- glDrawElementsBaseVertex (Indexed (offset) - Non-Instaced - Direct)
+
+	Description: Draw by-index (plus offset) accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		glDrawElementsBaseVertex(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0, 0);
+
+- glDrawElementsInstanced (Indexed - Instaced - Direct)
+
+	Description: Draw multiple copies of by-index accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
+
+- glDrawElementsInstancedBaseInstance (Indexed - Instaced (offset) - Direct)
+
+	Description: Draw multiple copies (plus offset) of by-index accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
+
+- glDrawElementsInstancedBaseVertex (Indexed (offset) - Instaced - Direct)
+
+	Description: Draw multiple copies of by-index (plus offset) accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
+
+- glDrawElementsInstancedBaseVertexBaseInstance (Indexed (offset) - Instaced (offset) - Direct)
+
+	Description: Draw multiple copies (plus offset) of by-index (plus offset) accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
 
 - glPointSize
 
@@ -829,6 +932,22 @@
 	Example:		
 		
 		glCullFace(GL_BACK);
+
+- glPrimitiveRestartIndex (+ glEnable(GL_PRIMITIVE_RESTART))
+
+	Description: Specify the primitive (GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_LINE_STRIP, and GL_LINE_LOOP) restart index.
+	Use: Rendering
+	Example:		
+	
+		glPrimitiveRestartIndex(index);
+
+- glViewport
+
+	Description: Set the viewport: lower left corner (x,y) - with respect to the window handling OpenGL context; dimensions (width, height) - defaults to the dimensions of the window to which the OpenGL context is initially attached.
+	Use: Rendering
+	Example:		
+	
+		glViewport(0, 0, info.windowWidth, info.windowHeight);
 
 *
 * SYSTEM

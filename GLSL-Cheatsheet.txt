@@ -32,6 +32,16 @@
 		out vec4 color;
 		color = vec4(0.0, 0.8, 1.0, 1.0);
 
+- lowp / mediump / highp
+
+	Description: Precision qualifier to define output variables. Only for shaders compatibility with OpenGL ES (no functional effects).
+	Use: All
+	Type: Custom input/output variable
+	Example:
+	
+		out lowp uvec4 color;
+		color = vec4(255, 145, 13, 255);
+
 *
 * DATA *
 *
@@ -161,7 +171,11 @@
 
 - gl_VertexID
 
-	Description: The index of the vertex that is being processed at the time. Starts counting from the value given by the first parameter of glDrawArrays() and counts upward one vertex at a time for count vertices (the third parameter of glDrawArrays()).
+	Description:
+	
+		The index of the vertex that is being processed at the time.
+		Value depends on drawing command category. Non-indexed: starts counting from the value given as parameter and counts upward one vertex at a time for vertex count. Indexed: corresponding index of the vertex.
+	
 	Use: Vertex shader
 	Type: Built-in input variable
 	Example:
@@ -170,7 +184,20 @@
 										 vec4(-0.25, -0.25, 0.5, 1.0),
 										 vec4( 0.25,  0.25, 0.5, 1.0));
 		gl_Position = vertices[gl_VertexID];
-		
+
+- gl_InstanceID
+
+	Description:
+	
+		The index of the geometry instance that is being processed at the time.
+		Value depends on drawing command category. Non-instanced: 0 (always). Instanced: starts counting from the value given as parameter and counts upward one instance at a time for instance count.
+	
+	Use: Vertex shader
+	Type: Built-in input variable
+	Example:
+	
+		???
+
 - gl_in / gl_out
 
 	Description: Built in variable.
@@ -331,3 +358,60 @@
 	Description: Any memory reads or writes that you might have performed will complete before the function returns. Also specialized versions (e.g. memoryBarrierBuffers; orders transactions on reads and writes to buffers, but to nothing else).
 	Use: All
 	Type: Function
+
+- bitfieldExtract
+
+	Description:
+	
+		Extract a range ([offset, offset + bits - 1]) of bits from an integer (signed and unsigned).
+		Return it in the LSBs (Least Significant Bits) of the result.
+		Warning! Value of MSBs (Most Significant Bits) depends on data type: unsigned integer - 0 (always); signed integer - sign extended to the width of return type (i.e. the value of last bit in output range).
+	
+	Use: All
+	Type: Function
+	Example:
+	
+		int seed_lsb = bitfieldExtract(seed, 0, 10);
+
+*
+* OPERATOR *
+*
+
+- << / >>
+
+	Description: Shift (left / right) specified number of bits. It can be interpreted as multiplying / dividing by a power of 2 (number of bits to shift as base).
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		int seed = gl_InstanceID;
+		float x_offset = float(seed >> 10) - 512.0;
+
+- &
+
+	Description: Bitwise AND operator. When using in conjunction with a bitmask (specific bit distribution binary number) of 1(s) it extracts a subset of the target number; a bitmask of 0(s) discards a subset of the target number.
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		int number1 = random(seed, 3);
+		x_offset += float(number1 & 0xFF) / 256.0;
+
+- |
+
+	Description: Bitwise INCLUSIVE OR operator.
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		???
+
+- ^
+
+	Description: Bitwise EXCLUSIVE OR operator. Generate parity bits (i.e. if the bits are the same, the result is 0) for error checking and fault tolerance. When using in conjunction with a bitmask of 0(s) keeps a subset of the target number intact.
+	Use: All
+	Type: Operator (bitwise)
+	Example:
+	
+		int value = seed;
+		value = ((value >> 7) ^ (value << 9)) * 15485863;

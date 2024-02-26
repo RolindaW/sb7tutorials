@@ -68,8 +68,8 @@
 - Vertex array object
 
 	Represent vertex fetching stage of the OpenGL pipeline.
-	Store all of the state related to the input to the OpenGL pipeline i.e. vertex attributes configuration (e.g. static values or settings - external data format and type, mapping between vertex attribute indices and buffer binding points, and data source - for dynamic values feeding).
-	Only one active (bound to the OpenGL context) at a time; required (mandatory) to execute drawing commands; setup is optional if configuration does not require any vertex attributes.
+	Only one active (bound to the OpenGL context) at a time; required (mandatory) to execute drawing commands; setup is optional if configuration does not require any vertex attribute.
+	Store all of the state related to the input to the OpenGL pipeline i.e. vertex attributes configuration (e.g. static values or settings - external data format and type, mapping between vertex attribute indices and buffer binding points, and data source - for dynamic values).
 
 - Vertex attribute
 
@@ -78,13 +78,28 @@
 	If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later).
 	Can be indepdendently set up (i.e. each can be feed - value assignment - different way).
 	
-		Static value: same value for all vertices on drawing command invoke (e.g. color of the material bound to a game object). Set by command.
-		Dynamic value: own value for each vertex on drawing command invoke (e.g. space coordinates - position, surface normal or texture coordinates of a vertex relative to the geometry of a game object). Feed from buffer (require specifying data location and format).
+		Static value: same value for all vertices on drawing command invoke (e.g. color of the material bound to a game object). Set by command (not stored in a vertex array object, but a special context state). Enabled by default.
+		Dynamic value: own value for each vertex on drawing command invoke (e.g. space coordinates - position, surface normal or texture coordinates of a vertex relative to the geometry of a game object). Feed from buffer (require specifying data format and its location). Require enabling.
 	
-	Depending on how data for dynamic values is stored:
+	Depending on how data is laid out in memory (for dynamic values):
 	
 		Separate attributes: Located either in different buffers or at least at different locations (offsets) in the same buffer. Structure-of-arrays (SoA) data (a set of tightly packed, independent arrays of data).
 		Interleaved attributes: Located in the same buffer. Array-of-structures (AoS) form of data.
+	
+	Per-vertex-attribute stored data is separated into to concepts: vertex attribute format and (source) buffer binding point.
+	
+		Vertex attribute format: size, type and normalization; relative offset from mapped buffer binding point base offset; mapped buffer binding point; enabled/disabled.
+		Buffer binding point: source buffer object; base offset, stride and instance divisor (used for all vertex attributes pulling data from this binding point).
+	
+	It is recommended to use single (or as few as possible) large (vertex) buffer object to store vertex data - even to store data from multiple geometries. In any case, it is possible to use any desired buffer object configuration (e.g. per-vertex-attribute buffer object).
+	It is recommended to group multiple vertex attributes into a single buffer binding point (values for multiple vertex attributes are stored in a single buffer object) when possible (i.e. interleaved pure - non-instanced - vertex attributes), so switching the source (buffer object) vertex attribute data will be feed from - to draw new geometry batch - is simplified (i.e. just binding a different buffer object to corresponding buffer binding point).
+	This approach was not possible in the past, because of the lack of buffer binding points - so vertex attributes where mapped one-by-one to corresponding buffer(s); switching the source suppossed multiple (as many as vertex attributes) OpenGL functions calls.
+
+- Instanced (vertex) attribute
+
+	Dynamic value (buffered; instanced - per-instance - arrays) vertex attribute whose value is updated (read from buffer) every certain number of instances (a.k.a. divisor; configurable).
+	Formula for calculating fetching index: (instance / divisor ) + baseInstance
+	Works with both instanced and non-instanced drawing commands.
 
 - Buffer
 
@@ -300,3 +315,46 @@
 		Program objects are linked in retrievable mode (specified before linking).
 		Hand the binary back bypassing both compiler and linker (time saving).
 		Wait until used the shaders a few times for real rendering before retrieving binaries (recommended); give the OpenGL implementation a chance to recompile any shaders that need it, and store a number of versions of each program in a single binary.
+
+- Drawing commands
+
+	Categorized as: Indexed / Non-Indexed - Instanced / Non-Instanced - Direct / Indirect
+	Some can be considered supersets of others (e.g. a non-instanced drawing command is actually a call to a single-copy instanced command).
+	
+	Non-Indexed ("...Array...")
+	
+		Per-vertex data (values of vertex attributes) is issued to the vertex shader sequentially - in the order it appears in the buffers.
+		Require much more memory storage (because vertices shared by multiple surfaces across a geometry require define - even just repeat - per-vertex data multiple times).
+		
+	Indexed ("...Element...")
+	
+		Include an indirection step to read (from a buffer - GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
+		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long; it is possible to offset (base vertex) queried index values before they are used.
+		Require less memory storage (shared vertices define per-vertex data only once).
+		Managing certain vertex attributes can be problematic in specific scenarios due to their nature (e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube).
+	
+	Non-Instanced
+	
+		Draw a single copy of a geometry.
+	
+	Instanced ("...Instanced")
+	
+		Draw many copies (thousands or millions) of the same geometry with a single function call (vertex data is sent to the server only once).
+		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into data (e.g. textures or (instanced) uniform arrays - whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
+		Allow the use of instanced attributes.
+		It is possible to offset (base instance) instance values before they are used.
+	
+	Direct:
+	
+		xxx
+	
+	Indirect ("...Indirect...")
+	
+		xxx
+
+- Stripping
+
+	Draw (indexed mode only) large strippified geometry within a single command (performance enhancement).
+	Each triangle in a strip (excepting first one) is represented by a single vertex (i.e. less geometry to process in the pipeline); face direction of the strip is determined by the winding of the first triangle.
+	Specialized tools are used to create long strips from unconnected triangle geometries.
+	Primitive restart (optional - requires enabling): inform the position in the geometry (vertex index) where one strip (or fan or loop) ends and the next begins (i.e. reduce the number of required drawing commands); to be obtained from corresponding stripping tool.

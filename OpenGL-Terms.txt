@@ -69,12 +69,12 @@
 
 	Represent vertex fetching stage of the OpenGL pipeline.
 	Only one active (bound to the OpenGL context) at a time; required (mandatory) to execute drawing commands; setup is optional if configuration does not require any vertex attribute.
-	Store all of the state related to the input to the OpenGL pipeline i.e. vertex attributes configuration (e.g. static values or settings - external data format and type, mapping between vertex attribute indices and buffer binding points, and data source - for dynamic values).
+	Store all of the state related to the input to the OpenGL pipeline i.e. vertex attributes configuration (e.g. settings of dynamic values feeding - external data format and type, mapping between vertex attribute indices and buffer binding points, and data source - or index buffer binding).
 
 - Vertex attribute
 
 	An input variable to the vertex shader (i.e. input to the OpenGL graphics pipeline).
-	It is how vertex data is introduced into the OpenGL pipeline.
+	It is how vertex (array) data is introduced into the OpenGL pipeline.
 	If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later).
 	Can be indepdendently set up (i.e. each can be feed - value assignment - different way).
 	
@@ -92,8 +92,11 @@
 		Buffer binding point: source buffer object; base offset, stride and instance divisor (used for all vertex attributes pulling data from this binding point).
 	
 	It is recommended to use single (or as few as possible) large (vertex) buffer object to store vertex data - even to store data from multiple geometries. In any case, it is possible to use any desired buffer object configuration (e.g. per-vertex-attribute buffer object).
-	It is recommended to group multiple vertex attributes into a single buffer binding point (values for multiple vertex attributes are stored in a single buffer object) when possible (i.e. interleaved pure - non-instanced - vertex attributes), so switching the source (buffer object) vertex attribute data will be feed from - to draw new geometry batch - is simplified (i.e. just binding a different buffer object to corresponding buffer binding point).
-	This approach was not possible in the past, because of the lack of buffer binding points - so vertex attributes where mapped one-by-one to corresponding buffer(s); switching the source suppossed multiple (as many as vertex attributes) OpenGL functions calls.
+	It is recommended to group multiple vertex attributes into a single buffer binding point when possible:
+	
+		Data must be stored interleaved (because must use same stride value - vertex size) in the same buffer object; vertex attributes must be a) all pure (non-instanced) or b) all instanced using same divisor value.
+		Switching the source vertex attribute data will be feed from (e.g. to draw new geometry batch) is simplified: just binding a different buffer object to corresponding buffer binding point.
+		This approach was not possible in the past, because of the lack of buffer binding points - so vertex attributes where mapped one-by-one to corresponding buffer(s); switching the source suppossed multiple (as many as vertex attributes) OpenGL functions calls.
 
 - Instanced (vertex) attribute
 
@@ -114,6 +117,7 @@
 	Use cases:
 	
 		Vertex buffer object (VBO): common buffer object (same as any other buffer object) intended to store vertex data (so its name - target GL_ARRAY_BUFFER) for a vertex array object.
+		Element buffer object (EBO): common buffer object intended to store index data (target GL_ELEMENT_ARRAY_BUFFER) for a vertex array object.
 		Uniform buffer object (UBO): common buffer object intended to store uniform data (target GL_UNIFORM_BUFFER) for a program object.
 		Shader storage buffer object (SSBO): common buffer object intended to store shader data (target GL_SHADER_STORAGE_BUFFER) for a program object.
 		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (target GL_ATOMIC_COUNTER_BUFFER) for a program object.
@@ -331,7 +335,7 @@
 		Include an indirection step to read (from a buffer - GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
 		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long; it is possible to offset (base vertex) queried index values before they are used.
 		Require less memory storage (shared vertices define per-vertex data only once).
-		Managing certain vertex attributes can be problematic in specific scenarios due to their nature (e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube).
+		All vertex attributes will use same index value; managing certain vertex attributes can be problematic in specific scenarios due to their nature (e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube).
 	
 	Non-Instanced
 	

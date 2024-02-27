@@ -720,8 +720,13 @@
 	Description:
 	
 		Set up (virtually) format and source buffer information for a vertex attribute.
-		Warning! A non-zero named buffer object must be bound to the GL_ARRAY_BUFFER target.
-		It internally uses provided value as both the vertex attribute index and the buffer binding point (and maps them together). Why? Legacy (when buffer binding points did not exist).
+		Warning! At the time this function is called:
+		
+			A vertex array object (where the configuration being set will be stored) must be bound to the OpenGL context.
+			A non-zero named (vertex) buffer object (containing corresponding vertex attribute data) must be bound to the GL_ARRAY_BUFFER target.
+		
+		It internally uses provided index value as both the vertex attribute index and the buffer binding point index (and maps them together). Why? Legacy (when buffer binding points did not exist).
+		Specified offset represents where data starts in source (vertex) buffer object (base offset) and may include (depending on data layout - interleaved - or base offset definition) corresponding vertex attribute relative offset; (due to legacy background) it must be casted into a void pointer type.
 	
 	Use: Rendering
 	Example:

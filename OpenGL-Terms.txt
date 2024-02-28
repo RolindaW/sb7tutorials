@@ -121,6 +121,7 @@
 		Uniform buffer object (UBO): common buffer object intended to store uniform data (target GL_UNIFORM_BUFFER) for a program object.
 		Shader storage buffer object (SSBO): common buffer object intended to store shader data (target GL_SHADER_STORAGE_BUFFER) for a program object.
 		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (target GL_ATOMIC_COUNTER_BUFFER) for a program object.
+		Draw indirect buffer object (???): common buffer object to store parameters (target GL_DRAW_INDIRECT_BUFFER) for a drawing command.
 
 - Uniform
 
@@ -328,14 +329,17 @@
 	Non-Indexed ("...Array...")
 	
 		Per-vertex data (values of vertex attributes) is issued to the vertex shader sequentially - in the order it appears in the buffers.
+		It is possible to select a subset (first vertex and number of vertices) of the source data (e.g. draw specific geometry from a buffer storing data for multiple geometries).
+		It is possible to use gl_VertexID GLSL built-in variable to index into per-vertex data (not recommended; using vertex attributes is much more efficient) or as a parameter into a shader function to generate (random) per-vertex data.
 		Require much more memory storage (because vertices shared by multiple surfaces across a geometry require define - even just repeat - per-vertex data multiple times).
-		
+	
 	Indexed ("...Element...")
 	
-		Include an indirection step to read (from a buffer - GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
-		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long; it is possible to offset (base vertex) queried index values before they are used.
-		Require less memory storage (shared vertices define per-vertex data only once).
+		Include an indirection step to read from a buffer (target GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
+		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long.
+		It is possible to select a subset (offset of first vertex index and number of vertex indices) of the source index data and to offset (base vertex) queried values before they are used (e.g. draw specific geometry from an index buffer object storing locally defined indices - starting at the value 0 - of multiple geometries).
 		All vertex attributes will use same index value; managing certain vertex attributes can be problematic in specific scenarios due to their nature (e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube).
+		Require less memory storage (shared vertices define per-vertex data only once).
 	
 	Non-Instanced
 	
@@ -344,17 +348,25 @@
 	Instanced ("...Instanced")
 	
 		Draw many copies (thousands or millions) of the same geometry with a single function call (vertex data is sent to the server only once).
-		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into data (e.g. textures or (instanced) uniform arrays - whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
-		Allow the use of instanced attributes.
-		It is possible to offset (base instance) instance values before they are used.
-	
+		It is possible to offset (base instance) instance index values before they are used (to query instanced vertex attributes).
+		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into per-instance data (e.g. textures or (instanced) uniform arrays - whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
+		Allow the use of instanced vertex attributes (efficiency improvement againts indexing instanced data structures is not guaranteed - OpenGL implementation specific).
+		Reduce synchronization (save bandwidth) between client and server.
+		
 	Direct:
 	
-		xxx
+		Pass drawing command parameters directly into the function call.
 	
 	Indirect ("...Indirect...")
 	
-		xxx
+		Include an indirection step to read from a buffer (target GL_DRAW_INDIRECT_BUFFER) the parameters of the drawing command(s) to be executed.
+		Data storing drawing command parameters (distinguishing non-indexed from indexed) must use a predefined structure.
+		It is possible storing parameters for a single command or for multiple commands (multidraw; it is not allowed to mix parameters of non-indexed and indexed drawing commands).
+		It is possible to select a subset (offset of first drawing command parameter structure) of the source data.
+		It is possible to use gl_DrawID GLSL built-in variable (OpenGL v4.6 - or "ARB_shader_draw_parameters" extension or manually inyected as an instanced vertex attribute shared among instances of each drawing command) to index into per-drawing-command data or as a parameter into a shader function to generate (random) per-drawing-command data.
+		Reduce synchronization (save bandwidth) between client and server, and allow multiple threads on the CPU (not only the rendering one) and the GPU itself (generate own work - parameters do not make a round trip from the GPU to the application and back) to generate parameters for drawing commands.
+	
+	Multidrawing is supported by both non-indexed and indexed drawing commands, either direct or indirect.
 
 - Stripping
 

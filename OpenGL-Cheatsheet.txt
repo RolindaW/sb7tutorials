@@ -834,15 +834,15 @@
 * DRAWING
 *
 
-- glDrawArrays (Non-Indexed - Non-Instaced - Direct)
+- glDrawArrays / glMultiDrawArrays (Non-Indexed - Non-Instanced - Direct)
 
-	Description: Draw sequentially accessed array of vertices with specified primitive type (GL_POINTS, GL_LINES, GL_TRIANGLES, GL_PATCHES, etc.).
+	Description: Draw (multidrawing support) sequentially accessed array of vertices with specified primitive type (GL_POINTS, GL_LINES, GL_TRIANGLES, GL_PATCHES, etc.).
 	Use: Rendering
 	Example:
 	
 		glDrawArrays(GL_POINTS, 0, 1);
 
-- glDrawArraysInstanced (Non-Indexed - Instaced - Direct)
+- glDrawArraysInstanced (Non-Indexed - Instanced - Direct)
 
 	Description: Draw multiple copies of sequentially accessed array of vertices with specified primitive type.
 	Use: Rendering
@@ -850,7 +850,7 @@
 	
 		???
 
-- glDrawArraysInstancedBaseInstance (Non-Indexed - Instaced (offset) - Direct)
+- glDrawArraysInstancedBaseInstance (Non-Indexed - Instanced (offset) - Direct)
 
 	Description: Draw multiple copies (plus offset) of sequentially accessed array of vertices with specified primitive type.
 	Use: Rendering
@@ -858,23 +858,31 @@
 	
 		???
 
-- glDrawElements (Indexed - Non-Instaced - Direct)
+- glDrawArraysIndirect / glMultiDrawArraysIndirect (Non-Indexed - Instanced (offset) - Indirect)
 
-	Description: Draw by-index accessed array of vertices with specified primitive type.
+	Description: Draw (multidrawing support) indirectly multiple copies (plus offset) of sequentially accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
+
+- glDrawElements / glMultiDrawElements (Indexed - Non-Instanced - Direct)
+
+	Description: Draw (multidrawing support) by-index accessed array of vertices with specified primitive type.
 	Use: Rendering
 	Example:
 	
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0);
 
-- glDrawElementsBaseVertex (Indexed (offset) - Non-Instaced - Direct)
+- glDrawElementsBaseVertex / glMultiDrawElementsBaseVertex (Indexed (offset) - Non-Instanced - Direct)
 
-	Description: Draw by-index (plus offset) accessed array of vertices with specified primitive type.
+	Description: Draw (multidrawing support) by-index (plus offset) accessed array of vertices with specified primitive type.
 	Use: Rendering
 	Example:
 	
 		glDrawElementsBaseVertex(GL_TRIANGLES, 36, GL_UNSIGNED_BYTE, 0, 0);
 
-- glDrawElementsInstanced (Indexed - Instaced - Direct)
+- glDrawElementsInstanced (Indexed - Instanced - Direct)
 
 	Description: Draw multiple copies of by-index accessed array of vertices with specified primitive type.
 	Use: Rendering
@@ -882,7 +890,7 @@
 	
 		???
 
-- glDrawElementsInstancedBaseInstance (Indexed - Instaced (offset) - Direct)
+- glDrawElementsInstancedBaseInstance (Indexed - Instanced (offset) - Direct)
 
 	Description: Draw multiple copies (plus offset) of by-index accessed array of vertices with specified primitive type.
 	Use: Rendering
@@ -890,7 +898,7 @@
 	
 		???
 
-- glDrawElementsInstancedBaseVertex (Indexed (offset) - Instaced - Direct)
+- glDrawElementsInstancedBaseVertex (Indexed (offset) - Instanced - Direct)
 
 	Description: Draw multiple copies of by-index (plus offset) accessed array of vertices with specified primitive type.
 	Use: Rendering
@@ -898,9 +906,17 @@
 	
 		???
 
-- glDrawElementsInstancedBaseVertexBaseInstance (Indexed (offset) - Instaced (offset) - Direct)
+- glDrawElementsInstancedBaseVertexBaseInstance (Indexed (offset) - Instanced (offset) - Direct)
 
 	Description: Draw multiple copies (plus offset) of by-index (plus offset) accessed array of vertices with specified primitive type.
+	Use: Rendering
+	Example:
+	
+		???
+
+- glDrawElementsIndirect / glMultiDrawElementsIndirect (Indexed (offset) - Instanced (offset) - Indirect)
+
+	Description: Draw (multidrawing support) indirectly multiple copies (plus offset) of by-index (plus offset) accessed array of vertices with specified primitive type.
 	Use: Rendering
 	Example:
 	

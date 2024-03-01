@@ -135,4 +135,4 @@ Note: Base new project on previously created project template.
 
 ## List of TODO
 
-- Chapter 05 Application 08 Textured triangle: Fix hard-coded 2D RGBA texture code.
+- Fix (in many projects) viewport update on window resize.

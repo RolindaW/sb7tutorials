@@ -69,12 +69,12 @@
 
 	Represent vertex fetching stage of the OpenGL pipeline.
 	Only one active (bound to the OpenGL context) at a time; required (mandatory) to execute drawing commands; setup is optional if configuration does not require any vertex attribute.
-	Store all of the state related to the input to the OpenGL pipeline i.e. vertex attributes configuration (e.g. static values or settings - external data format and type, mapping between vertex attribute indices and buffer binding points, and data source - for dynamic values).
+	Store all of the state related to the input to the OpenGL pipeline i.e. vertex attributes configuration (e.g. settings of dynamic values feeding - external data format and type, mapping between vertex attribute indices and buffer binding points, and data source - or index buffer binding).
 
 - Vertex attribute
 
 	An input variable to the vertex shader (i.e. input to the OpenGL graphics pipeline).
-	It is how vertex data is introduced into the OpenGL pipeline.
+	It is how vertex (array) data is introduced into the OpenGL pipeline.
 	If you don’t specify locations in shader code (not recommended approach), OpenGL will assign locations for you (it is possible to get these indices later).
 	Can be indepdendently set up (i.e. each can be feed - value assignment - different way).
 	
@@ -92,8 +92,11 @@
 		Buffer binding point: source buffer object; base offset, stride and instance divisor (used for all vertex attributes pulling data from this binding point).
 	
 	It is recommended to use single (or as few as possible) large (vertex) buffer object to store vertex data - even to store data from multiple geometries. In any case, it is possible to use any desired buffer object configuration (e.g. per-vertex-attribute buffer object).
-	It is recommended to group multiple vertex attributes into a single buffer binding point (values for multiple vertex attributes are stored in a single buffer object) when possible (i.e. interleaved pure - non-instanced - vertex attributes), so switching the source (buffer object) vertex attribute data will be feed from - to draw new geometry batch - is simplified (i.e. just binding a different buffer object to corresponding buffer binding point).
-	This approach was not possible in the past, because of the lack of buffer binding points - so vertex attributes where mapped one-by-one to corresponding buffer(s); switching the source suppossed multiple (as many as vertex attributes) OpenGL functions calls.
+	It is recommended to group multiple vertex attributes into a single buffer binding point when possible:
+	
+		Data must be stored interleaved (because must use same stride value - vertex size) in the same buffer object; vertex attributes must be a) all pure (non-instanced) or b) all instanced using same divisor value.
+		Switching the source vertex attribute data will be feed from (e.g. to draw new geometry batch) is simplified: just binding a different buffer object to corresponding buffer binding point.
+		This approach was not possible in the past, because of the lack of buffer binding points - so vertex attributes where mapped one-by-one to corresponding buffer(s); switching the source suppossed multiple (as many as vertex attributes) OpenGL functions calls.
 
 - Instanced (vertex) attribute
 
@@ -114,9 +117,11 @@
 	Use cases:
 	
 		Vertex buffer object (VBO): common buffer object (same as any other buffer object) intended to store vertex data (so its name - target GL_ARRAY_BUFFER) for a vertex array object.
+		Element buffer object (EBO): common buffer object intended to store index data (target GL_ELEMENT_ARRAY_BUFFER) for a vertex array object.
 		Uniform buffer object (UBO): common buffer object intended to store uniform data (target GL_UNIFORM_BUFFER) for a program object.
 		Shader storage buffer object (SSBO): common buffer object intended to store shader data (target GL_SHADER_STORAGE_BUFFER) for a program object.
 		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (target GL_ATOMIC_COUNTER_BUFFER) for a program object.
+		Draw indirect buffer object (???): common buffer object to store parameters (target GL_DRAW_INDIRECT_BUFFER) for a drawing command.
 
 - Uniform
 
@@ -324,14 +329,18 @@
 	Non-Indexed ("...Array...")
 	
 		Per-vertex data (values of vertex attributes) is issued to the vertex shader sequentially - in the order it appears in the buffers.
+		It is possible to select a subset (first vertex and number of vertices) of the source data (e.g. draw specific geometry from a buffer storing data for multiple geometries).
+		It is possible to use gl_VertexID GLSL built-in variable to index into per-vertex data (not recommended; using vertex attributes is much more efficient) or as a parameter into a shader function to generate (random) per-vertex data.
 		Require much more memory storage (because vertices shared by multiple surfaces across a geometry require define - even just repeat - per-vertex data multiple times).
-		
+	
 	Indexed ("...Element...")
 	
-		Include an indirection step to read (from a buffer - GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
-		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long; it is possible to offset (base vertex) queried index values before they are used.
+		Include an indirection step to read from a buffer (target GL_ELEMENT_ARRAY_BUFFER) the indices of the vertices whose data is to be accessed.
+		Data type storing index value can be 1 byte (GL_UNSIGNED_BYTE), 2 bytes (GL_UNSIGNED_SHORT) or 4 bytes (GL_UNSIGNED_INT) long.
+		It is possible to select a subset (offset of first vertex index and number of vertex indices) of the source index data and to offset (base vertex) queried values before they are used (e.g. draw specific geometry from an index buffer object storing locally defined indices - starting at the value 0 - of multiple geometries).
+		It is possible to use gl_BaseVertex GLSL built-in variable (OpenGL v4.6 - or "ARB_shader_draw_parameters" extension or manually inyected).
+		All vertex attributes will use same index value; managing certain vertex attributes can be problematic in specific scenarios due to their nature (e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube).
 		Require less memory storage (shared vertices define per-vertex data only once).
-		Managing certain vertex attributes can be problematic in specific scenarios due to their nature (e.g. surface normal at vertices shared between surfaces forming a right angle - like a cube).
 	
 	Non-Instanced
 	
@@ -340,21 +349,30 @@
 	Instanced ("...Instanced")
 	
 		Draw many copies (thousands or millions) of the same geometry with a single function call (vertex data is sent to the server only once).
-		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into data (e.g. textures or (instanced) uniform arrays - whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
-		Allow the use of instanced attributes.
-		It is possible to offset (base instance) instance values before they are used.
-	
+		It is possible to offset (base instance) instance index values before they are used (to query instanced vertex attributes).
+		It is possible to use gl_BaseInstance GLSL built-in variable (OpenGL v4.6 - or "ARB_shader_draw_parameters" extension or manually inyected).
+		Extremelly powerfull when used together with gl_InstanceID GLSL built-in variable to index into per-instance data (e.g. textures or (instanced) uniform arrays - whose elements represent each of the instances to be processed) or as a parameter into a shader function to generate (random) per-instance data (e.g. object pose or scale transformations).
+		Allow the use of instanced vertex attributes (efficiency improvement againts indexing instanced data structures is not guaranteed - OpenGL implementation specific).
+		Reduce synchronization (save bandwidth) between client and server.
+		
 	Direct:
 	
-		xxx
+		Pass drawing command parameters directly into the function call.
 	
 	Indirect ("...Indirect...")
 	
-		xxx
+		Include an indirection step to read from a buffer (target GL_DRAW_INDIRECT_BUFFER) the parameters of the drawing command (or multiple drawing commands) to be executed.
+		Data storing drawing command parameters (distinguishing non-indexed from indexed) must use a predefined structure.
+		Mixing parameters of non-indexed and indexed drawing commands in multidrawing mode is not allowed.
+		It is possible to select a subset (offset of first drawing command parameter structure) of the source data.
+		It is possible to use gl_DrawID GLSL built-in variable (OpenGL v4.6 - or "ARB_shader_draw_parameters" extension or manually inyected as an instanced vertex attribute shared among instances of each drawing command) to index into per-drawing-command data or as a parameter into a shader function to generate (random) per-drawing-command data.
+		Reduce synchronization (save bandwidth) between client and server, and allow multiple threads on the CPU (not only the rendering one) and the GPU itself (generate own work - parameters do not make a round trip from the GPU to the application and back) to generate parameters for drawing commands. All the CPU does is decide when to issue the drawing command.
+	
+	Multidrawing is supported by both non-indexed and indexed drawing commands, either direct or indirect; all the geometries being drawn within the same multidrawing command must share same VAO and VBO (plus EBO in the case of indexed drawing), which should be already bound to corresponding targets or buffer binding points.
 
 - Stripping
 
 	Draw (indexed mode only) large strippified geometry within a single command (performance enhancement).
 	Each triangle in a strip (excepting first one) is represented by a single vertex (i.e. less geometry to process in the pipeline); face direction of the strip is determined by the winding of the first triangle.
 	Specialized tools are used to create long strips from unconnected triangle geometries.
-	Primitive restart (optional - requires enabling): inform the position in the geometry (vertex index) where one strip (or fan or loop) ends and the next begins (i.e. reduce the number of required drawing commands); to be obtained from corresponding stripping tool.
+	Primitive restart (optional - requires enabling): inform the position in the geometry (vertex index) where one strip (or fan or loop) ends and the next begins (i.e. reduce the number of required drawing commands); to be obtained from corresponding stripping tool; restart test happens before the base vertex value is added to queried index.

@@ -104,6 +104,30 @@
 	Formula for calculating fetching index: (instance / divisor ) + baseInstance
 	Works with both instanced and non-instanced drawing commands.
 
+- Target
+
+	Type of use an object (e.g. buffer or texture object) is intended for.
+	Depending on the number of available binding points: non-indexed vs. indexed.
+	
+	Non-indexed: a single generic binding point.
+	Indexed: multiple indexed binding points additional to the generic one.
+	
+- Binding point
+
+	Access point an object is intended to be bound to.
+	Depending on intended use: generic vs. indexed.
+	
+	Generic: non-specific reference to corresponding target.
+	
+		Nominate an object (e.g. the buffer containing vertex indices for indexed drawing or command data for indirect drawing).
+		Perform operations on nominated object via OpenGL functions (e.g. buffer - or texture - memory allocation).
+		Let OpenGL context perform operations on nominated object when required.
+	
+	Indexed: specific reference (by index) to corresponding target.
+	
+		Only one object (full or a range) can be bound at a time.
+		Terminology varies depending on the object (e.g. buffer binding point for a buffer object or texture/image unit for a texture object - sampler/image).
+
 - Buffer
 
 	Linear blocks (memory allocations) of untyped (generic; can be used for a number of purposes - even at same time) data.
@@ -112,16 +136,14 @@
 		Name: identifier for a buffer object. It is possible to generate a buffer name without an associated buffer object, but never the other way around.
 		Data store: (manually) allocated memory (server side; in the memory of the graphics card) for a buffer object. Depending on used allocation command, can become immutable (neither can be resized nor redefined - flags). It can be accessed (write and read) by a) using OpenGL commands (copy existing data) or b) mapping - using also OpenGL commands - the buffer oject (direct access - e.g. load from file).
 	
-	Target: type of use a buffer is intended for. May have multiple binding points (indexed).
-	Binding point: access point a buffer is intended to be bound. Only one buffer can be bound at a time. A buffer can be bound to multiple binding points at same time.
-	Use cases:
+	Target: non-indexed and indexed; a buffer can be bound to multiple binding points (generic and indexed) at same time.
 	
-		Vertex buffer object (VBO): common buffer object (same as any other buffer object) intended to store vertex data (so its name - target GL_ARRAY_BUFFER) for a vertex array object.
-		Element buffer object (EBO): common buffer object intended to store index data (target GL_ELEMENT_ARRAY_BUFFER) for a vertex array object.
-		Uniform buffer object (UBO): common buffer object intended to store uniform data (target GL_UNIFORM_BUFFER) for a program object.
-		Shader storage buffer object (SSBO): common buffer object intended to store shader data (target GL_SHADER_STORAGE_BUFFER) for a program object.
-		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (target GL_ATOMIC_COUNTER_BUFFER) for a program object.
-		Draw indirect buffer object (???): common buffer object to store parameters (target GL_DRAW_INDIRECT_BUFFER) for a drawing command.
+		Vertex buffer object (VBO): common buffer object (same as any other buffer object) intended to store vertex data (so its name - indexed target GL_ARRAY_BUFFER) for a vertex array object.
+		Element buffer object (EBO): common buffer object intended to store index data (non-indexed target GL_ELEMENT_ARRAY_BUFFER) for a vertex array object.
+		Uniform buffer object (UBO): common buffer object intended to store uniform data (indexed target GL_UNIFORM_BUFFER) for a program object.
+		Shader storage buffer object (SSBO): common buffer object intended to store shader data (indexed target GL_SHADER_STORAGE_BUFFER) for a program object.
+		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (indexed target GL_ATOMIC_COUNTER_BUFFER) for a program object.
+		Draw indirect buffer object (???): common buffer object to store parameters (non-indexed target GL_DRAW_INDIRECT_BUFFER) for a drawing command.
 
 - Uniform
 

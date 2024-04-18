@@ -408,8 +408,9 @@
 	
 	Prior to the use of the transformation feedback it is required to specify varyings state and to prepare corresponding buffer objects.
 	Varyings can be recorded separately (each into own buffer) or interleaved (all into single buffer, one after another; allows leaving gaps in the output structures stored in the transform feedback buffer and/or writing different sets of varyings interleaved into multiple buffers).
-	It is not possible to manually select varyings transform feedback buffer binding points; they are automatically assigned sequentially based on specification.
+	It is not possible to manually select varyings transform feedback buffer binding points; they are automatically assigned sequentially based on specification (so the order matters).
 	Transform feedback buffers size must be allocated carefully (ensure enough memory space to hold expected output data). Also need to be carefully bound into corresponding transform feedback buffer binding points.
+	Buffers used for writing during transform feedback mode are also normally used for reading in subsequent drawing commands (which may cause an error if still bound to transform feedback buffer target).
 	
 	Transform feedback varyings state is maintained per-progam (i.e. different programs using even same shaders can record different sets of attributes).
 	Chosen varyings (unlike remaining common shader outputs) may (or not) be processed further in the pipeline.
@@ -418,9 +419,11 @@
 	Similar to transactions, transform feedback mode can be started (made active) and stopped, as well as paused and resumed.
 	
 		On activation, it starts writing data at the beginning of the buffers bound for transform feedback, overwriting what might be there already.
+		Pausing after completing a draw call is typically done to load up different data or load up an entirely different program for another draw call (store outputs from multiple draw calls all to the same buffer).
 		On resume, it continues to record the output of the frontend from wherever it left off in the transform feedback buffers.
 		Varyings are recorded into the transform feedback buffers until transform feedback mode is exited or until the space allocated for the transform feedback buffers is exhausted.
 	
 	Changing its state (e.g. resize - reallocate - transform feedback buffers or change bindings) is not allowed while active.
 	A transform feedback object is included with OpenGL context by default and, furthermore, it is also possible to create multiple transform feedback objects.
-	Output data can be read back by the application, but it is mostly used as the source of data for subsequent drawing commands (double buffering or buffer swapping technique - useful for particle system simulations).
+	Output data can be read back by the application, but it is mostly used as the source of data for subsequent drawing commands (e.g. particle systems or physics simulations; used along double-buffering technique).
+	Moving massive parallel executions (e.g. state mutation: state data, update operations and results) from the CPU to the GPU results in faster processing and minimizes data uploading (between client - CPU - and server - graphics card).

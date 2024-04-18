@@ -984,7 +984,7 @@
 
 - glGenTransformFeedbacks / glCreateTransformFeedbacks / glBindTransformFeedback / glDeleteTransformFeedbacks
 
-	Description: Create (or just reserve a name), bind (target GL_TRANSFORM_FEEDBACK) and delete transform feedback object, respectively. Warning! Only required if not working with default transform feedback object.
+	Description: Create (or just reserve a name), bind (target GL_TRANSFORM_FEEDBACK) and delete transform feedback object, respectively. Warning! Not required if working with default transform feedback object.
 	Use: All
 	Example:		
 	
@@ -1008,17 +1008,9 @@
 	
 		???
 
-- glTransformFeedbackBufferBase
+- glTransformFeedbackBufferBase / glTransformFeedbackBufferRange
 
-	Description: Bind a buffer object to a transform feedback buffer object. "glBindBufferBase" can be used instead.
-	Use: Startup
-	Example:		
-	
-		???
-
-- glTransformFeedbackBufferRange
-
-	Description: Bind a range within a buffer object to a transform feedback buffer object. "glBindBufferRange" can be used instead.
+	Description: Bind a buffer object or a range within it to a transform feedback buffer object. Warning! Not required if working with default transform feedback object ("glBindBufferBase" / glBindBufferRange" must be used instead).
 	Use: Startup
 	Example:		
 	

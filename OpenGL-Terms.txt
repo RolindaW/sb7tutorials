@@ -144,6 +144,7 @@
 		Shader storage buffer object (SSBO): common buffer object intended to store shader data (indexed target GL_SHADER_STORAGE_BUFFER) for a program object.
 		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (indexed target GL_ATOMIC_COUNTER_BUFFER) for a program object.
 		Draw indirect buffer object (???): common buffer object to store parameters (non-indexed target GL_DRAW_INDIRECT_BUFFER) for a drawing command.
+		Transform feedback buffer object (???): common buffer object to store pipeline frontend output data (indexed target GL_TRANSFORM_FEEDBACK_BUFFER) for a program object.
 
 - Uniform
 
@@ -190,7 +191,7 @@
 	
 	Texture coordinates: set of values (component number depends on texture type) used to read from a texture.
 	
-		Usually, pulled from per-vertex input, passed through unmodified and interpolated on vertex post-processing fixed function stage.
+		Usually, pulled from per-vertex input, passed through unmodified and interpolated on vertex post-processing fixed-function stage.
 		Normally, single per-vertex set is enough to access every texture of the material bound to a game object.
 		Can be generated offline procedurally or assigned by hand by an artist using a modeling program and stored in a game object file.
 		Usually, normalized: range between 0.0 and 1.0 (it is possible specifying texture coordinates out of range).
@@ -398,3 +399,28 @@
 	Each triangle in a strip (excepting first one) is represented by a single vertex (i.e. less geometry to process in the pipeline); face direction of the strip is determined by the winding of the first triangle.
 	Specialized tools are used to create long strips from unconnected triangle geometries.
 	Primitive restart (optional - requires enabling): inform the position in the geometry (vertex index) where one strip (or fan or loop) ends and the next begins (i.e. reduce the number of required drawing commands); to be obtained from corresponding stripping tool; restart test happens before the base vertex value is added to queried index.
+
+- Transform feedback
+
+	Store per-vertex outputs from the last available programmable stage of the pipeline frontend (a.k.a. varyings).
+	It becomes the last (highly configurable fixed-function) stage of the pipeline frontend when active.
+	It is possible to stop pipeline processing after transform feedback execution by disabling rasterization if drawing is not required.
+	
+	Prior to the use of the transformation feedback it is required to specify varyings state and to prepare corresponding buffer objects.
+	Varyings can be recorded separately (each into own buffer) or interleaved (all into single buffer, one after another; allows leaving gaps in the output structures stored in the transform feedback buffer and/or writing different sets of varyings interleaved into multiple buffers).
+	It is not possible to manually select varyings transform feedback buffer binding points; they are automatically assigned sequentially based on specification.
+	Transform feedback buffers size must be allocated carefully (ensure enough memory space to hold expected output data). Also need to be carefully bound into corresponding transform feedback buffer binding points.
+	
+	Transform feedback varyings state is maintained per-progam (i.e. different programs using even same shaders can record different sets of attributes).
+	Chosen varyings (unlike remaining common shader outputs) may (or not) be processed further in the pipeline.
+	Varyings must be specified before program linking occurs (and any change on varyings specification require to link corresponding program again); otherwise, the linker could discard such outputs in case it does not know their intended use (i.e. considered unused further in the pipeline).
+	
+	Similar to transactions, transform feedback mode can be started (made active) and stopped, as well as paused and resumed.
+	
+		On activation, it starts writing data at the beginning of the buffers bound for transform feedback, overwriting what might be there already.
+		On resume, it continues to record the output of the frontend from wherever it left off in the transform feedback buffers.
+		Varyings are recorded into the transform feedback buffers until transform feedback mode is exited or until the space allocated for the transform feedback buffers is exhausted.
+	
+	Changing its state (e.g. resize - reallocate - transform feedback buffers or change bindings) is not allowed while active.
+	A transform feedback object is included with OpenGL context by default and, furthermore, it is also possible to create multiple transform feedback objects.
+	Output data can be read back by the application, but it is mostly used as the source of data for subsequent drawing commands (double buffering or buffer swapping technique - useful for particle system simulations).

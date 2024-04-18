@@ -56,7 +56,15 @@
 	Example:
 
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, buffer);
-		
+
+- glBindBufferRange
+
+	Description: Bind a range of a buffer object to an indexed buffer target.
+	Use: Rendering
+	Example:
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, 0, buffer, 0, 1024);
+
 - glBufferStorage / glNamedBufferStorage
 
 	Description: Allocate memory (not need to be initialized) for specified buffer object (by target - matches bound buffer object - or by name). Immutable status (sign a contract with the API that says you will never be allowed to change certain properties of your object).
@@ -969,6 +977,72 @@
 	Example:		
 	
 		glViewport(0, 0, info.windowWidth, info.windowHeight);
+
+*
+* TRANSFORM FEEDBACK
+*
+
+- glGenTransformFeedbacks / glCreateTransformFeedbacks / glBindTransformFeedback / glDeleteTransformFeedbacks
+
+	Description: Create (or just reserve a name), bind (target GL_TRANSFORM_FEEDBACK) and delete transform feedback object, respectively. Warning! Only required if not working with default transform feedback object.
+	Use: All
+	Example:		
+	
+		GLuint xfb;
+		glCreateTransformFeedbacks(1, &xfb);
+		glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, xfb);
+		
+		... transform feedback object usage ...
+		
+		glDeleteTransformFeedbacks(1, &xfb);
+
+- glTransformFeedbackVaryings
+
+	Description: Specify values to record in transform feedback buffers.
+	
+		Takes effect next time corresponding program is linked.
+		Buffer mode can be GL_INTERLEAVED_ATTRIBS for interleaved output values (single buffer object; can be customized with "gl_NextBuffer" and "gl_SkipComponents*" keywords) or GL_SEPARATE_ATTRIBS for separated output values (multiple buffer objects).
+	
+	Use: Startup
+	Example:		
+	
+		???
+
+- glTransformFeedbackBufferBase
+
+	Description: Bind a buffer object to a transform feedback buffer object. "glBindBufferBase" can be used instead.
+	Use: Startup
+	Example:		
+	
+		???
+
+- glTransformFeedbackBufferRange
+
+	Description: Bind a range within a buffer object to a transform feedback buffer object. "glBindBufferRange" can be used instead.
+	Use: Startup
+	Example:		
+	
+		???
+
+- glBeginTransformFeedback / glPauseTransformFeedback / glResumeTransformFeedback / glEndTransformFeedback
+
+	Description: Start (make it active), pause, resume and conclude transform feedback mode, respectively. Warning! Specified primitive mode must match expected primitive type for successive drawing commands.
+	Use: Rendering
+	Example:		
+	
+		glBeginTransformFeedback(GL_TRIANGLES);
+		
+		... other stuff ...
+		
+		glPauseTransformFeedback();
+		
+		... other stuff ...
+		
+		glResumeTransformFeedback();
+		
+		... other stuff ...
+		
+		glEndTransformFeedback();
 
 *
 * SYSTEM

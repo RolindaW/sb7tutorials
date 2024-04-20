@@ -32,7 +32,8 @@ public:
 		InitializeData();
 		InitializeArrays();
 		//InitializeUpdateProgram();
-		//InitializeRenderProgram();
+		InitializeRenderProgram();
+		InitializeCamera();
 	}
 
 	void render(double currentTime)
@@ -67,15 +68,22 @@ public:
 
 		}
 
-		// TODO: Render simulation
+		// Render simulation
 
 		// Clear color buffer
 		static const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		glClearBufferfv(GL_COLOR, 0, color);
 
+		glUseProgram(render_program_);
 
+		// TODO: Render always data from the vao which buffers have been most recently updated
+		glBindVertexArray(vao_[0]);
 
+		glUniformMatrix4fv(0, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_ * model_world_matrix_);
 
+		// Draw particles
+		glPointSize(4.0f);
+		glDrawArrays(GL_POINTS, 0, kPointsTotal);
 	}
 
 	void shutdown()
@@ -87,6 +95,8 @@ public:
 		glDeleteTextures(2, tbo_);
 		glDeleteBuffers(5, vbo_);
 		glDeleteVertexArrays(2, vao_);
+
+		glDeleteProgram(render_program_);
 	}
 
 public:
@@ -98,7 +108,7 @@ public:
 		glViewport(0, 0, info.windowWidth, info.windowHeight);
 
 		// Update projection matrix: it is required viewport and projection to be consistent
-		//UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
+		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
 	}
 
 	void onKey(int key, int action)
@@ -119,12 +129,41 @@ public:
 				run_simulation_ = !run_simulation_;
 			}
 			break;
+		case GLFW_KEY_UP:
+			if (action)
+			{
+				// Forward
+				MoveCamera(-0.5f);
+			}
+			break;
+		case GLFW_KEY_DOWN:
+			if (action)
+			{
+				// Backward
+				MoveCamera(0.5f);
+			}
+			break;
+		case GLFW_KEY_LEFT:
+			if (action)
+			{
+				RotateObject(-1);
+			}
+			break;
+		case GLFW_KEY_RIGHT:
+			if (action)
+			{
+				RotateObject(1);
+			}
+			break;
 		default:
 			break;
 		}
 	}
 
 private:
+
+#pragma region Object
+
 	/*
 	* Warning! Sample code provided within the book does not match picture and text describing the example.
 	*
@@ -221,6 +260,9 @@ private:
 		glCreateTextures(GL_TEXTURE_BUFFER, 2, tbo_);
 		glTextureBuffer(tbo_[0], GL_RGBA32F, vbo_[kPositionA]);
 		glTextureBuffer(tbo_[1], GL_RGBA32F, vbo_[kPositionB]);
+
+		// Object model-world matrix
+		model_world_matrix_ = vmath::mat4::identity();
 	}
 
 	void ResetBuffers()
@@ -238,6 +280,99 @@ private:
 		}
 	}
 
+	void RotateObject(int ccw)
+	{
+		model_world_matrix_ = vmath::rotate(0.0f, ccw * kObjectRotationYStep, 0.0f) * model_world_matrix_;
+	}
+
+#pragma endregion
+
+#pragma region Programs
+
+	void InitializeRenderProgram()
+	{
+		// Vertex shader
+		const char* vertex_shader_source[] =
+		{
+			"#version 450 core													\n"
+			"																	\n"
+			"layout (location = 0) uniform mat4 mvp_matrix;						\n"
+			"																	\n"
+			"layout (location = 0) in vec3 position;							\n"
+			"																	\n"
+			"void main(void)													\n"
+			"{																	\n"
+			"	gl_Position = mvp_matrix * vec4(position, 1.0);					\n"
+			"}																	\n"
+		};
+
+		GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex_shader, 1, vertex_shader_source, NULL);
+		glCompileShader(vertex_shader);
+
+		// Fragment shader
+		const char* fragment_shader_source[] =
+		{
+			"#version 450 core													\n"
+			"																	\n"
+			"layout (location = 0) out vec4 color;								\n"
+			"																	\n"
+			"void main(void)													\n"
+			"{																	\n"
+			"	color = vec4(1.0);												\n"
+			"}																	\n"
+		};
+
+		GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment_shader, 1, fragment_shader_source, NULL);
+		glCompileShader(fragment_shader);
+
+		// Program
+		render_program_ = glCreateProgram();
+		glAttachShader(render_program_, vertex_shader);
+		glAttachShader(render_program_, fragment_shader);
+		glLinkProgram(render_program_);
+
+		// Free resources
+		glDeleteShader(vertex_shader);
+		glDeleteShader(fragment_shader);
+	}
+
+#pragma endregion
+
+#pragma region Camera
+
+	void InitializeCamera()
+	{
+		camera_position_ = vmath::vec3(0.0f, 0.0f, 80.0f);
+		UpdateCameraViewMatrix(camera_position_);
+		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
+	}
+
+	void MoveCamera(float z)
+	{
+		camera_position_ += vmath::vec3(0.0f, 0.0f, z);
+		UpdateCameraViewMatrix(camera_position_);
+	}
+
+	void UpdateCameraViewMatrix(vmath::vec3 position)
+	{
+		const vmath::vec3 kTarget = vmath::vec3(0.0f, 0.0f, 0.0f);
+		const vmath::vec3 kUp = vmath::vec3(0.0f, 1.0f, 0.0f);
+		camera_view_matrix_ = vmath::lookat(position, kTarget, kUp);
+	}
+
+	void UpdateCameraProjectionMatrix(float width, float height)
+	{
+		float fov = 45.0f;
+		float aspect = width / height;
+		float n = 0.1f, f = 1000.0f;
+
+		camera_projection_matrix_ = vmath::perspective(fov, aspect, n, f);
+	}
+
+#pragma endregion
+
 private:
 	vmath::vec4* initial_positions_;
 	vmath::vec3* initial_velocities_;
@@ -247,8 +382,15 @@ private:
 	GLuint vbo_[5];
 	GLuint tbo_[2];
 
+	vmath::mat4 model_world_matrix_;
+	const float kObjectRotationYStep = 5.0f;
+
 	//GLuint update_program_;
-	//GLuint render_program_;
+	GLuint render_program_;
+
+	vmath::vec3 camera_position_;
+	vmath::mat4 camera_view_matrix_;
+	vmath::mat4 camera_projection_matrix_;
 
 	bool reset_simulation_;
 	bool run_simulation_;

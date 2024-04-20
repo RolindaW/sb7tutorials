@@ -416,7 +416,7 @@
 	Chosen varyings (unlike remaining common shader outputs) may (or not) be processed further in the pipeline.
 	Varyings must be specified before program linking occurs (and any change on varyings specification require to link corresponding program again); otherwise, the linker could discard such outputs in case it does not know their intended use (i.e. considered unused further in the pipeline).
 	
-	Similar to transactions, transform feedback mode can be started (made active) and stopped, as well as paused and resumed.
+	Transform feedback mode can be started (made active) and stopped, as well as paused and resumed.
 	
 		On activation, it starts writing data at the beginning of the buffers bound for transform feedback, overwriting what might be there already.
 		Pausing after completing a draw call is typically done to load up different data or load up an entirely different program for another draw call (store outputs from multiple draw calls all to the same buffer).
@@ -427,3 +427,9 @@
 	A transform feedback object is included with OpenGL context by default and, furthermore, it is also possible to create multiple transform feedback objects.
 	Output data can be read back by the application, but it is mostly used as the source of data for subsequent drawing commands (e.g. particle systems or physics simulations; used along double-buffering technique).
 	Moving massive parallel executions (e.g. state mutation: state data, update operations and results) from the CPU to the GPU results in faster processing and minimizes data uploading (between client - CPU - and server - graphics card).
+	
+	It is recommended (if possible; cumbersome for applications already using tessellation and/or geometry shading because of required ordering guarantees) to use the compute shader in modern graphics APIs to improve performance.
+	From the OpenGL implementation point of view, when transform feedback mode is active the data must land in the transform feedback buffer in the same order as the input data:
+
+		You have to wait until the last shader stage for the "n" primitive has been executed before you know where to put the resulting data from the "n+1" primitive (easy if the vertex shader is the only stage in the frontend pipeline, but a big deal if tessellation and/or geometry shader are involved - because it can discard/generate geometry).
+		Tile-based rendering (architecture) also pose a problem compared to immediate-mode rendering. You have to process all the primitives in full (cannot drop any output) and in order, leading to a significant performance drop because GPU vendors can no longer play all their binning games and keep that data on-chip.

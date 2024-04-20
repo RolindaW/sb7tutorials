@@ -217,6 +217,14 @@
 	
 		???
 
+- glTexBuffer / glTextureBuffer
+
+	Description: Attach a buffer object's data store to a buffer texture object
+	Use: Startup
+	Example:
+	
+		glTextureBuffer(tbo_[0], GL_RGBA32F, vbo_[kPositionA]);
+
 - glTextureParameter*
 
 	Description: Set the parameters of a texture embedded sampler object.	

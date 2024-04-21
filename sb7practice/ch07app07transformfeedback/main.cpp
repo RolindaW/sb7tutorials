@@ -22,7 +22,7 @@ enum
 class my_application : public sb7::application
 {
 public:
-	my_application() : reset_simulation_(false), run_simulation_(true)
+	my_application() : reset_simulation_(false), run_simulation_(true), iterations_per_frame_(16), iteration_index_(0)
 	{
 	}
 
@@ -31,7 +31,7 @@ public:
 	{
 		InitializeData();
 		InitializeArrays();
-		//InitializeUpdateProgram();
+		InitializeUpdateProgram();
 		InitializeRenderProgram();
 		InitializeCamera();
 	}
@@ -57,15 +57,41 @@ public:
 		if (reset_simulation_)
 		{
 			ResetBuffers();
+			iteration_index_ = 0;
 			reset_simulation_ = false;
 		}
 
-		// TODO: Simulate physics
+		// Simulate physics
 		if (run_simulation_)
 		{
+			glUseProgram(update_program_);
 
+			glEnable(GL_RASTERIZER_DISCARD);
 
+			for (int i = 0; i < iterations_per_frame_; i++)
+			{
+				// Current iteration input data (read from):
+				// - vao (vertex attributes: position, velocity and connection)
+				// - buffer texture (to access connected neighbors position)
+				glBindVertexArray(vao_[iteration_index_ & 1]);
+				glBindTextureUnit(0, tbo_[iteration_index_ & 1]);
 
+				// Swap buffers
+				iteration_index_++;
+
+				// Current interation output data (write into; it would be following iteration input data):
+				// - position
+				// - velocity
+				glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo_[kPositionA + (iteration_index_ & 1)]);
+				glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, vbo_[kVelocityA + (iteration_index_ & 1)]);
+
+				// Process vertices within the transform feedback
+				glBeginTransformFeedback(GL_POINTS);
+				glDrawArrays(GL_POINTS, 0, kPointsTotal);
+				glEndTransformFeedback();
+			}
+
+			glDisable(GL_RASTERIZER_DISCARD);
 		}
 
 		// Render simulation
@@ -76,8 +102,8 @@ public:
 
 		glUseProgram(render_program_);
 
-		// TODO: Render always data from the vao which buffers have been most recently updated
-		glBindVertexArray(vao_[0]);
+		// Render using input data stored into the buffers that have been written last
+		glBindVertexArray(vao_[iteration_index_ & 1]);
 
 		glUniformMatrix4fv(0, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_ * model_world_matrix_);
 
@@ -96,6 +122,7 @@ public:
 		glDeleteBuffers(5, vbo_);
 		glDeleteVertexArrays(2, vao_);
 
+		glDeleteProgram(update_program_);
 		glDeleteProgram(render_program_);
 	}
 
@@ -204,7 +231,7 @@ private:
 				initial_positions_[n] = vmath::vec4((fi - 0.5f) * (float)kPointsX,  // X coordinate centered at the origin [-kPointsX/2, kPointsX/2)
 												   (fj - 0.5f) * (float)kPointsY,  // Y coordinate centered at the origin [-kPointsY/2, kPointsY/2)
 												   0.6f * sinf(fi) * cosf(fj),  // Z coordinate based on f(fi, fj) sinusoidal distribution
-												   1.0f);  // Same weight value (1 [Kg]) for all particles
+												   0.02f);  // Same weight value (0.02 [Kg] = 20 [gr]) for all particles
 				initial_velocities_[n] = vmath::vec3(0.0f);  // All particles start at rest (0 [m/s])
 				connection_vectors_[n] = vmath::ivec4(-1);  // Null connection vertor (i.e. fixed position) by default
 
@@ -288,6 +315,100 @@ private:
 #pragma endregion
 
 #pragma region Programs
+
+	void InitializeUpdateProgram()
+	{
+		// Vertex shader
+		const char* vertex_shader_source[] =
+		{
+			"#version 450 core															\n"
+			"																			\n"
+			"// Buffer texture to access connected neighbors position					\n"
+			"layout (binding = 0) uniform samplerBuffer tex_position_mass;				\n"
+			"																			\n"
+			"// Vertex attributes														\n"
+			"layout (location = 0) in vec4 position_mass;								\n"
+			"layout (location = 1) in vec3 velocity;									\n"
+			"layout (location = 2) in ivec4 connection;									\n"
+			"																			\n"
+			"// Varyings																\n"
+			"layout (location = 0) out vec4 xfb_position_mass;							\n"
+			"layout (location = 1) out vec3 xfb_velocity;								\n"
+			"																			\n"
+			"// Constants																\n"
+			"uniform float t = 0.01;  // Timestep (application can update this) [s]		\n"
+			"const vec3 gravity = vec3(0.0, -9.8, 0.0); // Gravity constant [m/s2]		\n"
+			"uniform float k = 7.1;  // Global spring constant [N/m] N = [Kg * m/s2]	\n"
+			"uniform float c = 2.8;  // Global damping constant [Kg/s]					\n"
+			"uniform float rest_length = 0.88;  // Spring resting length [m]			\n"
+			"																			\n"
+			"void main(void)															\n"
+			"{																			\n"
+			"	vec3 p = position_mass.xyz;  // our position [m]						\n"
+			"	float m = position_mass.w;  // mass of our vertex [Kg]					\n"
+			"	vec3 u = velocity;  // initial velocity [m/s]							\n"
+			"	vec3 F = gravity * m - c * u;  // force on the mass	[N]					\n"
+			"	bool fixed_node = true;  // Becomes false when force is applied			\n"
+			"																			\n"
+			"	for (int i = 0; i < 4; i++)												\n"
+			"	{																		\n"
+			"		if (connection[i] != -1)											\n"
+			"		{																	\n"
+			"			// position of the other vertex									\n"
+			"			vec3 q = texelFetch(tex_position_mass, connection[i]).xyz;		\n"
+			"			vec3 d = q - p;													\n"
+			"			float x = length(d);  // distance [m]							\n"
+			"			F += -k * (rest_length - x) * normalize(d);						\n"
+			"			fixed_node = false;												\n"
+			"		}																	\n"
+			"	}																		\n"
+			"																			\n"
+			"	// If this is a fixed node, reset force to zero							\n"
+			"	if (fixed_node)															\n"
+			"	{																		\n"
+			"		F = vec3(0.0);														\n"
+			"	}																		\n"
+			"																			\n"
+			"	// Accelleration due to force											\n"
+			"	vec3 a = F / m;															\n"
+			"																			\n"
+			"	// Displacement															\n"
+			"	vec3 s = u * t + 0.5 * a * t * t;										\n"
+			"																			\n"
+			"	// Final velocity														\n"
+			"	vec3 v = u + a * t;														\n"
+			"																			\n"
+			"	// Constrain the absolute value of the displacement per step			\n"
+			"	s = clamp(s, vec3(-25.0), vec3(25.0));									\n"
+			"																			\n"
+			"	// Write outputs														\n"
+			"	xfb_position_mass = vec4(p + s, m);										\n"
+			"	xfb_velocity = v;														\n"
+			"}																			\n"
+		};
+
+		GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vertex_shader, 1, vertex_shader_source, NULL);
+		glCompileShader(vertex_shader);
+
+		// Program
+		update_program_ = glCreateProgram();
+		glAttachShader(update_program_, vertex_shader);
+
+		// Varyings state specification
+		const char* xfb_varyings[] =
+		{
+			"xfb_position_mass",
+			"xfb_velocity"
+		};
+
+		glTransformFeedbackVaryings(update_program_, 2, xfb_varyings, GL_SEPARATE_ATTRIBS);
+
+		glLinkProgram(update_program_);
+
+		// Free resources
+		glDeleteShader(vertex_shader);
+	}
 
 	void InitializeRenderProgram()
 	{
@@ -385,7 +506,7 @@ private:
 	vmath::mat4 model_world_matrix_;
 	const float kObjectRotationYStep = 5.0f;
 
-	//GLuint update_program_;
+	GLuint update_program_;
 	GLuint render_program_;
 
 	vmath::vec3 camera_position_;
@@ -394,6 +515,8 @@ private:
 
 	bool reset_simulation_;
 	bool run_simulation_;
+	unsigned int iterations_per_frame_;
+	unsigned int iteration_index_;
 };
 
 // Our one and only instance of DECLARE_MAIN

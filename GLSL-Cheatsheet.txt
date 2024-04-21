@@ -169,6 +169,21 @@
 	
 		gl_PointSize = clamp(sqrt(1/(a + b*d + c*pow(d,2))));
 
+- gl_ClipDistance[]
+
+	Description:
+	
+		Forward-compatible mechanism for controlling user clipping.
+		Maximum number of clipping distances can be queried with the token GL_MAX_CLIP_DISTANCES.
+		Clipping distances should be enabled by the application with the token GL_CLIP_DISTANCE*.
+	
+	Use: Vertex shader (and later stages)
+	Type: Built-in output variable
+	Example:
+	
+		uniform vec4 clip_plane = vec4(1.0, 1.0, 0.0, 0.85);
+		gl_ClipDistance[0] = dot(position, clip_plane);
+
 - gl_VertexID
 
 	Description:

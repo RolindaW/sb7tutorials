@@ -433,3 +433,32 @@
 
 		You have to wait until the last shader stage for the "n" primitive has been executed before you know where to put the resulting data from the "n+1" primitive (easy if the vertex shader is the only stage in the frontend pipeline, but a big deal if tessellation and/or geometry shader are involved - because it can discard/generate geometry).
 		Tile-based rendering (architecture) also pose a problem compared to immediate-mode rendering. You have to process all the primitives in full (cannot drop any output) and in order, leading to a significant performance drop because GPU vendors can no longer play all their binning games and keep that data on-chip.
+
+- Clipping
+
+	Determine which primitives may be fully or partially visible and construct a set of primitives from them that will lie entirely inside the (canonical) view volume.
+	Clip volume is made up by six standard clip planes; for each vertex, signed distance is computed againts each plane (a total of six signed distances).
+		
+		Absolute value determines how far the vertex is to the plane.
+		Sign determines which side of the plane the vertex is on (positive, inside the plane; negative, outside).
+	
+	For very primitive type (point, live or triangle):
+	
+		If all the vertices lie inside the volume, primitive is trivially accepted.
+		If some of the vertices lie inside the volume, clipping is required.
+		If all the vertices lie outside the same plane, primitive is trivially discarded.
+		If all the vertices lie outside the volume (but not the same plane), clipping may be required (to be checked; otherwise, primitive is discarded).
+	
+	Guard band (included in the GPU)
+	
+		A region outside clip volume in which primitives are allowed to pass through even though they will not be visible.
+		In some cases, it may be faster to allow such primitives to pass through the clipping phase unmodified and instead have the rasterizer throw away parts that will not be visible.
+		Primitives requiring clipping that fall inside the guard band are also considered to be trivially accepted; otherwise, clipping is performed.
+		Does not affect neither trivially accepted nor discarded primitives.
+		The width of the guard band is quite large - usually at least as big as the view volume itself.
+	
+	User-defined clipping
+	
+		A set of additional distances (OpenGL implementation specific) is available to the application that can be written inside the vertex, tessellation or geometry shaders.
+		Required distances must be enabled by the application before being available for a shader; otherwise, written values are ignored.
+		

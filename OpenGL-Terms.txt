@@ -104,6 +104,30 @@
 	Formula for calculating fetching index: (instance / divisor ) + baseInstance
 	Works with both instanced and non-instanced drawing commands.
 
+- Target
+
+	Type of use an object (e.g. buffer or texture object) is intended for.
+	Depending on the number of available binding points: non-indexed vs. indexed.
+	
+	Non-indexed: a single generic binding point.
+	Indexed: multiple indexed binding points additional to the generic one.
+	
+- Binding point
+
+	Access point an object is intended to be bound to.
+	Depending on intended use: generic vs. indexed.
+	
+	Generic: non-specific reference to corresponding target.
+	
+		Nominate an object (e.g. the buffer containing vertex indices for indexed drawing or command data for indirect drawing).
+		Perform operations on nominated object via OpenGL functions (e.g. buffer - or texture - memory allocation).
+		Let OpenGL context perform operations on nominated object when required.
+	
+	Indexed: specific reference (by index) to corresponding target.
+	
+		Only one object (full or a range) can be bound at a time.
+		Terminology varies depending on the object (e.g. buffer binding point for a buffer object or texture/image unit for a texture object - sampler/image).
+
 - Buffer
 
 	Linear blocks (memory allocations) of untyped (generic; can be used for a number of purposes - even at same time) data.
@@ -112,16 +136,15 @@
 		Name: identifier for a buffer object. It is possible to generate a buffer name without an associated buffer object, but never the other way around.
 		Data store: (manually) allocated memory (server side; in the memory of the graphics card) for a buffer object. Depending on used allocation command, can become immutable (neither can be resized nor redefined - flags). It can be accessed (write and read) by a) using OpenGL commands (copy existing data) or b) mapping - using also OpenGL commands - the buffer oject (direct access - e.g. load from file).
 	
-	Target: type of use a buffer is intended for. May have multiple binding points (indexed).
-	Binding point: access point a buffer is intended to be bound. Only one buffer can be bound at a time. A buffer can be bound to multiple binding points at same time.
-	Use cases:
+	Target: non-indexed and indexed; a buffer can be bound to multiple binding points (generic and indexed) at same time.
 	
-		Vertex buffer object (VBO): common buffer object (same as any other buffer object) intended to store vertex data (so its name - target GL_ARRAY_BUFFER) for a vertex array object.
-		Element buffer object (EBO): common buffer object intended to store index data (target GL_ELEMENT_ARRAY_BUFFER) for a vertex array object.
-		Uniform buffer object (UBO): common buffer object intended to store uniform data (target GL_UNIFORM_BUFFER) for a program object.
-		Shader storage buffer object (SSBO): common buffer object intended to store shader data (target GL_SHADER_STORAGE_BUFFER) for a program object.
-		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (target GL_ATOMIC_COUNTER_BUFFER) for a program object.
-		Draw indirect buffer object (???): common buffer object to store parameters (target GL_DRAW_INDIRECT_BUFFER) for a drawing command.
+		Vertex buffer object (VBO): common buffer object (same as any other buffer object) intended to store vertex data (so its name - indexed target GL_ARRAY_BUFFER) for a vertex array object.
+		Element buffer object (EBO): common buffer object intended to store index data (non-indexed target GL_ELEMENT_ARRAY_BUFFER) for a vertex array object.
+		Uniform buffer object (UBO): common buffer object intended to store uniform data (indexed target GL_UNIFORM_BUFFER) for a program object.
+		Shader storage buffer object (SSBO): common buffer object intended to store shader data (indexed target GL_SHADER_STORAGE_BUFFER) for a program object.
+		Atomic counter buffer object (ACBO): common buffer object intended to store atomic counter data (indexed target GL_ATOMIC_COUNTER_BUFFER) for a program object.
+		Draw indirect buffer object (???): common buffer object to store parameters (non-indexed target GL_DRAW_INDIRECT_BUFFER) for a drawing command.
+		Transform feedback buffer object (???): common buffer object to store pipeline frontend output data (indexed target GL_TRANSFORM_FEEDBACK_BUFFER) for a program object.
 
 - Uniform
 
@@ -168,7 +191,7 @@
 	
 	Texture coordinates: set of values (component number depends on texture type) used to read from a texture.
 	
-		Usually, pulled from per-vertex input, passed through unmodified and interpolated on vertex post-processing fixed function stage.
+		Usually, pulled from per-vertex input, passed through unmodified and interpolated on vertex post-processing fixed-function stage.
 		Normally, single per-vertex set is enough to access every texture of the material bound to a game object.
 		Can be generated offline procedurally or assigned by hand by an artist using a modeling program and stored in a game object file.
 		Usually, normalized: range between 0.0 and 1.0 (it is possible specifying texture coordinates out of range).
@@ -376,3 +399,37 @@
 	Each triangle in a strip (excepting first one) is represented by a single vertex (i.e. less geometry to process in the pipeline); face direction of the strip is determined by the winding of the first triangle.
 	Specialized tools are used to create long strips from unconnected triangle geometries.
 	Primitive restart (optional - requires enabling): inform the position in the geometry (vertex index) where one strip (or fan or loop) ends and the next begins (i.e. reduce the number of required drawing commands); to be obtained from corresponding stripping tool; restart test happens before the base vertex value is added to queried index.
+
+- Transform feedback
+
+	Store per-vertex outputs from the last available programmable stage of the pipeline frontend (a.k.a. varyings).
+	It becomes the last (highly configurable fixed-function) stage of the pipeline frontend when active.
+	It is possible to stop pipeline processing after transform feedback execution by disabling rasterization if drawing is not required.
+	
+	Prior to the use of the transformation feedback it is required to specify varyings state and to prepare corresponding buffer objects.
+	Varyings can be recorded separately (each into own buffer) or interleaved (all into single buffer, one after another; allows leaving gaps in the output structures stored in the transform feedback buffer and/or writing different sets of varyings interleaved into multiple buffers).
+	It is not possible to manually select varyings transform feedback buffer binding points; they are automatically assigned sequentially based on specification (so the order matters).
+	Transform feedback buffers size must be allocated carefully (ensure enough memory space to hold expected output data). Also need to be carefully bound into corresponding transform feedback buffer binding points.
+	Buffers used for writing during transform feedback mode are also normally used for reading in subsequent drawing commands (which may cause an error if still bound to transform feedback buffer target).
+	
+	Transform feedback varyings state is maintained per-progam (i.e. different programs using even same shaders can record different sets of attributes).
+	Chosen varyings (unlike remaining common shader outputs) may (or not) be processed further in the pipeline.
+	Varyings must be specified before program linking occurs (and any change on varyings specification require to link corresponding program again); otherwise, the linker could discard such outputs in case it does not know their intended use (i.e. considered unused further in the pipeline).
+	
+	Transform feedback mode can be started (made active) and stopped, as well as paused and resumed.
+	
+		On activation, it starts writing data at the beginning of the buffers bound for transform feedback, overwriting what might be there already.
+		Pausing after completing a draw call is typically done to load up different data or load up an entirely different program for another draw call (store outputs from multiple draw calls all to the same buffer).
+		On resume, it continues to record the output of the frontend from wherever it left off in the transform feedback buffers.
+		Varyings are recorded into the transform feedback buffers until transform feedback mode is exited or until the space allocated for the transform feedback buffers is exhausted.
+	
+	Changing its state (e.g. resize - reallocate - transform feedback buffers or change bindings) is not allowed while active.
+	A transform feedback object is included with OpenGL context by default and, furthermore, it is also possible to create multiple transform feedback objects.
+	Output data can be read back by the application, but it is mostly used as the source of data for subsequent drawing commands (e.g. particle systems or physics simulations; used along double-buffering technique).
+	Moving massive parallel executions (e.g. state mutation: state data, update operations and results) from the CPU to the GPU results in faster processing and minimizes data uploading (between client - CPU - and server - graphics card).
+	
+	It is recommended (if possible; cumbersome for applications already using tessellation and/or geometry shading because of required ordering guarantees) to use the compute shader in modern graphics APIs to improve performance.
+	From the OpenGL implementation point of view, when transform feedback mode is active the data must land in the transform feedback buffer in the same order as the input data:
+
+		You have to wait until the last shader stage for the "n" primitive has been executed before you know where to put the resulting data from the "n+1" primitive (easy if the vertex shader is the only stage in the frontend pipeline, but a big deal if tessellation and/or geometry shader are involved - because it can discard/generate geometry).
+		Tile-based rendering (architecture) also pose a problem compared to immediate-mode rendering. You have to process all the primitives in full (cannot drop any output) and in order, leading to a significant performance drop because GPU vendors can no longer play all their binning games and keep that data on-chip.

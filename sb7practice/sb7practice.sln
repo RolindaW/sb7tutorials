@@ -83,6 +83,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app05instancedattribute
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app06indirectasteroids", "ch07app06indirectasteroids\ch07app06indirectasteroids.vcxproj", "{AA51EC00-7889-4A94-AF88-C1792B86CF34}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app07transformfeedback", "ch07app07transformfeedback\ch07app07transformfeedback.vcxproj", "{B86228B8-F231-40D3-A6C5-1B896E341371}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -249,6 +251,10 @@ Global
 		{AA51EC00-7889-4A94-AF88-C1792B86CF34}.Debug|x64.Build.0 = Debug|x64
 		{AA51EC00-7889-4A94-AF88-C1792B86CF34}.Release|x64.ActiveCfg = Release|x64
 		{AA51EC00-7889-4A94-AF88-C1792B86CF34}.Release|x64.Build.0 = Release|x64
+		{B86228B8-F231-40D3-A6C5-1B896E341371}.Debug|x64.ActiveCfg = Debug|x64
+		{B86228B8-F231-40D3-A6C5-1B896E341371}.Debug|x64.Build.0 = Debug|x64
+		{B86228B8-F231-40D3-A6C5-1B896E341371}.Release|x64.ActiveCfg = Release|x64
+		{B86228B8-F231-40D3-A6C5-1B896E341371}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

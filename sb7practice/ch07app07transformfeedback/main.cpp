@@ -235,7 +235,8 @@ private:
 				initial_velocities_[n] = vmath::vec3(0.0f);  // All particles start at rest (0 [m/s])
 				connection_vectors_[n] = vmath::ivec4(-1);  // Null connection vertor (i.e. fixed position) by default
 
-				if (j != (kPointsY - 1))  // Fix the position of all particles in the last row
+				unsigned int kFixedPoints = 2;  // Number of desired equidistant gaps in a same row
+				if ((j != (kPointsY - 1)) || (i % (kPointsX / kFixedPoints) != 0))  // Fix the position of specific particles in the last row
 				{
 					if (i != 0)
 						connection_vectors_[n][0] = n - 1;
@@ -465,7 +466,7 @@ private:
 
 	void InitializeCamera()
 	{
-		camera_position_ = vmath::vec3(0.0f, 0.0f, 80.0f);
+		camera_position_ = vmath::vec3(0.0f, 0.0f, 150.0f);
 		UpdateCameraViewMatrix(camera_position_);
 		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
 	}

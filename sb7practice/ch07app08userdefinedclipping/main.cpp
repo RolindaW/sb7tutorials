@@ -7,7 +7,7 @@
 class my_application : public sb7::application
 {
 public:
-	my_application() : clip_plane_y_d_(-4.0f)
+	my_application() : clip_plane_(vmath::vec4(0.0f, 1.0f, 0.0f, -4.0f))
 	{
 	}
 
@@ -21,10 +21,6 @@ public:
 
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_CLIP_DISTANCE0);
-
-		// Enbale depth test
-		//glEnable(GL_DEPTH_TEST);
-		//glDepthFunc(GL_LESS);
 	}
 
 	void render(double currentTime)
@@ -35,9 +31,9 @@ public:
 
 		glUseProgram(render_program_);
 
-		glUniformMatrix4fv(0, 1, GL_FALSE, camera_view_matrix_);
-		glUniformMatrix4fv(1, 1, GL_FALSE, camera_projection_matrix_);
-		glUniform1f(2, clip_plane_y_d_);
+		glUniformMatrix4fv(0, 1, GL_FALSE, vmath::rotate(0.0f, 60.0f, 0.0f));
+		glUniformMatrix4fv(1, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_);
+		glUniform4fv(2, 1, clip_plane_);
 
 		object_.render();
 	}
@@ -70,13 +66,13 @@ public:
 		case GLFW_KEY_UP:
 			if (action)
 			{
-				TraslatePlaneY(-0.25f);
+				TraslateClipPlane(-0.25f);
 			}
 			break;
 		case GLFW_KEY_DOWN:
 			if (action)
 			{
-				TraslatePlaneY(0.25f);
+				TraslateClipPlane(0.25f);
 			}
 			break;
 		default:
@@ -95,24 +91,21 @@ private:
 		{
 			"#version 450 core													\n"
 			"																	\n"
-			"layout (location = 0) uniform mat4 mv;								\n"
-			"layout (location = 1) uniform mat4 proj;							\n"
-			"layout (location = 2) uniform float clip_plane_y_d;				\n"
+			"layout (location = 0) uniform mat4 w_matrix;						\n"
+			"layout (location = 1) uniform mat4 vp_matrix;						\n"
+			"layout (location = 2) uniform vec4 clip_plane;						\n"
 			"																	\n"
 			"layout (location = 0) in vec4 position;							\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	vec4 vs_position = mv *	position;								\n"
-			"																	\n"
-			"	// Clip plane Y													\n"
-			"	vec4 clip_plane = vec4(0.0, 1.0, 0.0, clip_plane_y_d);		\n"
-			"	//vec4 clip_plane = vec4(0.0, 1.0, 0.0, -4.0);					\n"
+			"	// Transform positon into view space							\n"
+			"	vec4 vs_position = w_matrix * position;							\n"
 			"																	\n"
 			"	// Calculate and write custom clip distance						\n"
 			"	gl_ClipDistance[0] = dot(vs_position, clip_plane);				\n"
 			"																	\n"
-			"	gl_Position = proj * vs_position;								\n"
+			"	gl_Position = vp_matrix * vs_position;							\n"
 			"}																	\n"
 		};
 
@@ -154,7 +147,7 @@ private:
 
 	void InitializeCamera()
 	{
-		vmath::vec3 camera_position(0.0f, 15.0f, 25.0f);
+		vmath::vec3 camera_position(0.0f, 15.0f, 15.0f);
 		UpdateCameraViewMatrix(camera_position);
 		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
 	}
@@ -194,9 +187,9 @@ private:
 
 #pragma region Clip plane
 
-	void TraslatePlaneY(float y)
+	void TraslateClipPlane(float d)
 	{
-		clip_plane_y_d_ += y;
+		clip_plane_ += vmath::vec4(0.0f, 0.0f, 0.0f, d);
 	}
 
 #pragma endregion
@@ -210,8 +203,13 @@ private:
 
 	sb7::object object_;
 
-	float clip_plane_y_d_;
+	vmath::vec4 clip_plane_;
 };
 
 // Our one and only instance of DECLARE_MAIN
 DECLARE_MAIN(my_application);
+
+/*
+* Warning!
+* Rendering program (actually attached shaders) does not implement any lighting model, so that resulting image is not enough good looking.
+*/

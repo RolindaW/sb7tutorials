@@ -6,16 +6,29 @@
 	Application: orchestrate what to render (geometry) and supply (or consume) resources (other vertex attributes, uniforms, shader storage blocks, atomic counters, and textures) required (or generated) by rendering programs.
 	Rendering programs: define how rendering is performed (based on supplied resources) e.g. coordinate space transformations, lighting models, visual effects (fog or shadows), etc.
 
+- GPU architectures
+
+	Hardware solution to implement rendering (graphics) pipeline.
+	Major architecture types: immediate-mode rendering vs. tile-based rendering.
+	
+		Immediate-mode rendering (traditional): implement the logical rendering pipeline quite literally.
+		Tile-based rendering: execute the rendering pipeline on a per-tile basis (i.e. execute many pipeline backend stages - such rasterization or framebuffer operations - separately for each individual tile after the pipeline frontend stages completed).
+
 - Core profile vs. Compatibility profile
 
-	OpenGL specification is "forked" into to profiles.
-	Core profile: Modern; Removes a number of legacy features, leaving only those that are truly accelerated by current graphics hardware.
-	Compatibility profile: Maintains backward compatibility with all revisions of OpenGL back to version 1.0.
+	OpenGL specification is "forked" into two profiles:
+	
+		Core profile: Modern; Removes a number of legacy features, leaving only those that are truly accelerated by current graphics hardware.
+		Compatibility profile: Maintains backward compatibility with all revisions of OpenGL back to version 1.0.
 
 - OpenGL extensions
 
 	Enhance OpenGL core functionality.
 	3 major classifications of extensions: vendor, EXT (written together by two or more vendors), and ARB (official part of OpenGL).
+
+- Direct State Access (DSA)
+
+	A functionality (core since version 4.5) that allows modifying OpenGL objects without having to bind them to the context.
 
 - Fixed-function stage (block) vs. Programmable shader stage
 

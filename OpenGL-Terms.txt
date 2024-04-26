@@ -45,7 +45,7 @@
 	
 	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.
 	Tessellation control shader: Calculate (LOD: Level of Detail) tessellation level (inner and outer) to be input into the tessellation engine and define data to be passed to the tessellation evaluation shader.
-	Tessellation engine: Generate new vertices based on specified tessellation levels.
+	Tessellation primitive generator (TPG; or just tessellator or tessellation engine): Generate new vertices based on specified tessellation levels.
 	Tessellation evaluation shader: Calculate position (and others) for newly generated vertices.
 	Geometry shader: Create/Discard geometry.
 	
@@ -474,4 +474,63 @@
 	
 		A set of additional distances (OpenGL implementation specific) is available to the application that can be written inside the vertex, tessellation or geometry shaders.
 		Required distances must be enabled by the application before being available for a shader; otherwise, written values are ignored.
+
+- Tessellation
+
+	The process of breaking (or subdividing) a large general-purpose primitive type referred to as a patch (GL_PATCH constant) into many smaller primitives (i.e. triangles, lines or points).
+	A patch is a group of vertices (or control points) whose size can range within [1, GL_MAX_PATCH_VERTICES) - maximum number is OpenGL implementation specific, but never less than 32.
+	The number of vertices per patch may be specified by the application (GL_PATCH_VERTICES constant) before issuing corresponding drawing command (OpenGL uses it later - after vertex shader - to group vertices into patches); otherwise, default value is 3.
+	Tessellation process is divided into three distinct stages fitted between the vertex shader and the geometry shader stages.
+	
+	Tessellation control shader (TCS)
+	
+		Responsible of two jobs: determine the amount of tessellation to be applied; perform any transformations on the input patch data.
 		
+		The amount of tessellation to be applied (on TPG stage) is described by outer and inner tessellation levels.
+		Tessellation levels may be understood as the number of segments into which the corresponding edge (of the abstract patch) must be divided.
+		Required tessellation levels and their interpretation depend on the abstract patch type (i.e. quad, triangle or isolines block) specified on TES stage - Warning! They do not refer the output patch from TCS stage.
+		Values are stored in the array-form built-in variables gl_TessLevelOuter[4] and gl_TessLevelInner[2], respectivelly.
+		When not missing, TCS must write values into corresponding variables; oherwise, they must be set from the application (GL_PATCH_DEFAULT_OUTER_LEVEL and GL_PATCH_DEFAULT_INNER_LEVEL constants, respectivelly) - Warning! Same values used along all patches within issued drawing command.
+		It is possible to use static values, but most usually there are dynamically calculated (only once per patch to improve performance) based on a specific approach (e.g. distance from the camera) - Warning! Use same values for edges shared by two (or more) patches to avoid gaps and breaks.
+		
+		Performing any transformations on the input patch data will produce an output patch (which is later sent untouch to TES stage) - Warning! Most usually no transformations are performed (i.e. output patch is the same as input one), but in any case the data transfer from the input patch to the output one must be done manually.
+		When not missing, TCS must specify output patch size ("vertices = patch_size" output layout qualifier) which may (or not) be the same as input patch one (specified by the application); otherwise, it will be same as input patch size.
+		The number of TCS invocations will be the same as output patch size i.e. TCS invocations do not run per input patch vertex, but per output patch vertex.
+		Each TCS invocation has access to whole input patch data (per-vertex array-form built-in - gl_in[gl_MaxPatchVertices] and others - and user-defined variables) and can index it as desired - Warning! Per-vertex invocation identifier gl_InvocationID is commonly used when output patch size matches input patch one.
+		Each TCS invocation can only write own (corresponding per-vertex invocation identifier) output data (per-vertex array-form built-in - gl_out[] - and user-defined variables), but can access other invocations output data (require synchronization - i.e. use of barriers).
+		
+		TCS stage is optional (it can be discarded when there is no need to neither calculate tessellation levels nor perform any transformations on the input patch data; most usually this does not happen).
+		When discarded, output patch data is directly sent between vertex shader and TES stages.
+	
+	Tessellation primitive generator (TPG)
+	
+		TODO
+		(applied to the selected abstract patch during tessellation primitive generator stage)
+		only takes into account tessellation levels defined in the TCS and other settings (domain, ... explain all) defined in the TES; it does not take care on TCS output patch (neither size nor positions).
+		only knows how to tessellate default abstract patch types: quad, tringle o isoline block: generated abstract patch composed by tesellated vertices (abstract coordinates uvw - relative to the abstract patch)
+		esta parte no es tan compleja como puede parecer a simple vista: va a generar un patch de salida apartir de un patch generico (de entre los 3 tipos que conoce).
+		La magia esta despues, en el TEs, que es donde se van a utilizar estos tessellated vertices junto con los vertices (y todos los datos) del patch de salida del TCS para interpolar los valores finales.
+		Este proceso es facil de asimilar cuando el size del patch de salida del TCS encaja con el numero de vertices del abstract patch type seleccionado (4 para quads e isolines blocks y 3 para triangles); practicamente todos los ejemplos y explicaciones que encuentras estan hechos asi.
+		Lo complicado es entender como encaja esto cuando el numero de vertices del patch de salida del TCS es distinto (generalmente mayor) al numero de vertices del abstract path seleccionado... es dificil de entender y mas de explicar.	
+		la unica informacion de salida que propociona al TES es la coordenada relativa gl_TessCoord. La interpretacion de esta es distinta segun el abstract patch type seleccionado.
+		creo que ya lo entiendo. y el problema no esta aqui (TPG simplemnete se encarga de generar unos vertices a lo largo del abstract path type indicado segun los parametros proporcionados), sino en la TES stage, luego la explicacion la pongo alli.
+	
+	Tessellation evaluation shader (TES)
+	
+		TODO
+		explicar las entradas - tipo array, y son los  tal cual que emite el TCS
+		explicar salidasd - son de valor unico - porque la salida de cada invocacion de TES es un unico vertice.
+		tantas invocaciones de TES como tessellated vertices
+		se encaga de calcular los valores de salida para el tessellated vertex a partir de la posicion relativa del tessellated vertex con respecto del abstract patch type (coordenada gl_tesscoord) y de la posicion de los vertices del patch de salida del TCS
+		-> la idea es tratar de distribuir estos tessellated vertices - calculados sobre un patch abstracto (con una forma determinada - quad o triangle) - a lo largo de la superficie del patch de slaida del TCS.
+		mandatory stage: in case no exist, tessellation is not performed.
+		Aqui es donde esta la verdadera magia, donde ocurre lo chungo.
+		Esta etapa se encarga de procesar los tessellated vertices, cuya coordenada de posicion gl_TessCoord se refiere de forma relativa al abstract patch type seleccionado.
+		Lo que tiene que hacer es, a partir de estas coordenadas de posicion relativas con respecto al abstract patch (del type correspodninete), calcular cual seria su posicion en el putput patch que se recibe desde el TCS.
+		Esto es bantante immediate e intuitivo cuando el numero de vertices del output patch coincide con el numero de vertices original del abstract patch type (4 para quads e isolines block y 3 para triangles).
+		En estos casos, la interpolacion a emplear es muy intuitiva y sencilla, tal y como se puede ver en todos lo ejemplos que hay por internet.
+		Sin embargo, cuando el numero de vertices del output patch es distinto (normalmnete superior) al del abstract patch type ya no es tan sencillo. La interpolacion a aplicar no es tan clara de figure out y es necesario definir el algoritmo correcto que lo permita.
+		Por poner un ejemplo que demuestre lo complejo que puede a llegar esto, un caso simple de interpolar las coordenadas generadas para un absttract patch type quads sobre un output patch de 5 vertices es una puta locura. ya no te digo nada si nos vamos a cosas mas complejas.
+		Por este motivo, en internet no es facil encontrar una explicacion o ejemplos de esto, porque en realidad es mas complejo de lo que la gente piensa; de hecho, estoy seguro de que mucha gente que cree enterneder la tessellation realmente no comprende como acometer esto.
+	
+	TODO: Use cases: dynamic level of detail, procedural terrain, bezier curves, etc.

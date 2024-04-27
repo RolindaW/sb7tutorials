@@ -506,21 +506,20 @@
 	
 	Tessellation primitive generator (TPG)
 	
-		Fixed-function stage responsible for creating a set of new primitives from the abstract patch.
+		Fixed-function stage responsible for creating a set of new primitives from the abstract patch - Warning! TPG stage does not process the output patch from TCS stage, but a standard abstract patch type specified on TES stage.
 		The purpose of TPG stage is to determine how many (tessellated) vertices to generate, in which order to generate them, and what kind of primitives to build out of them.
 		Affecting factors: tessellation levels, abstract patch type, spacing, primitive ordering and primitive generation.
 		It is only executed if TES stage is active in the current program or program pipeline (therefore many options controlling tessellation are specified in the TES stage).
 		
 		Each generated vertex has a normalized position (i.e. the coordinates are on the range [0, 1] - "uvw" space) within the abstract patch.
 		This position component number (two or three) and their interpretation depend on the abstract patch type.
-		It is provided to the TES via "gl_TessCoord" built-in input variable.
+		It is provided to the TES stage via "gl_TessCoord" built-in input variable.
 		
-		Warning! TPG stage does not process the output patch from TCS stage, but a standard abstract patch type specified on TES stage.
-		TPG stage is commonly missunderstood to break the output patch of TCS stage down into quads, triangles or isolines.
-		It actually breaks a standard abstract path type (i.e. quad, triangle or isolines block) down into multiple primitives of the corresponding type (triangles or lines, respectively; points if explicitly specified).
+		TPG stage is commonly missunderstood to break the output patch from TCS stage down into quads, triangles or isolines blocks.
+		It actually breaks the abstract patch of the type specified on TES stage (i.e. quad, triangle or isolines block) down into multiple primitives of the corresponding type (triangles for quad and triangle or lines for isolines block; points if explicitly specified).
 		Position coordinates of tessellated vertices refer to corresponding unit-sized abstract patch (therefore they are said to be normalized).
-		It is later in the TES stage where these tessellated vertices will be interpolated along the output patch of TCS stage.
-		Interpolation process is fairly straightforward when the size of the output patch of TCS stage matches the number of vertices of the abstract patch type; otherwise, it is (almost) impossible to arrange tessellated vertices along the output patch.
+		It is later in the TES stage where these tessellated vertices are interpolated along the output patch from TCS stage.
+		Interpolation process is fairly straightforward when the size of the output patch from TCS stage matches the number of vertices of the abstract patch type; otherwise, it is cumbersome (actually possible?) to arrange tessellated vertices along the output patch.
 		Thus, common patch sizes include 3 for triangular patches, 4 for quad patches or 16 for bicubic patches.
 	
 	Tessellation evaluation shader (TES)

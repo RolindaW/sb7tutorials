@@ -89,6 +89,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app08userdefinedclippin
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app01quadtessellation", "ch08app01quadtessellation\ch08app01quadtessellation.vcxproj", "{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app02triangletessellation", "ch08app02triangletessellation\ch08app02triangletessellation.vcxproj", "{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -267,6 +269,10 @@ Global
 		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Debug|x64.Build.0 = Debug|x64
 		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Release|x64.ActiveCfg = Release|x64
 		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Release|x64.Build.0 = Release|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Debug|x64.ActiveCfg = Debug|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Debug|x64.Build.0 = Debug|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Release|x64.ActiveCfg = Release|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

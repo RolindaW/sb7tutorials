@@ -87,6 +87,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app07transformfeedback"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app08userdefinedclipping", "ch07app08userdefinedclipping\ch07app08userdefinedclipping.vcxproj", "{EA0B35B2-3327-4020-BAA5-2FB2305A448E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app01quadtessellation", "ch08app01quadtessellation\ch08app01quadtessellation.vcxproj", "{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -261,6 +263,10 @@ Global
 		{EA0B35B2-3327-4020-BAA5-2FB2305A448E}.Debug|x64.Build.0 = Debug|x64
 		{EA0B35B2-3327-4020-BAA5-2FB2305A448E}.Release|x64.ActiveCfg = Release|x64
 		{EA0B35B2-3327-4020-BAA5-2FB2305A448E}.Release|x64.Build.0 = Release|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Debug|x64.ActiveCfg = Debug|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Debug|x64.Build.0 = Debug|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Release|x64.ActiveCfg = Release|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

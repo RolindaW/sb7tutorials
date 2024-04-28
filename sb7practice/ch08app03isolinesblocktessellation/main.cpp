@@ -28,7 +28,9 @@ public:
 		static const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		glClearBufferfv(GL_COLOR, 0, color);
 
-		glBindProgramPipeline(program_pipeline_[program_pipeline_index_ & 1]);
+		unsigned int program_pipeline_index = unsigned int(program_pipeline_index_ % 3);
+
+		glBindProgramPipeline(program_pipeline_[program_pipeline_index]);
 
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
 		glPatchParameterfv(GL_PATCH_DEFAULT_OUTER_LEVEL, vmath::vec4(6.0f, 5.0f, 1.0f, 1.0f));  // TCS not used
@@ -41,7 +43,14 @@ public:
 		//glUniformMatrix4fv(0, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_);
 		glProgramUniformMatrix4fv(render_program_, 0, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_);
 
-		glDrawArrays(GL_PATCHES, 0, 4);
+		if (!program_pipeline_index)
+		{
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
+		else
+		{
+			glDrawArrays(GL_PATCHES, 0, 4);
+		}
 	}
 
 	void shutdown()
@@ -52,7 +61,7 @@ public:
 		glDeleteProgram(isolines_block_tess_program_);
 		glDeleteProgram(isolines_block_spiral_tess_program_);
 		glBindProgramPipeline(0);
-		glDeleteProgramPipelines(2, program_pipeline_);
+		glDeleteProgramPipelines(3, program_pipeline_);
 	}
 
 public:
@@ -67,7 +76,6 @@ public:
 		// Update projection matrix: it is required viewport and projection to be consistent
 		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
 	}
-
 
 	void onKey(int key, int action)
 	{
@@ -215,6 +223,7 @@ private:
 			"};																	\n"
 			"																	\n"
 			"layout (isolines, equal_spacing, ccw) in;							\n"
+			"//layout (point_mode) in;											\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
@@ -274,8 +283,11 @@ private:
 			"{																	\n"
 			"	// This is not interpolation, but a distribution algorithm		\n"
 			"	// working only with tessellated vertices position coordinates	\n"
-			"	float r = (gl_TessCoord.y + 									\n"
-			"			   gl_TessCoord.x / gl_TessLevelOuter[0]);				\n"
+			"	// Warning! Spiral isolines connect because computed radius		\n"
+			"	// value is the same for last vertex in a line and first		\n"
+			"	// vertex in the next one.										\n"
+			"	float r = gl_TessCoord.y;  // closed isolines 					\n"
+			"	r += gl_TessCoord.x / gl_TessLevelOuter[0];  // spiral isolines	\n"
 			"	float t = gl_TessCoord.x * 2.0 * 3.14159;						\n"
 			"	gl_Position = vec4(sin(t) * r, cos(t) * r, 0.5, 1.0);			\n"
 			"}																	\n"
@@ -297,13 +309,15 @@ private:
 
 	void InitializeProgramPipeline()
 	{
-		glCreateProgramPipelines(2, program_pipeline_);
+		glCreateProgramPipelines(3, program_pipeline_);
 
 		glUseProgramStages(program_pipeline_[0], GL_VERTEX_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, render_program_);
-		glUseProgramStages(program_pipeline_[0], GL_TESS_EVALUATION_SHADER_BIT, isolines_block_tess_program_);
 
 		glUseProgramStages(program_pipeline_[1], GL_VERTEX_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, render_program_);
-		glUseProgramStages(program_pipeline_[1], GL_TESS_EVALUATION_SHADER_BIT, isolines_block_spiral_tess_program_);
+		glUseProgramStages(program_pipeline_[1], GL_TESS_EVALUATION_SHADER_BIT, isolines_block_tess_program_);
+
+		glUseProgramStages(program_pipeline_[2], GL_VERTEX_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, render_program_);
+		glUseProgramStages(program_pipeline_[2], GL_TESS_EVALUATION_SHADER_BIT, isolines_block_spiral_tess_program_);
 	}
 
 #pragma endregion
@@ -319,8 +333,9 @@ private:
 	GLuint isolines_block_tess_program_;
 	GLuint isolines_block_spiral_tess_program_;
 
-	GLuint program_pipeline_[2];
+	GLuint program_pipeline_[3];
 	unsigned int program_pipeline_index_;
+	
 };
 
 // Our one and only instance of DECLARE_MAIN

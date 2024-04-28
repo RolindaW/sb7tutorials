@@ -6,11 +6,20 @@
 class my_application : public sb7::application
 {
 public:
+
+	my_application() : program_pipeline_index_(0)
+	{
+	}
+
+public:
 	void startup()
 	{
 		InitializeCamera();
 		InitializeObject();
-		InitializeProgram();
+		InitializeRenderingProgram();
+		InitializeIsolinesBlockTessellationProgram();
+		InitializeIsolinesBlockSpiralTessellationProgram();
+		InitializeProgramPipeline();
 	}
 
 	void render(double currentTime)
@@ -19,15 +28,18 @@ public:
 		static const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		glClearBufferfv(GL_COLOR, 0, color);
 
-		glUseProgram(render_program_);
+		glBindProgramPipeline(program_pipeline_[program_pipeline_index_ & 1]);
 
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
+		glPatchParameterfv(GL_PATCH_DEFAULT_OUTER_LEVEL, vmath::vec4(6.0f, 5.0f, 1.0f, 1.0f));  // TCS not used
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		glBindVertexArray(vao_);
 
-		glUniformMatrix4fv(0, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_);
+		//glActiveShaderProgram(program_pipeline_, render_program_);
+		//glUniformMatrix4fv(0, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_);
+		glProgramUniformMatrix4fv(render_program_, 0, 1, GL_FALSE, camera_projection_matrix_ * camera_view_matrix_);
 
 		glDrawArrays(GL_PATCHES, 0, 4);
 	}
@@ -37,6 +49,10 @@ public:
 		glDeleteVertexArrays(1, &vao_);
 		glDeleteBuffers(1, &vbo_);
 		glDeleteProgram(render_program_);
+		glDeleteProgram(isolines_block_tess_program_);
+		glDeleteProgram(isolines_block_spiral_tess_program_);
+		glBindProgramPipeline(0);
+		glDeleteProgramPipelines(2, program_pipeline_);
 	}
 
 public:
@@ -50,6 +66,24 @@ public:
 
 		// Update projection matrix: it is required viewport and projection to be consistent
 		UpdateCameraProjectionMatrix((float)info.windowWidth, (float)info.windowHeight);
+	}
+
+
+	void onKey(int key, int action)
+	{
+		sb7::application::onKey(key, action);
+
+		switch (key)
+		{
+		case GLFW_KEY_T:
+			if (action)
+			{
+				program_pipeline_index_ += 1;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 private:
@@ -109,12 +143,17 @@ private:
 
 #pragma region Material
 
-	void InitializeProgram()
+	void InitializeRenderingProgram()
 	{
 		// Vertex shader
 		const char* vertex_shader_source[] =
 		{
 			"#version 450 core													\n"
+			"																	\n"
+			"out gl_PerVertex													\n"
+			"{																	\n"
+			"	vec4 gl_Position;												\n"
+			"};																	\n"
 			"																	\n"
 			"layout (location = 0) uniform mat4 mvp_matrix;						\n"
 			"																	\n"
@@ -130,37 +169,50 @@ private:
 		glShaderSource(vertex_shader, 1, vertex_shader_source, NULL);
 		glCompileShader(vertex_shader);
 
-		// Tessellation control shader
-		const char* tcs_source[] =
+		// Fragment shader
+		const char* fragment_shader_source[] =
 		{
 			"#version 450 core													\n"
 			"																	\n"
-			"layout(vertices = 4) out;											\n"
+			"layout (location = 0) out vec4 color;								\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	// Compute and write the tessellation levels required by		\n"
-			"	// selected abstract patch type: an isolines block				\n"
-			"	if (gl_InvocationID == 0)										\n"
-			"	{																\n"
-			"		gl_TessLevelOuter[0] = 6.0;									\n"
-			"		gl_TessLevelOuter[1] = 5.0;									\n"
-			"	}																\n"
-			"																	\n"
-			"	// Pass-through TCS												\n"
-			"	gl_out[gl_InvocationID].gl_Position =							\n"
-			"		gl_in[gl_InvocationID].gl_Position;							\n"
+			"	color = vec4(1.0);												\n"
 			"}																	\n"
 		};
 
-		GLuint tcs = glCreateShader(GL_TESS_CONTROL_SHADER);
-		glShaderSource(tcs, 1, tcs_source, NULL);
-		glCompileShader(tcs);
+		GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fragment_shader, 1, fragment_shader_source, NULL);
+		glCompileShader(fragment_shader);
 
-		// Tessellation evaluation shader
+		// Program
+		render_program_ = glCreateProgram();
+		glAttachShader(render_program_, vertex_shader);
+		glAttachShader(render_program_, fragment_shader);
+		glProgramParameteri(render_program_, GL_PROGRAM_SEPARABLE, GL_TRUE);
+		glLinkProgram(render_program_);
+
+		// Free resources
+		glDeleteShader(vertex_shader);
+		glDeleteShader(fragment_shader);
+	}
+
+	void InitializeIsolinesBlockTessellationProgram()
+	{
 		const char* tes_source[] =
 		{
 			"#version 450 core													\n"
+			"																	\n"
+			"in gl_PerVertex													\n"
+			"{																	\n"
+			"	vec4 gl_Position;												\n"
+			"} gl_in[];															\n"
+			"																	\n"
+			"out gl_PerVertex													\n"
+			"{																	\n"
+			"	vec4 gl_Position;												\n"
+			"};																	\n"
 			"																	\n"
 			"layout (isolines, equal_spacing, ccw) in;							\n"
 			"																	\n"
@@ -190,36 +242,68 @@ private:
 		glShaderSource(tes, 1, tes_source, NULL);
 		glCompileShader(tes);
 
-		// Fragment shader
-		const char* fragment_shader_source[] =
+		// Program
+		isolines_block_tess_program_ = glCreateProgram();
+		glAttachShader(isolines_block_tess_program_, tes);
+		glProgramParameteri(isolines_block_tess_program_, GL_PROGRAM_SEPARABLE, GL_TRUE);
+		glLinkProgram(isolines_block_tess_program_);
+
+		// Free resources
+		glDeleteShader(tes);
+	}
+
+	void InitializeIsolinesBlockSpiralTessellationProgram()
+	{
+		const char* tes_source[] =
 		{
 			"#version 450 core													\n"
 			"																	\n"
-			"layout (location = 0) out vec4 color;								\n"
+			"in gl_PerVertex													\n"
+			"{																	\n"
+			"	vec4 gl_Position;												\n"
+			"} gl_in[];															\n"
+			"																	\n"
+			"out gl_PerVertex													\n"
+			"{																	\n"
+			"	vec4 gl_Position;												\n"
+			"};																	\n"
+			"																	\n"
+			"layout (isolines, equal_spacing, ccw) in;							\n"
 			"																	\n"
 			"void main(void)													\n"
 			"{																	\n"
-			"	color = vec4(1.0);												\n"
+			"	// This is not interpolation, but a distribution algorithm		\n"
+			"	// working only with tessellated vertices position coordinates	\n"
+			"	float r = (gl_TessCoord.y + 									\n"
+			"			   gl_TessCoord.x / gl_TessLevelOuter[0]);				\n"
+			"	float t = gl_TessCoord.x * 2.0 * 3.14159;						\n"
+			"	gl_Position = vec4(sin(t) * r, cos(t) * r, 0.5, 1.0);			\n"
 			"}																	\n"
 		};
 
-		GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fragment_shader, 1, fragment_shader_source, NULL);
-		glCompileShader(fragment_shader);
+		GLuint tes = glCreateShader(GL_TESS_EVALUATION_SHADER);
+		glShaderSource(tes, 1, tes_source, NULL);
+		glCompileShader(tes);
 
 		// Program
-		render_program_ = glCreateProgram();
-		glAttachShader(render_program_, vertex_shader);
-		glAttachShader(render_program_, tcs);
-		glAttachShader(render_program_, tes);
-		glAttachShader(render_program_, fragment_shader);
-		glLinkProgram(render_program_);
+		isolines_block_spiral_tess_program_ = glCreateProgram();
+		glAttachShader(isolines_block_spiral_tess_program_, tes);
+		glProgramParameteri(isolines_block_spiral_tess_program_, GL_PROGRAM_SEPARABLE, GL_TRUE);
+		glLinkProgram(isolines_block_spiral_tess_program_);
 
 		// Free resources
-		glDeleteShader(vertex_shader);
-		glDeleteShader(tcs);
 		glDeleteShader(tes);
-		glDeleteShader(fragment_shader);
+	}
+
+	void InitializeProgramPipeline()
+	{
+		glCreateProgramPipelines(2, program_pipeline_);
+
+		glUseProgramStages(program_pipeline_[0], GL_VERTEX_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, render_program_);
+		glUseProgramStages(program_pipeline_[0], GL_TESS_EVALUATION_SHADER_BIT, isolines_block_tess_program_);
+
+		glUseProgramStages(program_pipeline_[1], GL_VERTEX_SHADER_BIT | GL_FRAGMENT_SHADER_BIT, render_program_);
+		glUseProgramStages(program_pipeline_[1], GL_TESS_EVALUATION_SHADER_BIT, isolines_block_spiral_tess_program_);
 	}
 
 #pragma endregion
@@ -232,6 +316,11 @@ private:
 	GLuint vbo_;
 
 	GLuint render_program_;
+	GLuint isolines_block_tess_program_;
+	GLuint isolines_block_spiral_tess_program_;
+
+	GLuint program_pipeline_[2];
+	unsigned int program_pipeline_index_;
 };
 
 // Our one and only instance of DECLARE_MAIN

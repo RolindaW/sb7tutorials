@@ -537,4 +537,4 @@
 		Tessellated vertices positions will be processed according to abstract path type and output patch (e.g. as barycentric coordinates for triangle or horizontal-vertical coordinates for quad and isolines block).
 		Outputs Each TCS invocation can only write own output data (per-vertex scalar-form built-in and user-defined variables).
 	
-	Use cases: Dynamic level of detail (LOD), procedural terrain generation (with/without height-maps), Bezier patches, etc.
+	Main use case: dynamic level of detail (LOD) e.g. rocedural terrain generation (with either height or displacement maps - more control; use of textures - or without - best overall performance; use of pure maths) or Bezier patches.

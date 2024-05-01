@@ -1,0 +1,13 @@
+- Generate 2D coordiante from a scalar
+
+- Ranging variable
+-- Integer case
+-- Floating point number case
+--- Normalized version (both integer and float)
+--- specific case: toggling variable (0 o 1)
+-> use cases: indexing
+
+- basic random number generation
+
+- generate noise grid: standar grid + noise
+

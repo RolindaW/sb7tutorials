@@ -1,0 +1,33 @@
+
+- Per-pixel linked-list based depth rendering
+
+	By far not the most efficient way to access the corresponding elements (by index) of the texture image variable (see compute shaders).
+	For the same position, there may be more than one fragment that has an entry in the list, but for this calculation, we are only interested in the highest one.
+
+- Random number generation
+
+	There are different ways for pseudo-random number generation.
+	The most basic form consists of iteratively multiplying a seed by a very large value (so that overflow occurs) and extracting a given number of bits.
+	Generated values can be used to construct pairs of coordinates that move fixed grid positions to produce a random grid effect.
+
+- Terrain generation
+
+	Three different categories according to resource use efficiency.
+	
+	Manual
+	Either shape and color (among others e.g. trees or water sources) defined by the application.
+	Highest memory usage on the graphics card (both as vertex attributes and textures).
+	Static pipeline payload: excess of detail in far geometry and/or defect of detail in near geometry (depending on definition).
+	Highest level of detail control.
+	
+	Procedural Hybrid
+	Use of tessellation to dynamically compute LOD on shape (multiple types of approaches to tessellation level calculation); either height (vertical axis displacement) and color defined by the application.
+	Lower (but still high) memory usage on the graphics card.
+	Dynamic pipeline payload.
+	Lower level of detail control.
+	
+	Procedural Pure
+	Use of tessellation to dynamically compute LOD on shape and mathematical algorithms to compute height and color.
+	Lowest memory usage on the graphics card.
+	Dynamic pipeline payload.
+	Lowest level of detail control.

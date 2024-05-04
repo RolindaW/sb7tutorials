@@ -1,13 +1,68 @@
-- Generate 2D coordiante from a scalar
 
 - Ranging variable
--- Integer case
--- Floating point number case
---- Normalized version (both integer and float)
---- specific case: toggling variable (0 o 1)
--> use cases: indexing
 
-- basic random number generation
+	// Integer (multiple values)
+	unsigned int program_pipeline_index = unsigned int(program_pipeline_index_ % 3);
+	
+	// Integer (bit)
+	glUseProgram(render_program_[render_program_index_ & 1]);
+	
+	// Floating
+	unsigned int SimulateIndexUpperBound(double currentTime)
+	{
+		float drawRateSec = 3.5f;
+		float mod = fmodf(currentTime, drawRateSec);  // (endless) iterator in range (0, drawRateSec)
+		float drawRatePercentage = mod / drawRateSec;
+		float upperBound = drawRatePercentage * numberOfIndices;
 
-- generate noise grid: standar grid + noise
+		return (unsigned int)upperBound;
+	}
 
+- Pseudo-random number generation
+
+	// Non-linear xorshift RNG (Random Number Generator): xorshift*
+	int random(int seed, uint iterations)
+	{
+		int value = seed;
+		int i;
+		
+		// Iterate over to increase randomness
+		for (i = 0; i < iterations; i++)
+		{
+			// Multiply by a great number to generate a random number
+			value = ((value >> 7) ^ (value << 9)) * 15485863;
+		}
+		
+		return value;
+	}
+
+- Generate a coordinate pair from a scalar
+
+	// Centered coordinate-pair generator from 20 bit input seed
+	vec2 gridCoord(int seed)
+	{
+		// Select 10 MSBs and offset by max value (2**10 == 1024) half
+		float x_pos = float(seed >> 10) - 512.0;
+		// Select 10 LSBs and offset by max value half
+		float y_pos = float(seed & 0x3FF) - 512.0;
+		return vec2(x_pos, y_pos);
+	}
+
+- Add noise to fixed grid
+
+	// Add normalized subset from a random number pair to a fixed grid position
+	vec2 randGridCoord(int seed)
+	{
+		// Grid coordinate
+		vec2 p_grid = gridCoord(gl_InstanceID);
+		
+		// Random number to offset each coordinate
+		int number1 = random(seed, 3);
+		int number2 = random(number1, 2);
+		
+		// Select subset (8 LSBs) of random number and normalize
+		float x_offset = float(number1 & 0xFF) / 256.0;
+		float y_offset = float(number2 & 0xFF) / 256.0;
+		
+		return p_grid + vec2(x_offset, y_offset);
+	}

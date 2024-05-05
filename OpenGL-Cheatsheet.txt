@@ -838,13 +838,18 @@
 * PATCH
 *
 
-- glPatchParameteri
+- glPatchParameter*
 
-	Description: Set the value of specified patch parameter, e.g. the number of control points per patch (by default, 3).
+	Description: Set the value of specified patch parameter (GL_PATCH_VERTICES, GL_PATCH_DEFAULT_OUTER_LEVEL or GL_PATCH_DEFAULT_INNER_LEVEL).
 	Use: Rendering
 	Example:
 	
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
+		
+		- other -
+		
+		const float outer_levels[] = { 6.0f, 5.0f, 1.0f, 1.0f };
+		glPatchParameterfv(GL_PATCH_DEFAULT_OUTER_LEVEL, outer_levels);
 
 *
 * DRAWING

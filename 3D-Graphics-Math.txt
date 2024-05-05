@@ -200,6 +200,10 @@ Interpolation
 		A curve made up of tree (or more) control points: two of which form endpoints; others, define shape.
 		Cuadratic Bezier curve: 3 control points. Cubic Bezier curve: 4 control points. In practive, curves with more than four control points are not commonly used. Rather, use Splines.
 		
+		The interpolation is calculated by applying the same interpolation factor on successive pairs of control points that make up the curve.
+		The process is executed recurrently until a single output control point is obtained.
+		Applying different successive interpolation factors in the range [0, 1] would result in the corresponding bezier curve defined by the original control points.
+		
 	Splines
 	
 		A long curve made up of several n smaller curves (e.g. Bezier curves): share endpoints.

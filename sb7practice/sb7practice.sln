@@ -87,6 +87,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app07transformfeedback"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch07app08userdefinedclipping", "ch07app08userdefinedclipping\ch07app08userdefinedclipping.vcxproj", "{EA0B35B2-3327-4020-BAA5-2FB2305A448E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app01quadtessellation", "ch08app01quadtessellation\ch08app01quadtessellation.vcxproj", "{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app02triangletessellation", "ch08app02triangletessellation\ch08app02triangletessellation.vcxproj", "{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app03isolinesblocktessellation", "ch08app03isolinesblocktessellation\ch08app03isolinesblocktessellation.vcxproj", "{C59932CD-64C1-4905-AB9C-6205FE852870}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app04proceduralterraingeneration", "ch08app04proceduralterraingeneration\ch08app04proceduralterraingeneration.vcxproj", "{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app05cubicbezierpatch", "ch08app05cubicbezierpatch\ch08app05cubicbezierpatch.vcxproj", "{6EC46742-552D-4D50-927E-A363E7D64D2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -261,6 +271,26 @@ Global
 		{EA0B35B2-3327-4020-BAA5-2FB2305A448E}.Debug|x64.Build.0 = Debug|x64
 		{EA0B35B2-3327-4020-BAA5-2FB2305A448E}.Release|x64.ActiveCfg = Release|x64
 		{EA0B35B2-3327-4020-BAA5-2FB2305A448E}.Release|x64.Build.0 = Release|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Debug|x64.ActiveCfg = Debug|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Debug|x64.Build.0 = Debug|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Release|x64.ActiveCfg = Release|x64
+		{A4A0FC87-23EE-4ADB-929E-00C1FA6A4395}.Release|x64.Build.0 = Release|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Debug|x64.ActiveCfg = Debug|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Debug|x64.Build.0 = Debug|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Release|x64.ActiveCfg = Release|x64
+		{5CE3BA6B-128C-45EF-B0C9-D944DC55BBAE}.Release|x64.Build.0 = Release|x64
+		{C59932CD-64C1-4905-AB9C-6205FE852870}.Debug|x64.ActiveCfg = Debug|x64
+		{C59932CD-64C1-4905-AB9C-6205FE852870}.Debug|x64.Build.0 = Debug|x64
+		{C59932CD-64C1-4905-AB9C-6205FE852870}.Release|x64.ActiveCfg = Release|x64
+		{C59932CD-64C1-4905-AB9C-6205FE852870}.Release|x64.Build.0 = Release|x64
+		{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}.Debug|x64.ActiveCfg = Debug|x64
+		{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}.Debug|x64.Build.0 = Debug|x64
+		{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}.Release|x64.ActiveCfg = Release|x64
+		{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}.Release|x64.Build.0 = Release|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Debug|x64.ActiveCfg = Debug|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Debug|x64.Build.0 = Debug|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Release|x64.ActiveCfg = Release|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

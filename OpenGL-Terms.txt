@@ -6,16 +6,29 @@
 	Application: orchestrate what to render (geometry) and supply (or consume) resources (other vertex attributes, uniforms, shader storage blocks, atomic counters, and textures) required (or generated) by rendering programs.
 	Rendering programs: define how rendering is performed (based on supplied resources) e.g. coordinate space transformations, lighting models, visual effects (fog or shadows), etc.
 
+- GPU architectures
+
+	Hardware solution to implement rendering (graphics) pipeline.
+	Major architecture types: immediate-mode rendering vs. tile-based rendering.
+	
+		Immediate-mode rendering (traditional): implement the logical rendering pipeline quite literally.
+		Tile-based rendering: execute the rendering pipeline on a per-tile basis (i.e. execute many pipeline backend stages - such rasterization or framebuffer operations - separately for each individual tile after the pipeline frontend stages completed).
+
 - Core profile vs. Compatibility profile
 
-	OpenGL specification is "forked" into to profiles.
-	Core profile: Modern; Removes a number of legacy features, leaving only those that are truly accelerated by current graphics hardware.
-	Compatibility profile: Maintains backward compatibility with all revisions of OpenGL back to version 1.0.
+	OpenGL specification is "forked" into two profiles:
+	
+		Core profile: Modern; Removes a number of legacy features, leaving only those that are truly accelerated by current graphics hardware.
+		Compatibility profile: Maintains backward compatibility with all revisions of OpenGL back to version 1.0.
 
 - OpenGL extensions
 
 	Enhance OpenGL core functionality.
 	3 major classifications of extensions: vendor, EXT (written together by two or more vendors), and ARB (official part of OpenGL).
+
+- Direct State Access (DSA)
+
+	A functionality (core since version 4.5) that allows modifying OpenGL objects without having to bind them to the context.
 
 - Fixed-function stage (block) vs. Programmable shader stage
 
@@ -32,7 +45,7 @@
 	
 	Vertex fetching/pulling: Provide (automatically) inputs to the vertex shader.
 	Tessellation control shader: Calculate (LOD: Level of Detail) tessellation level (inner and outer) to be input into the tessellation engine and define data to be passed to the tessellation evaluation shader.
-	Tessellation engine: Generate new vertices based on specified tessellation levels.
+	Tessellation primitive generator (TPG; or just tessellator or tessellation engine): Generate new vertices based on specified tessellation levels.
 	Tessellation evaluation shader: Calculate position (and others) for newly generated vertices.
 	Geometry shader: Create/Discard geometry.
 	
@@ -461,4 +474,70 @@
 	
 		A set of additional distances (OpenGL implementation specific) is available to the application that can be written inside the vertex, tessellation or geometry shaders.
 		Required distances must be enabled by the application before being available for a shader; otherwise, written values are ignored.
+
+- Tessellation
+
+	The process of breaking (or subdividing) a large general-purpose primitive type referred to as a patch (GL_PATCHES constant) into many smaller primitives (i.e. triangles, lines or points).
+	A patch is a group of vertices (or control points) whose size can range within [1, GL_MAX_PATCH_VERTICES) - maximum number is OpenGL implementation specific, but never less than 32.
+	The number of vertices per patch may be specified by the application (GL_PATCH_VERTICES constant) before issuing corresponding drawing command (OpenGL uses it later - after vertex shader stage - to group vertices into patches); otherwise, default value is 3.
+	Tessellation process is divided into three distinct stages fitted between the vertex shader and the geometry shader stages.
+	
+	Tessellation control shader (TCS)
+	
+		Programmable-shader stage responsible of two main jobs: determine the amount of tessellation to be applied; perform any special transformations on the input patch data.
 		
+		The amount of tessellation to be applied (on TPG stage) is described by outer and inner tessellation levels.
+		Tessellation levels may be understood as the number of segments into which the corresponding edge (of the abstract patch) must be divided.
+		Required tessellation levels and their interpretation depend on the abstract patch type (i.e. quad, triangle or isolines block) specified on TES stage - Warning! They do not refer the output patch from TCS stage.
+		Values are stored in the array-form built-in variables gl_TessLevelOuter[4] and gl_TessLevelInner[2], respectively.
+		When not missing, TCS must write values into corresponding variables; oherwise, they must be set from the application (GL_PATCH_DEFAULT_OUTER_LEVEL and GL_PATCH_DEFAULT_INNER_LEVEL constants, respectivelly) - Warning! Same values used along all patches within issued drawing command.
+		It is possible to use static values, but most usually there are dynamically calculated (recommended only once per patch to improve performance; otherwise, all invocations must compute and write same values) based on a specific approach (e.g. distance from the camera) - Warning! Use same values for edges shared by two (or more) patches to avoid gaps and breaks.
+		A negative or zero value in any of required tessellation levels would make the TPG discard the output patch.
+		
+		Performing any special transformations on the input patch data will produce an output patch (which is later sent untouch to TES stage) - Warning! Most usually no transformations are performed (i.e. output patch is the same as input one), but in any case the data transfer from the input patch to the output one must be done manually.
+		When not missing, TCS must specify output patch size ("vertices = patch_size" output layout qualifier) which may (or not) be the same as input patch one (specified by the application); otherwise, it will be same as input patch size.
+		The number of TCS invocations will be the same as output patch size i.e. TCS invocations do not run per input patch vertex, but per output patch vertex.
+		Each TCS invocation has access to whole input patch data (per-vertex array-form built-in - gl_in[gl_MaxPatchVertices] and others - and user-defined variables) and can index it as desired - Warning! Per-vertex invocation identifier gl_InvocationID is commonly used when output patch size matches input patch one.
+		Each TCS invocation can only write own (corresponding per-vertex invocation identifier) output data (per-vertex array-form built-in - gl_out[] - and user-defined variables), but can access other invocations output data (require synchronization - i.e. use of barriers).
+		Similarly to tessellation levels, all TCS invocations can write into same per-patch user-defined variables ("patch" keyword); usually not in array-form, but there is no limitation on this.
+		
+		TCS stage is optional (it can be discarded when there is no need to neither calculate tessellation levels nor perform any special transformations on the input patch data; most usually this does not happen).
+		When discarded, output patch data is directly sent from vertex shader stage to TES stage.
+	
+	Tessellation primitive generator (TPG)
+	
+		Fixed-function stage responsible for creating a set of new primitives from the abstract patch - Warning! TPG stage does not process the output patch from TCS stage, but a standard abstract patch type specified on TES stage.
+		The purpose of TPG stage is to determine how many (tessellated) vertices to generate, in which order to generate them, and what kind of primitives to build out of them.
+		Affecting factors: tessellation levels, abstract patch type, spacing, primitive ordering and primitive generation.
+		It is only executed if TES stage is active in the current program or program pipeline (therefore many options controlling tessellation are specified in the TES stage).
+		
+		Each generated vertex has a normalized position (i.e. the coordinates are on the range [0, 1] - "uvw" space) within the abstract patch.
+		This position component number (two or three) and their interpretation depend on the abstract patch type.
+		It is provided to the TES stage via "gl_TessCoord" built-in input variable.
+		
+		TPG stage is commonly missunderstood to break the output patch from TCS stage down into quads, triangles or isolines blocks.
+		It actually breaks the abstract patch of the type specified on TES stage (i.e. quad, triangle or isolines block) down into multiple primitives of the corresponding type (triangles for quad and triangle or lines for isolines block; points if explicitly specified).
+		Position coordinates of tessellated vertices refer to corresponding unit-sized abstract patch (therefore they are said to be normalized).
+		It is later in the TES stage where these tessellated vertices are interpolated along the output patch from TCS stage.
+		Interpolation process is fairly straightforward when the size of the output patch from TCS stage matches the number of vertices of the abstract patch type; otherwise, it is cumbersome (actually possible?) to arrange tessellated vertices along the output patch.
+		Thus, common patch sizes include 3 for triangular patches, 4 for quad patches or 16 for bicubic patches.
+	
+	Tessellation evaluation shader (TES)
+	
+		Programmable-shader stage responsible for either specifiying many tessellation options and interpolatig tessellated vertices data along the output patch from TCS stage.
+		
+		TES must specify abstract patch type (or domain), spacing, primitive ordering and primitive generation.
+		Abstract patch type: quad, triangle or isolines block.
+		Spacing: equal (by default) or fractional (even or odd; provide smoother behavior as the tessellation levels change).
+		Primitive ordering: clockwise or counter-clockwise - Warning! Only controls the winding order of the triangles within the abstract patch; winding order of final triangles is based on computed positions on TES stage.
+		Primitive generation: triangles for quad and triangle or lines for isolines block (i.e. implicitly defined by the abstract patch type); points if explicitly specified.
+		
+		The number of TES invocations will be the same as output patch size i.e. TES invocations do not run per output patch vertex, but per abstract patch tessellated vertex.
+		Each TES invocation has access to whole output patch data (per-vertex array-form built-in - gl_in[gl_MaxPatchVertices] and others - and user-defined variables) and can index it as desired.
+		Tessellated vertices positions will be processed according to abstract path type and output patch (e.g. as barycentric coordinates for triangle or horizontal-vertical coordinates for quad and isolines block).
+		Outputs Each TCS invocation can only write own output data (per-vertex scalar-form built-in and user-defined variables).
+		
+		The TES stage must know perfectly how the control points that form the output patch of the TCS stage are arranged in memory so that the applied interpolation works correctly; otherwise, the results obtained will probably be different from what is expected.
+		It is very important to be aware of how the coordinates of the tessellated vertices should be applied in the interpolation, as well as to know the type of interpolation to apply (it will depend both on the TCS stage output patch and on the abstract patch type).
+	
+	Main use case: dynamic level of detail (LOD) e.g. procedural terrain generation (with either height or displacement maps - more control; use of textures - or without - best overall performance; use of pure maths) or Bezier patches.

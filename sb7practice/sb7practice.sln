@@ -95,6 +95,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app03isolinesblocktesse
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app04proceduralterraingeneration", "ch08app04proceduralterraingeneration\ch08app04proceduralterraingeneration.vcxproj", "{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ch08app05cubicbezierpatch", "ch08app05cubicbezierpatch\ch08app05cubicbezierpatch.vcxproj", "{6EC46742-552D-4D50-927E-A363E7D64D2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -285,6 +287,10 @@ Global
 		{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}.Debug|x64.Build.0 = Debug|x64
 		{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}.Release|x64.ActiveCfg = Release|x64
 		{C2A6E8ED-5FE3-4321-9B36-C4E5C5223AC0}.Release|x64.Build.0 = Release|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Debug|x64.ActiveCfg = Debug|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Debug|x64.Build.0 = Debug|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Release|x64.ActiveCfg = Release|x64
+		{6EC46742-552D-4D50-927E-A363E7D64D2F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

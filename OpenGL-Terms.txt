@@ -14,17 +14,24 @@
 		Immediate-mode rendering (traditional): implement the logical rendering pipeline quite literally.
 		Tile-based rendering: execute the rendering pipeline on a per-tile basis (i.e. execute many pipeline backend stages - such rasterization or framebuffer operations - separately for each individual tile after the pipeline frontend stages completed).
 
-- Core profile vs. Compatibility profile
+- OpenGL context
 
-	OpenGL specification is "forked" into two profiles:
+	Store all the state of an OpenGL instance; default framebuffer (unless another specified).
+	Single process, multiple contexts; single thread, single "current" context (cannot be "current" in multiple threads at same time; required in order for any OpenGL command to work).
+	Platform specific; ask for specific OpenGL version and profile (others: forward compatibility bit, debug bit, no error bit, robustness bit).
+
+- OpenGL profile
+
+	OpenGL specification is "forked" (since version 3.2) into two profiles: core profile vs. compatibility profile.
 	
-		Core profile: Modern; Removes a number of legacy features, leaving only those that are truly accelerated by current graphics hardware.
-		Compatibility profile: Maintains backward compatibility with all revisions of OpenGL back to version 1.0.
+		Core profile (required to be defined by implementation): modern; deprecate and remove a number of legacy features (leave only those truly accelerated by current graphics hardware).
+		Compatibility profile (optional): maintain backward compatibility with all OpenGL revisions back to version 1.0.
 
 - OpenGL extensions
 
 	Enhance OpenGL core functionality.
-	3 major classifications of extensions: vendor, EXT (written together by two or more vendors), and ARB (official part of OpenGL).
+	OpenGL Extension Registry: technical specifications.
+	3 major classifications (identified by name prefix): vendor-specific ("GL_VENDOR-ID"; may rarely be implemented by multiple vendors), generic ("GL_EXT"; written together by two or more vendors), and ARB-approved ("GL_ARB"; official part of OpenGL; likely to enter later versions of the core OpenGL).
 
 - Direct State Access (DSA)
 
